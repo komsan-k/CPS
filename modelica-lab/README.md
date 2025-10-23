@@ -1,201 +1,107 @@
-# 🧩 Lab 10: CPS Co-Design and System Integration
+# 📘 Course Overview: Cyber-Physical Systems (CPS) with Modelica
 
-### 🎯 Objective
-Students will learn to:
-1. Integrate sensing, control, communication, digital-twin, and cloud layers into a unified CPS model.
-2. Apply co-design principles—joint optimization of cyber and physical subsystems.
-3. Evaluate performance trade-offs in real-time, multi-agent CPS environments.
+### 🏫 College of Computing, Prince of Songkla University  
+### 🧑‍🏫 Instructor: Dr. Komsan Kanjanasit  
+### 💻 Tools: [OpenModelica](https://openmodelica.org), [Modelica Standard Library](https://github.com/modelica/ModelicaStandardLibrary)
 
 ---
 
-## 1. Prerequisites
-Review Labs 3–9 and use [OpenModelica Notebook](https://notebook.openmodelica.org) or the desktop IDE.
+## 🎯 Course Objective
+This laboratory course introduces Cyber-Physical Systems (CPS) through modeling and simulation using **Modelica**.  
+Students learn to design, simulate, and integrate physical, cyber, and communication components into smart CPS prototypes.
 
 ---
 
-## 2. Background
-CPS Co-Design means the simultaneous design of hardware (physical), software (cyber), and network (communication) components.
-
-| Layer | Role | Components |
-|-------|------|-------------|
-| Physical | Dynamics, actuation | Mass–spring–damper |
-| Cyber | Control, computation | PID, AI logic |
-| Network | Communication | Delay, MQTT |
-| Digital Twin | State estimation | Predictive model |
-| Cloud | Visualization | CSV, Node-RED |
+## 🧩 Course Learning Outcomes
+By the end of the course, students will be able to:
+- Model mechanical, control, and network subsystems in Modelica.  
+- Build hierarchical and modular CPS architectures.  
+- Apply feedback, sensing, and actuation for control.  
+- Simulate network delay, digital twins, and cloud connectivity.  
+- Implement adaptive, fault-tolerant, and multi-agent CPS.
 
 ---
 
-## 3. System Overview
-Integrated CPS with two agents, shared twin, and cloud logger.
+## 🧠 Laboratory Sequence Overview
 
+| **Lab** | **Title** | **Key Focus** | **Learning Outcomes** |
+|----------|------------|----------------|-------------------------|
+| **1** | Introduction to CPS and Modelica Basics | CPS concept, feedback loop, Modelica syntax | Simulate dynamic systems and interpret results |
+| **2** | Hierarchical Modeling of CPS | Modular subsystems and reusability | Connect mechanical and control layers |
+| **3** | Sensing and Control in CPS | Sensors, actuators, PID feedback | Implement closed-loop CPS control |
+| **4** | Networked CPS and Data Communication | Delay, packet loss, sampling | Study network latency effects |
+| **5** | Digital Twin and Real-Time Visualization | Twin synchronization | Build and visualize digital twin models |
+| **6** | Cloud-Connected CPS and IoT Integration | Data streaming and MQTT/REST APIs | Publish CPS data to dashboards |
+| **7** | Digital Twin Synchronization and Predictive Maintenance | Health index and residuals | Predict degradation trends |
+| **8** | Cyber-Physical Fault Detection and Self-Healing Control | Fault injection and recovery | Implement adaptive healing controllers |
+| **9** | Multi-Agent Coordination in CPS | Consensus, formation control | Simulate cooperative agent systems |
+| **10** | CPS Co-Design and System Integration | Full system integration | Combine sensing, control, and communication |
+
+---
+
+## 🔄 Progressive Skill Development
 ```
-[Agent 1] <-> [Agent 2]
-    ↓             ↓
- [Digital Twin Monitor]
-            ↓
-     [Cloud Logger]
-```
-
----
-
-## 4. Smart Agent Model
-```modelica
-model SmartAgent
-  import MyLibrary.*;
-  Mass m1(m=1);
-  Spring s1(k=2);
-  Damper d1(c=0.4);
-  ForceActuator act;
-  PIDController pid(Kp=3, Ki=0.5, Kd=0.2);
-  Real x_ref;
-  Real x_meas;
-  Boolean fault;
-equation
-  s1.x = m1.x;
-  d1.v = m1.v;
-  fault = time > 6;
-  x_meas = if fault then m1.x + 0.2 else m1.x;
-  pid.x_ref = x_ref;
-  pid.x_meas = x_meas;
-  act.u = pid.u;
-  m1.F = act.F + s1.F + d1.F;
-end SmartAgent;
+Lab 1–2 → Physical Modeling
+Lab 3–4 → Feedback and Communication
+Lab 5–7 → Digital Twin and Cloud
+Lab 8–9 → Fault Tolerance and Multi-Agent CPS
+Lab 10  → Co-Design Integration Project
 ```
 
 ---
 
-## 5. Coupled Multi-Agent Network
-```modelica
-model IntegratedCPS
-  SmartAgent A1;
-  SmartAgent A2;
-  parameter Real k_net = 0.6;
-  Real x_mean;
-equation
-  A1.x_ref = A1.m1.x + k_net*(A2.m1.x - A1.m1.x);
-  A2.x_ref = A2.m1.x + k_net*(A1.m1.x - A2.m1.x);
-  x_mean = (A1.m1.x + A2.m1.x)/2;
-end IntegratedCPS;
+## ⚙️ Software & Environment Setup
+
+| Tool | Purpose | Notes |
+|------|----------|--------|
+| **OpenModelica** | Main simulation platform | Use Online Notebook or IDE |
+| **Python / MQTT / Node-RED** | IoT connectivity | Required for Labs 6–10 |
+| **CSV Logger** | Data export | Built-in scripting support |
+| **ThingSpeak / HiveMQ / AWS IoT** | Cloud dashboards | Optional extensions |
+
+---
+
+## 📂 Repository Structure Example
+
+```
+CPS_Modelica_Labs/
+│
+├── Lab1_Introduction_to_CPS_README.md
+├── Lab2_Hierarchical_Modeling_CPS_README.md
+├── Lab3_Sensing_and_Control_CPS_README.md
+├── Lab4_Networked_CPS_README.md
+├── Lab5_DigitalTwin_CPS_README.md
+├── Lab6_CloudConnected_CPS_README.md
+├── Lab7_PredictiveMaintenance_CPS_README.md
+├── Lab8_SelfHealing_CPS_README.md
+├── Lab9_MultiAgent_CPS_README.md
+├── Lab10_CoDesign_CPS_README.md
+└── /assets (figures, models, CSV logs)
 ```
 
 ---
 
-## 6. Digital Twin Monitor
-```modelica
-model TwinMonitor
-  IntegratedCPS sys;
-  Real residual1, residual2;
-  Real health1, health2;
-  Real system_health;
-equation
-  residual1 = abs(sys.A1.m1.x - sys.A2.m1.x);
-  residual2 = abs(sys.A1.m1.x - sys.x_mean);
-  health1 = exp(-residual1);
-  health2 = exp(-residual2);
-  system_health = (health1 + health2)/2;
-end TwinMonitor;
-```
+## 📊 Assessment Scheme
+
+| Component | Weight | Description |
+|------------|---------|-------------|
+| Simulation Models | 30% | Correctness and completeness |
+| Reports & Discussion | 30% | Technical explanation and insight |
+| Cloud/IoT Integration | 20% | Real-time visualization and logging |
+| Final Co-Design Project | 20% | Integrated CPS system (Lab 10) |
 
 ---
 
-## 7. Cloud Data Logger
-```modelica
-model CloudLogger
-  TwinMonitor tm;
-  parameter Real Ts = 0.5;
-  String filename = "cps_co_design.csv";
-  Integer fileID;
-initial algorithm
-  fileID := OpenModelica.Scripting.openFile(filename,"w");
-  OpenModelica.Scripting.writeFile(fileID,"time,health,A1_x,A2_x\n");
-equation
-  when sample(0, Ts) then
-    OpenModelica.Scripting.writeFile(fileID,
-      String(time) + "," + String(tm.system_health) + "," +
-      String(tm.sys.A1.m1.x) + "," + String(tm.sys.A2.m1.x) + "\n");
-  end when;
-end CloudLogger;
-```
+## 🧠 Capstone Project Suggestions
+- **Smart Robotic Arm CPS** – feedback + predictive maintenance  
+- **Connected Vehicle Platoon** – leader–follower coordination  
+- **Smart Manufacturing Twin** – cloud-connected production CPS  
+- **Digital Twin for HVAC Systems** – adaptive energy management  
 
 ---
 
-## 8. Full Co-Design Model
-```modelica
-model CPS_CoDesign
-  CloudLogger cl;
-  parameter Real delay_net = 0.1;
-  parameter Real gain_adapt = 1.5;
-equation
-  cl.tm.sys.A1.pid.x_ref = delay(cl.tm.sys.A1.x_ref, delay_net);
-  cl.tm.sys.A2.pid.x_ref = delay(cl.tm.sys.A2.x_ref, delay_net);
-  when cl.tm.system_health < 0.8 then
-    reinit(cl.tm.sys.A1.pid.Kp, cl.tm.sys.A1.pid.Kp * gain_adapt);
-    reinit(cl.tm.sys.A2.pid.Kp, cl.tm.sys.A2.pid.Kp * gain_adapt);
-  end when;
-end CPS_CoDesign;
-```
-
----
-
-## 9. Performance Metrics
-| Metric | Description | Formula |
-|---------|-------------|----------|
-| Tracking error | Difference to ref | e = |x_ref - x| |
-| Health index | Twin residual | h = exp(-|x1 - x2|) |
-| Recovery time | Duration to stability | Δt |
-| Resilience index | Robustness | R = 1 - e_max/x_ref |
-
----
-
-## 10. Example Results
-| Time (s) | A1 | A2 | Health | Comment |
-|-----------|----|----|---------|----------|
-| 0–5 | Stable | Stable | 0.99 | Normal |
-| 6 | Fault | – | 0.72 | Detected |
-| 7 | Adaptive active | – | 0.88 | Recovering |
-| 10 | Resync | – | 0.95 | Healed |
-
----
-
-## 11. Exercises
-1. Change delay_net to 0.5 s and analyze performance.
-2. Add third agent for scalability.
-3. Use continuous adaptation: `Kp = 3 + (1 - health)*2`.
-4. Connect MQTT cloud publisher.
-5. Compare co-design vs. static control.
-
----
-
-## 12. Learning Outcomes
-- Combine sensing, control, and cloud in one Modelica CPS.
-- Apply co-design and adaptive optimization.
-- Use digital twin for resilience and monitoring.
-- Evaluate trade-offs between delay, control, and communication.
-
----
-
-## 13. Course Recap
-| Lab | Focus | Outcome |
-|------|--------|----------|
-| 1 | Modelica Basics | Equation modeling |
-| 2 | Hierarchical Systems | Modular design |
-| 3 | Sensing & Control | Feedback loops |
-| 4 | Networked CPS | Delay & loss |
-| 5 | Digital Twin | Synchronization |
-| 6 | Cloud Integration | IoT data streams |
-| 7 | Predictive Maintenance | Health monitoring |
-| 8 | Self-Healing | Adaptive control |
-| 9 | Multi-Agent | Consensus formation |
-| 10 | Co-Design | Full integration |
-
----
-
-## 14. Evaluation
-| Component | Weight | Method |
-|------------|---------|--------|
-| Model accuracy | 20% | Simulation |
-| Controller adaptation | 20% | Response plots |
-| Health monitoring | 20% | Twin metrics |
-| Cloud logging | 20% | Data export |
-| Report | 20% | Analysis & discussion |
+## 📘 References
+- Modelica Association. *Modelica Language Specification v3.6*  
+- Peter Fritzson. *Introduction to Modeling and Simulation of Technical and Physical Systems with Modelica.* Wiley, 2011  
+- Lee, E.A., et al. *Introduction to Cyber-Physical Systems.* MIT Press, 2020  
+- Rajkumar, R., et al. *Cyber-Physical Systems: The Next Computing Revolution.* DAC, 2010  
