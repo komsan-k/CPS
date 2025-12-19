@@ -48,6 +48,7 @@ CPS/
 A comprehensive textbook supporting this repository is available here:
 
 📖 **Cyber-Physical Systems – Teaching Book**  
+[Click here to download the PDF]([https://opac.psu.ac.th/BibDetail.aspx?bibno=461714](https://github.com/komsan-k/CPS/blob/main/CPS%20teaching%20book%20977-352.pdf)
 🔗 https://github.com/komsan-k/CPS/blob/main/CPS%20teaching%20book%20977-352.pdf
 
 This book covers:
