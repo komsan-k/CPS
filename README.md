@@ -47,8 +47,7 @@ CPS/
 ## 📚 CPS Teaching Book
 A comprehensive textbook supporting this repository is available here:
 
-📖 **Cyber-Physical Systems – Teaching Book**  
-[Click here to download the PDF]([https://github.com/komsan-k/CPS/blob/main/CPS%20teaching%20book%20977-352.pdf])
+📖 **977-352* Cyber-Physical Systems – Teaching Book*  
 🔗 https://github.com/komsan-k/CPS/blob/main/CPS%20teaching%20book%20977-352.pdf
 
 This book covers:
