@@ -33,17 +33,6 @@ Physical System ↔ Sensors ↔ Controller ↔ Actuators ↔ Network ↔ Cloud /
 
 ---
 
-## 🧪 Repository Structure
-CPS/
-├── labs/
-├── models/
-├── simulations/
-├── datasets/
-├── docs/
-└── references/
-
----
-
 ## 📚 CPS Teaching Book
 A comprehensive textbook supporting this repository is available here:
 
@@ -76,24 +65,4 @@ Learners will be able to:
 - Simulate cyber-physical interactions
 - Implement sensing and control systems
 
----
 
-## 📦 Getting Started
-Clone the repository:
-git clone https://github.com/your-username/CPS.git
-
----
-
-## 📖 References
-- E. A. Lee, Cyber Physical Systems: Design Challenges
-- Rajkumar et al., Cyber-Physical Systems: The Next Computing Revolution
-
----
-
-## 📜 License
-MIT License
-
----
-
-## ⭐ Contributing
-Contributions are welcome via pull requests and issues.
