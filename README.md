@@ -44,6 +44,21 @@ CPS/
 
 ---
 
+## 📚 CPS Teaching Book
+A comprehensive textbook supporting this repository is available here:
+
+📖 **Cyber-Physical Systems – Teaching Book**  
+🔗 https://github.com/komsan-k/CPS/blob/main/CPS%20teaching%20book%20977-352.pdf
+
+This book covers:
+- CPS fundamentals and evolution
+- Modeling and simulation techniques
+- CPS architectures and frameworks
+- IoT, Industry 4.0, and Digital Twin integration
+- Case studies and educational examples
+
+---
+
 ## 🛠️ Tools & Technologies
 - Modelica / OMEdit
 - MATLAB / Simulink
