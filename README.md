@@ -34,7 +34,7 @@ Physical System ↔ Sensors ↔ Controller ↔ Actuators ↔ Network ↔ Cloud /
 ---
 
 ## 📚 CPS Teaching Book
-A comprehensive textbook supporting this repository is available here:
+A teaching textbook supporting this repository is available here:
 
 📖 **977-352* Cyber-Physical Systems – Teaching Book*  
 🔗 https://github.com/komsan-k/CPS/blob/main/CPS%20teaching%20book%20977-352.pdf
