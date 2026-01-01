@@ -1,73 +1,201 @@
-# Lab 2: Cyber-Physical Systems with Edge Impulse and ESP32
+# Lab 2 – Sensor Interfacing and Data Acquisition (C1: Connection)
 
 ## 🎯 Objective
-This lab introduces **Lab 2** of the CPS laboratory series, focusing on the integration of **ESP32-based edge devices** with **Edge Impulse** to build intelligent Cyber-Physical Systems.
 
-Students will gain hands-on experience in sensing, embedded intelligence, control, and cyber integration.
+The objectives of this laboratory are to:
+
+- Interface real-world sensors with an ESP32 edge device
+- Understand the Connection (C1) layer of the 5C CPS model
+- Acquire time-series sensor data from physical systems
+- Stream sensor data to the Edge Impulse platform
+- Create and label datasets suitable for CPS intelligence
 
 ---
 
-## 🧠 CPS Concept Focus
-- Physical sensing and actuation
-- Edge intelligence using TinyML
-- Cyber-Physical feedback loops
-- 5C CPS architecture alignment
+## 🧠 Background Theory
+
+### 1. Connection Layer in CPS (C1)
+
+The Connection layer (C1) forms the foundation of a Cyber-Physical System. It links the physical world to the cyber domain through sensor-based data acquisition.
+
+At this layer:
+- Physical quantities are measured
+- Signals are digitized
+- Data is time-stamped and transmitted
+
+Reliable data acquisition is critical for higher CPS layers such as Conversion, Cognition, and Configuration.
+
+---
+
+### 2. Sensors in Cyber-Physical Systems
+
+Sensors provide awareness of physical phenomena. Common CPS sensors include:
+- Motion sensors (accelerometers, gyroscopes)
+- Environmental sensors (temperature, humidity, gas)
+- Electrical sensors (current, voltage)
+- Acoustic sensors (microphones)
+
+---
+
+### 3. ESP32 Sensor Interfaces
+
+The ESP32 supports multiple sensor interfaces:
+- Analog-to-Digital Converter (ADC)
+- I2C digital interface
+- SPI interface
+- UART interface
+
+This flexibility makes the ESP32 suitable for CPS sensing applications.
+
+---
+
+### 4. Data Acquisition for Edge Intelligence
+
+Machine learning–enabled CPS requires sensor data that is:
+- Representative of real operating conditions
+- Properly sampled and segmented
+- Correctly labeled
+
+Edge Impulse provides structured tools for dataset creation and management.
+
+---
+
+## 🧱 CPS Focus of This Lab
+
+This laboratory focuses on:
+- Physical sensing
+- Data acquisition
+- Dataset integrity
+
+**5C CPS Mapping:**  
+- C1 – Connection: Primary focus  
+- C2–C5: Not yet implemented
+
+---
+
+## ⚙️ Edge Impulse Focus
+
+- Device connection and management
+- Sensor data ingestion
+- Dataset creation
+- Data labeling and visualization
 
 ---
 
 ## 🧰 Hardware Requirements
+
 - ESP32 development board
-- USB cable
-- Sensors (IMU / microphone / temperature / vibration depending on lab)
-- LEDs / relay / motor (as applicable)
-- Wi-Fi access
+- At least one sensor (IMU, temperature, light, or vibration sensor)
+- USB cable (USB-UART interface)
 
 ---
 
 ## 🧪 Software Requirements
+
 - Arduino IDE or PlatformIO
-- Edge Impulse account
+- ESP32 Board Support Package
 - Edge Impulse CLI
-- ESP32 board support package
+- Web browser (Edge Impulse Studio)
 
 ---
 
-## 🔧 Procedure
-1. Set up ESP32 hardware and development environment
-2. Connect sensors to ESP32
-3. Create or open Edge Impulse project
-4. Collect and label sensor data
-5. Configure DSP and ML blocks
-6. Train and evaluate the model
-7. Deploy model to ESP32
-8. Run inference and observe CPS behavior
+## 🔧 Experimental Setup
+
+### Example: I2C Sensor Wiring
+
+| Sensor Pin | ESP32 Pin |
+|-----------|-----------|
+| VCC | 3.3V |
+| GND | GND |
+| SDA | GPIO 21 |
+| SCL | GPIO 22 |
+
+⚠️ Ensure voltage compatibility before connecting sensors.
 
 ---
 
-## 📊 Expected Outcomes
-- Working ESP32-based CPS node
-- On-device inference using Edge Impulse
-- Demonstration of CPS perception or control functionality
+## 🧪 Experimental Procedure
+
+### Step 1: Sensor Interfacing
+1. Power off the ESP32.
+2. Connect the sensor according to the interface type.
+3. Power on the ESP32.
+
+---
+
+### Step 2: Sensor Reading Test
+1. Load a basic sensor example sketch.
+2. Initialize the sensor interface.
+3. Print readings via Serial Monitor.
+4. Verify response to physical changes.
+
+---
+
+### Step 3: Edge Impulse Project Preparation
+1. Open the Edge Impulse project from Lab 1.
+2. Confirm ESP32 is connected.
+3. Navigate to Data Acquisition.
+
+---
+
+### Step 4: Streaming Sensor Data
+1. Run the Edge Impulse daemon.
+2. Select the ESP32 device.
+3. Stream live sensor data.
+4. Observe waveform plots.
+
+---
+
+### Step 5: Dataset Creation and Labeling
+1. Set sampling duration (e.g., 2–5 seconds).
+2. Assign class labels (e.g., normal, motion).
+3. Record multiple samples per class.
+4. Verify dataset balance.
+
+---
+
+## 📊 Results and Observations
+
+- Stable sensor readings obtained
+- Sensor waveforms visible in Edge Impulse Studio
+- Labeled dataset successfully created
 
 ---
 
 ## 📝 Discussion Questions
-1. How does Edge Impulse contribute to CPS intelligence?
-2. Which 5C CPS layers are involved in this lab?
-3. What are the limitations of embedded ML in CPS?
+
+1. Why is reliable data acquisition essential in CPS?
+2. How does sensor noise affect CPS intelligence?
+3. How do you choose an appropriate sampling rate?
+4. Which CPS layers depend directly on the Connection layer?
 
 ---
 
-## 📄 Report Requirements
-Students should submit:
-- System architecture diagram
-- Description of CPS layers used
-- Experimental results (accuracy, latency, power)
-- Discussion and conclusions
+## 🎓 Learning Outcomes
+
+After completing this lab, students will be able to:
+- Interface sensors with ESP32
+- Acquire and stream CPS sensor data
+- Create labeled datasets using Edge Impulse
+- Explain the importance of the C1 layer
+
+---
+
+## 🧾 Conclusion
+
+This lab established the Connection layer of a CPS by interfacing sensors with an ESP32 and acquiring real-world data using Edge Impulse. The resulting dataset will be used in subsequent signal processing and machine learning labs.
 
 ---
 
 ## 📚 References
-- Edge Impulse Documentation: https://docs.edgeimpulse.com
-- ESP32 Technical Reference Manual
-- CPS Architecture Literature
+
+1. Edge Impulse Documentation  
+2. ESP32 Technical Reference Manual  
+3. Sensor Datasheets  
+4. Cyber-Physical Systems Literature  
+
+---
+
+### ▶️ Next Lab
+
+**Lab 3 – Signal Processing and Feature Extraction (C2: Conversion)**
