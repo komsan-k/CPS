@@ -1,4 +1,4 @@
-# ESP32 + SensorML (subset) + TinyML (TFLM) — Compile-ready Project
+# ESP32 + SensorML (subset) + TinyML (TFLM) — Project
 
 This project shows a **real** compile-ready structure that connects:
 
