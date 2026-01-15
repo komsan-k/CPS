@@ -1,0 +1,360 @@
+[
+  {
+    "id": "tab_multisensor_1",
+    "type": "tab",
+    "label": "Multi-Sensor LDR+RSSI",
+    "disabled": false,
+    "info": "Dashboard for ESP32 multi-sensor self-describing telemetry (LDR + WiFi RSSI)."
+  },
+  {
+    "id": "mqtt_broker_ms",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {}
+  },
+  {
+    "id": "ui_tab_ms",
+    "type": "ui_tab",
+    "name": "ESP32 Multi-Sensor",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_overview",
+    "type": "ui_group",
+    "name": "Overview",
+    "tab": "ui_tab_ms",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_ldr",
+    "type": "ui_group",
+    "name": "LDR",
+    "tab": "ui_tab_ms",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_rssi",
+    "type": "ui_group",
+    "name": "WiFi RSSI",
+    "tab": "ui_tab_ms",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "sub_ms",
+    "type": "mqtt in",
+    "z": "tab_multisensor_1",
+    "name": "Subscribe telemetry (wildcard)",
+    "topic": "device/esp32_01/telemetry/#",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_ms",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 200,
+    "y": 120,
+    "wires": [
+      [
+        "json_ms"
+      ]
+    ]
+  },
+  {
+    "id": "json_ms",
+    "type": "json",
+    "z": "tab_multisensor_1",
+    "name": "Parse JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 410,
+    "y": 120,
+    "wires": [
+      [
+        "route_ms",
+        "ui_raw"
+      ]
+    ]
+  },
+  {
+    "id": "ui_raw",
+    "type": "ui_text",
+    "z": "tab_multisensor_1",
+    "group": "ui_group_overview",
+    "order": 1,
+    "width": 12,
+    "height": 1,
+    "name": "Raw message",
+    "label": "Last message (raw)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 650,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "route_ms",
+    "type": "function",
+    "z": "tab_multisensor_1",
+    "name": "Route by sensor id",
+    "func": "// Expect payload like:\n// {id, property, value, uom, uncertainty, ts_ms, ...}\n// Route to 2 outputs: [LDR, RSSI]\n\nconst p = msg.payload || {};\nconst id = (p.id || '').toString();\n\n// Normalize numeric value\nif (p.value !== undefined) {\n  const v = Number(p.value);\n  if (!Number.isNaN(v)) p.value = v;\n}\n\nif (id.includes('LDR')) {\n  return [msg, null];\n}\nif (id.includes('RSSI') || id.includes('WIFI')) {\n  return [null, msg];\n}\n\n// If unknown, drop\nreturn [null, null];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 200,
+    "wires": [
+      [
+        "ldr_value_text",
+        "ldr_value_gauge",
+        "ldr_chart_fmt"
+      ],
+      [
+        "rssi_value_text",
+        "rssi_value_gauge",
+        "rssi_chart_fmt",
+        "rssi_ssid_text"
+      ]
+    ]
+  },
+  {
+    "id": "ldr_value_text",
+    "type": "ui_text",
+    "z": "tab_multisensor_1",
+    "group": "ui_group_ldr",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "name": "LDR Value text",
+    "label": "LDR Value",
+    "format": "{{msg.payload.value}} {{msg.payload.uom}}",
+    "layout": "row-spread",
+    "x": 680,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "ldr_value_gauge",
+    "type": "ui_gauge",
+    "z": "tab_multisensor_1",
+    "name": "LDR Gauge",
+    "group": "ui_group_ldr",
+    "order": 2,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "LDR (calibrated)",
+    "label": "adc_counts",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 670,
+    "y": 230,
+    "wires": []
+  },
+  {
+    "id": "ldr_chart_fmt",
+    "type": "function",
+    "z": "tab_multisensor_1",
+    "name": "To chart (LDR)",
+    "func": "if (msg.payload && msg.payload.value !== undefined) {\n  msg.topic = msg.payload.id || 'LDR';\n  msg.payload = msg.payload.value;\n  return msg;\n}\nreturn null;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 300,
+    "wires": [
+      [
+        "ldr_chart"
+      ]
+    ]
+  },
+  {
+    "id": "ldr_chart",
+    "type": "ui_chart",
+    "z": "tab_multisensor_1",
+    "name": "LDR Trend",
+    "group": "ui_group_ldr",
+    "order": 3,
+    "width": 12,
+    "height": 5,
+    "label": "LDR Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "10",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 910,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "rssi_value_text",
+    "type": "ui_text",
+    "z": "tab_multisensor_1",
+    "group": "ui_group_rssi",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "name": "RSSI Value text",
+    "label": "RSSI",
+    "format": "{{msg.payload.value}} {{msg.payload.uom}}",
+    "layout": "row-spread",
+    "x": 670,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "rssi_ssid_text",
+    "type": "ui_text",
+    "z": "tab_multisensor_1",
+    "group": "ui_group_rssi",
+    "order": 2,
+    "width": 6,
+    "height": 1,
+    "name": "SSID text",
+    "label": "SSID",
+    "format": "{{msg.payload.ssid}}",
+    "layout": "row-spread",
+    "x": 660,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "rssi_value_gauge",
+    "type": "ui_gauge",
+    "z": "tab_multisensor_1",
+    "name": "RSSI Gauge",
+    "group": "ui_group_rssi",
+    "order": 3,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "WiFi RSSI",
+    "label": "dBm",
+    "format": "{{value}}",
+    "min": "-100",
+    "max": "-20",
+    "colors": [
+      "#ca3838",
+      "#e6e600",
+      "#00b500"
+    ],
+    "seg1": "-75",
+    "seg2": "-60",
+    "x": 660,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "rssi_chart_fmt",
+    "type": "function",
+    "z": "tab_multisensor_1",
+    "name": "To chart (RSSI)",
+    "func": "if (msg.payload && msg.payload.value !== undefined) {\n  msg.topic = msg.payload.id || 'RSSI';\n  msg.payload = msg.payload.value;\n  return msg;\n}\nreturn null;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 680,
+    "y": 560,
+    "wires": [
+      [
+        "rssi_chart"
+      ]
+    ]
+  },
+  {
+    "id": "rssi_chart",
+    "type": "ui_chart",
+    "z": "tab_multisensor_1",
+    "name": "RSSI Trend",
+    "group": "ui_group_rssi",
+    "order": 4,
+    "width": 12,
+    "height": 5,
+    "label": "RSSI Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "10",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 910,
+    "y": 560,
+    "wires": [
+      []
+    ]
+  }
+]
