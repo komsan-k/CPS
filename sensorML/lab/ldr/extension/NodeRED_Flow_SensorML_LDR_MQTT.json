@@ -1,0 +1,249 @@
+[
+  {
+    "id": "a1b2c3d4e5f6",
+    "type": "tab",
+    "label": "SensorML LDR MQTT",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt_broker_1",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {}
+  },
+  {
+    "id": "sub_meta",
+    "type": "mqtt in",
+    "z": "a1b2c3d4e5f6",
+    "name": "Subscribe metadata",
+    "topic": "device/ldr01/metadata",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "json_meta"
+      ]
+    ]
+  },
+  {
+    "id": "sub_tlm",
+    "type": "mqtt in",
+    "z": "a1b2c3d4e5f6",
+    "name": "Subscribe telemetry",
+    "topic": "device/ldr01/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 170,
+    "y": 160,
+    "wires": [
+      [
+        "json_tlm",
+        "format_chart"
+      ]
+    ]
+  },
+  {
+    "id": "json_meta",
+    "type": "json",
+    "z": "a1b2c3d4e5f6",
+    "name": "JSON metadata",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 380,
+    "y": 100,
+    "wires": [
+      [
+        "ui_meta_text"
+      ]
+    ]
+  },
+  {
+    "id": "json_tlm",
+    "type": "json",
+    "z": "a1b2c3d4e5f6",
+    "name": "JSON telemetry",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 380,
+    "y": 160,
+    "wires": [
+      [
+        "ui_value_gauge",
+        "ui_value_text"
+      ]
+    ]
+  },
+  {
+    "id": "ui_tab_1",
+    "type": "ui_tab",
+    "name": "SensorML LDR",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_1",
+    "type": "ui_group",
+    "name": "Overview",
+    "tab": "ui_tab_1",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_meta_text",
+    "type": "ui_text",
+    "z": "a1b2c3d4e5f6",
+    "group": "ui_group_1",
+    "order": 1,
+    "width": 12,
+    "height": 1,
+    "name": "Metadata",
+    "label": "Metadata (SensorML subset)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 610,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "ui_value_text",
+    "type": "ui_text",
+    "z": "a1b2c3d4e5f6",
+    "group": "ui_group_1",
+    "order": 2,
+    "width": 6,
+    "height": 1,
+    "name": "Value text",
+    "label": "LDR Value",
+    "format": "{{msg.payload.value}} {{msg.payload.uom}}",
+    "layout": "row-spread",
+    "x": 600,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "ui_value_gauge",
+    "type": "ui_gauge",
+    "z": "a1b2c3d4e5f6",
+    "name": "Gauge",
+    "group": "ui_group_1",
+    "order": 3,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "LDR (calibrated)",
+    "label": "adc_counts",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 610,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "ui_group_2",
+    "type": "ui_group",
+    "name": "Trend",
+    "tab": "ui_tab_1",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "chart_value",
+    "type": "ui_chart",
+    "z": "a1b2c3d4e5f6",
+    "name": "Chart",
+    "group": "ui_group_2",
+    "order": 1,
+    "width": 12,
+    "height": 5,
+    "label": "LDR Value Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "1",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 600,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "format_chart",
+    "type": "function",
+    "z": "a1b2c3d4e5f6",
+    "name": "To chart format",
+    "func": "if (msg.payload && msg.payload.value !== undefined) {\\n  msg.topic = msg.payload.id || 'LDR';\\n  msg.payload = msg.payload.value;\\n}\\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 300,
+    "wires": [
+      [
+        "chart_value"
+      ]
+    ]
+  }
+]
