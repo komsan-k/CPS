@@ -176,9 +176,3 @@ Students submit:
   - light, distance-to-AP, and temperature
 - Reflection (5–10 lines):  
   **“How does SensorML support interoperability for multi-sensor CPS/IoT devices?”**
-
----
-
-## Files Provided
-
-- `ESP32_SensorML_MultiSensor_LDR_RSSI_LM73.ino` (complete compile-ready Arduino code)
