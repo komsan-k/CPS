@@ -1,0 +1,463 @@
+[
+  {
+    "id": "tab_imu",
+    "type": "tab",
+    "label": "IMU Dashboard (MPU6050)",
+    "disabled": false,
+    "info": "Dashboard for ESP32 MPU6050 telemetry over MQTT."
+  },
+  {
+    "id": "broker_imu",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "ui_tab_imu",
+    "type": "ui_tab",
+    "name": "IMU",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_grp_over",
+    "type": "ui_group",
+    "name": "Overview",
+    "tab": "ui_tab_imu",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_grp_acc",
+    "type": "ui_group",
+    "name": "Accelerometer",
+    "tab": "ui_tab_imu",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_grp_gyr",
+    "type": "ui_group",
+    "name": "Gyroscope",
+    "tab": "ui_tab_imu",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_grp_tmp",
+    "type": "ui_group",
+    "name": "Temperature",
+    "tab": "ui_tab_imu",
+    "order": 4,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "sub_meta",
+    "type": "mqtt in",
+    "z": "tab_imu",
+    "name": "Subscribe metadata",
+    "topic": "device/imu01/metadata",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "broker_imu",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 170,
+    "y": 80,
+    "wires": [
+      [
+        "json_meta"
+      ]
+    ]
+  },
+  {
+    "id": "sub_tele",
+    "type": "mqtt in",
+    "z": "tab_imu",
+    "name": "Subscribe telemetry",
+    "topic": "device/imu01/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "broker_imu",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 170,
+    "y": 140,
+    "wires": [
+      [
+        "json_tele"
+      ]
+    ]
+  },
+  {
+    "id": "json_meta",
+    "type": "json",
+    "z": "tab_imu",
+    "name": "Parse JSON (meta)",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 390,
+    "y": 80,
+    "wires": [
+      [
+        "ui_meta_text",
+        "meta_to_status"
+      ]
+    ]
+  },
+  {
+    "id": "json_tele",
+    "type": "json",
+    "z": "tab_imu",
+    "name": "Parse JSON (tele)",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 390,
+    "y": 140,
+    "wires": [
+      [
+        "tele_route",
+        "ui_last_raw"
+      ]
+    ]
+  },
+  {
+    "id": "ui_meta_text",
+    "type": "ui_text",
+    "z": "tab_imu",
+    "group": "ui_grp_over",
+    "order": 1,
+    "width": 12,
+    "height": 2,
+    "name": "Metadata text",
+    "label": "Device metadata",
+    "format": "ID: {{msg.payload.id}} | fs: {{msg.payload.samplingRateHz}} Hz | Accel: \u00b1{{msg.payload.accel.rangeG}}g ({{msg.payload.accel.uom}}) | Gyro: \u00b1{{msg.payload.gyro.rangeDps}} dps ({{msg.payload.gyro.uom}})",
+    "layout": "row-spread",
+    "x": 640,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ui_last_raw",
+    "type": "ui_text",
+    "z": "tab_imu",
+    "group": "ui_grp_over",
+    "order": 2,
+    "width": 12,
+    "height": 1,
+    "name": "Last telemetry raw",
+    "label": "Last telemetry (raw JSON)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 650,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "meta_to_status",
+    "type": "function",
+    "z": "tab_imu",
+    "name": "Status (meta)",
+    "func": "node.status({fill:'green',shape:'dot',text:(msg.payload && msg.payload.id)?('meta: '+msg.payload.id):'meta'});\nreturn null;",
+    "outputs": 0,
+    "x": 630,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "tele_route",
+    "type": "function",
+    "z": "tab_imu",
+    "name": "Extract signals",
+    "func": "// Input payload:\n// {id, ts_ms, accel:{x,y,z,uom,unc}, gyro:{x,y,z,uom,unc}, temp_c}\n\nconst p = msg.payload || {};\nconst out = {};\n\nfunction num(x){ const v = Number(x); return Number.isFinite(v)?v:null; }\n\nout.ts = p.ts_ms || Date.now();\nout.ax = num(p.accel?.x); out.ay = num(p.accel?.y); out.az = num(p.accel?.z);\nout.gx = num(p.gyro?.x);  out.gy = num(p.gyro?.y);  out.gz = num(p.gyro?.z);\nout.temp = num(p.temp_c);\nout.acc_uom = (p.accel?.uom)||'m/s2';\nout.gyr_uom = (p.gyro?.uom)||'deg/s';\n\n// 1) gauges  2) accel chart x 3) accel chart y 4) accel chart z\n// 5) gyro chart x 6) gyro chart y 7) gyro chart z\n// 8) temp chart\n\nconst msgs = [];\nmsgs[0] = {payload: out};\n\nfunction chartMsg(topic, val){\n  if (val === null) return null;\n  return {topic, payload: val};\n}\n\nmsgs[1] = chartMsg('ax', out.ax);\nmsgs[2] = chartMsg('ay', out.ay);\nmsgs[3] = chartMsg('az', out.az);\nmsgs[4] = chartMsg('gx', out.gx);\nmsgs[5] = chartMsg('gy', out.gy);\nmsgs[6] = chartMsg('gz', out.gz);\nmsgs[7] = chartMsg('temp_c', out.temp);\n\nreturn msgs;",
+    "outputs": 8,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 390,
+    "y": 220,
+    "wires": [
+      [
+        "ui_gauges",
+        "ui_summary_text"
+      ],
+      [
+        "chart_acc"
+      ],
+      [
+        "chart_acc"
+      ],
+      [
+        "chart_acc"
+      ],
+      [
+        "chart_gyr"
+      ],
+      [
+        "chart_gyr"
+      ],
+      [
+        "chart_gyr"
+      ],
+      [
+        "chart_tmp"
+      ]
+    ]
+  },
+  {
+    "id": "ui_summary_text",
+    "type": "ui_text",
+    "z": "tab_imu",
+    "group": "ui_grp_over",
+    "order": 3,
+    "width": 12,
+    "height": 1,
+    "name": "Summary",
+    "label": "Summary",
+    "format": "Accel Z: {{msg.payload.az}} {{msg.payload.acc_uom}} | Gyro Z: {{msg.payload.gz}} {{msg.payload.gyr_uom}} | Temp: {{msg.payload.temp}} \u00b0C",
+    "layout": "row-spread",
+    "x": 650,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "ui_gauges",
+    "type": "function",
+    "z": "tab_imu",
+    "name": "To gauges",
+    "func": "const p = msg.payload || {};\n// Output 3 messages: accel magnitude, gyro magnitude, temp\nfunction mag(x,y,z){\n  if([x,y,z].some(v=>v===null)) return null;\n  return Math.sqrt(x*x+y*y+z*z);\n}\nconst amag = mag(p.ax,p.ay,p.az);\nconst gmag = mag(p.gx,p.gy,p.gz);\nconst out1 = (amag===null)?null:{payload: amag};\nconst out2 = (gmag===null)?null:{payload: gmag};\nconst out3 = (p.temp===null)?null:{payload: p.temp};\nreturn [out1,out2,out3];",
+    "outputs": 3,
+    "noerr": 0,
+    "x": 640,
+    "y": 260,
+    "wires": [
+      [
+        "gauge_acc_mag"
+      ],
+      [
+        "gauge_gyr_mag"
+      ],
+      [
+        "gauge_temp"
+      ]
+    ]
+  },
+  {
+    "id": "gauge_acc_mag",
+    "type": "ui_gauge",
+    "z": "tab_imu",
+    "name": "Accel magnitude",
+    "group": "ui_grp_acc",
+    "order": 1,
+    "width": 4,
+    "height": 4,
+    "gtype": "gage",
+    "title": "|a| magnitude",
+    "label": "m/s\u00b2",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "20",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 910,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "gauge_gyr_mag",
+    "type": "ui_gauge",
+    "z": "tab_imu",
+    "name": "Gyro magnitude",
+    "group": "ui_grp_gyr",
+    "order": 1,
+    "width": 4,
+    "height": 4,
+    "gtype": "gage",
+    "title": "|\u03c9| magnitude",
+    "label": "deg/s",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "500",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 910,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "gauge_temp",
+    "type": "ui_gauge",
+    "z": "tab_imu",
+    "name": "Temperature",
+    "group": "ui_grp_tmp",
+    "order": 1,
+    "width": 4,
+    "height": 4,
+    "gtype": "gage",
+    "title": "Temperature",
+    "label": "\u00b0C",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "60",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 910,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "chart_acc",
+    "type": "ui_chart",
+    "z": "tab_imu",
+    "name": "Accel XYZ",
+    "group": "ui_grp_acc",
+    "order": 2,
+    "width": 12,
+    "height": 6,
+    "label": "Accelerometer (XYZ)",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#2ca02c",
+      "#d62728"
+    ],
+    "outputs": 1,
+    "useDifferentColor": true,
+    "x": 900,
+    "y": 420,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_gyr",
+    "type": "ui_chart",
+    "z": "tab_imu",
+    "name": "Gyro XYZ",
+    "group": "ui_grp_gyr",
+    "order": 2,
+    "width": 12,
+    "height": 6,
+    "label": "Gyroscope (XYZ)",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#9467bd",
+      "#8c564b",
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": true,
+    "x": 900,
+    "y": 560,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_tmp",
+    "type": "ui_chart",
+    "z": "tab_imu",
+    "name": "Temp trend",
+    "group": "ui_grp_tmp",
+    "order": 2,
+    "width": 12,
+    "height": 4,
+    "label": "Temperature Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "10",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#17becf"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 900,
+    "y": 720,
+    "wires": [
+      []
+    ]
+  }
+]
