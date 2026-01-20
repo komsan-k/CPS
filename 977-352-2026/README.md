@@ -13,11 +13,6 @@ Examples include **smart cities, autonomous vehicles, digital twins, smart facto
 - **Course Title:** Cyber-Physical Systems  
 - **Lecturer:** Asst. Prof. Komsan Kanjanasit, PhD  
 - **Email:** komsan.k@phuket.psu.ac.th  
-- **Semester:** 8 January – 26 April 2024  
-
-### 🕒 Class Schedule (Monday)
-- **Lecture:** 13:30 – 15:30  
-- **Lab:** 15:30 – 17:30  
 
 ---
 
@@ -68,7 +63,7 @@ Hands-on labs are a **major part of this course**. You will work on:
 | Final Exam (Coursera) | 20% |
 
 📘 **Final Exam:**  
-Online exam via Coursera  
+Exam via Coursera  
 https://www.coursera.org/programs/artificial-intelligence-and-system-eng-65etz/learn/cyber-physical-systems-1
 
 ---
