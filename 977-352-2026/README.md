@@ -1,69 +1,79 @@
-# Course Syllabus (Semester 2/2023)
+# Welcome to 977-352: Cyber-Physical Systems (CPS)
 
-## 977-352 Cyber-Physical Systems (CPS)
+👋 **Welcome!**  
+This course introduces you to **Cyber-Physical Systems (CPS)**—systems that tightly integrate **software, hardware, sensing, control, and networking** to interact with the physical world.
 
-**Lecturer:**  
-Assistant Professor Komsan Kanjanasit, PhD  
-📧 komsan.k@phuket.psu.ac.th  
-
-**Semester:** 8 January 2024 – 26 April 2024  
-
-**Schedule:**  
-- **Monday**
-  - Lecture: 13:30 – 15:30  
-  - Laboratory: 15:30 – 17:30  
+Examples include **smart cities, autonomous vehicles, digital twins, smart factories, and Edge AI systems**.
 
 ---
 
-## Course Description
-**Prerequisite:** 977-341 Sensors and Microcontroller Interface  
+## 📌 Course Information
 
-This course introduces **Cyber-Physical Systems (CPS)**, emphasizing the integration of cyber capabilities (computation, communication, and control) with physical systems. Topics include discrete computerized control algorithms, sensing and control system design, system prototyping, software and hardware implementation, and project-oriented CPS design incorporating infrastructure systems.
+- **Course Code:** 977-352  
+- **Course Title:** Cyber-Physical Systems  
+- **Lecturer:** Asst. Prof. Komsan Kanjanasit, PhD  
+- **Email:** komsan.k@phuket.psu.ac.th  
+- **Semester:** 8 January – 26 April 2024  
 
----
-
-## Course Topics
-
-### Lecture Topics
-- Chapter 1: Cyber-Physical System Perspectives  
-- Chapter 2: Digital Twin  
-- Chapter 3: Industry 4.0 as a Smart Factory  
-- Chapter 4: Society 5.0  
-- Chapter 5: Transportation 5.0  
-- Chapter 6: Cyber-Physical System Architecture  
-- Chapter 7: Cyber-Physical-Social Systems  
-- Chapter 8: Modeling Cyber-Physical Systems  
-- Chapter 9: CPS Co-Design Methodology  
+### 🕒 Class Schedule (Monday)
+- **Lecture:** 13:30 – 15:30  
+- **Lab:** 15:30 – 17:30  
 
 ---
 
-### Laboratory Topics
-- LAB01: Digital Twin Implementation I  
-- LAB02: Digital Twin Implementation II  
-- LAB03: Digital Twin Implementation III  
-- LAB04: Edge AI Implementation I  
-- LAB05: Edge AI Implementation II  
-- LAB06: Edge AI Implementation III  
-- LAB07: Edge AI Implementation IV  
-- LAB08: Modeling and Simulation I  
-- LAB09: Modeling and Simulation II  
-- LAB10: Modeling and Simulation III  
+## 🎯 What You Will Learn
+
+By the end of this course, you will be able to:
+- Understand what **Cyber-Physical Systems** are and how they work
+- Design **sensor–controller–actuator loops**
+- Build and experiment with **Digital Twin** and **Edge AI** systems
+- Model and simulate CPS behavior
+- Develop small CPS projects combining **hardware and software**
 
 ---
 
-## Assessment and Grading
+## 📚 Lecture Topics (Simple View)
 
-### Assessment Breakdown
-- Laboratory Work: **40%**  
-- Course Project: **20%**  
-- Quizzes: **20%**  
-- Final Examination: **20%**  
-  - Online exam via Coursera:  
-    https://www.coursera.org/programs/artificial-intelligence-and-system-eng-65etz/learn/cyber-physical-systems-1  
+- CPS fundamentals and perspectives  
+- Digital Twin concepts  
+- Industry 4.0 and Smart Factories  
+- Society 5.0 and smart technologies  
+- Transportation 5.0  
+- CPS architectures  
+- Cyber-Physical-Social Systems  
+- CPS modeling and simulation  
+- CPS co-design methodology  
 
 ---
 
-### Grading Criteria (Norm-Referenced)
+## 🧪 Laboratory Activities
+
+Hands-on labs are a **major part of this course**. You will work on:
+
+- Digital Twin implementation (3 labs)
+- Edge AI and TinyML applications (4 labs)
+- CPS modeling and simulation (3 labs)
+
+💡 Most labs involve **ESP32, sensors, AI models, and simulations**.
+
+---
+
+## 📝 Assessment Overview
+
+| Component | Weight |
+|---------|--------|
+| Laboratory Work | 40% |
+| Course Project | 20% |
+| Quizzes | 20% |
+| Final Exam (Coursera) | 20% |
+
+📘 **Final Exam:**  
+Online exam via Coursera  
+https://www.coursera.org/programs/artificial-intelligence-and-system-eng-65etz/learn/cyber-physical-systems-1
+
+---
+
+## 🎓 Grading Scale
 
 | Grade | Score |
 |------|-------|
@@ -78,5 +88,18 @@ This course introduces **Cyber-Physical Systems (CPS)**, emphasizing the integra
 
 ---
 
-## Remarks
-The course emphasizes **hands-on laboratory practice**, **modeling and simulation**, and **project-based learning** to prepare students for CPS research and real-world engineering applications aligned with **Industry 4.0** and **Society 5.0**.
+## 🚀 How to Succeed in This Course
+
+- ✅ Attend lectures and labs regularly  
+- ✅ Complete **all labs on time**  
+- ✅ Actively participate in the **course project**  
+- ✅ Practice coding, modeling, and experimentation  
+- ✅ Ask questions—this course is hands-on!
+
+---
+
+## 🤝 Final Note
+
+This course is designed to prepare you for **modern engineering and research careers** in CPS, IoT, Edge AI, and smart systems.
+
+Enjoy learning—and building—**Cyber-Physical Systems!** ⚙️🌍
