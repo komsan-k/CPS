@@ -127,29 +127,11 @@ Digital Twins enable:
 
 ---
 
-## Intended Use of This README
-
-This document can be used as:
-- Introductory reading for CPS courses
-- Textbook companion material
-- Lab manual background section
-- Reference for Digital Twin projects
-
----
 
 ## Suggested Citation Sentence
 
 > A Digital Twin is a virtual, continuously synchronized representation of a physical system that enables monitoring, prediction, and closed-loop control within a Cyber-Physical System.
 
----
 
-## Next Steps (Optional Extensions)
 
-- 5C Architecture–based Digital Twin
-- ISO/IEC 30141–mapped Digital Twin diagram
-- ESP32 + Node-RED Digital Twin laboratory
-- AI/TinyML-enhanced Digital Twin
 
----
-
-**Author use-case:** CPS education, Digital Twin fundamentals, IoT and Industry 4.0 teaching
