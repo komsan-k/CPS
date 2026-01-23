@@ -1,4 +1,4 @@
-# Digital Twin 
+# Digital Twin Diagram
 
 ## Overview
 This resource provides a **clean, textbook-quality Digital Twin diagram** designed for
