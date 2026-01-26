@@ -1,153 +1,154 @@
-# Lab 1: Deploying a Smartphone-Trained Motion Model to ESP32
+# Lab 1: Motion Data Collection Using Smartphone Sensors
 
 ## Overview
-This laboratory extends **Lab 0** by deploying a motion classification model—trained using smartphone sensor data in Edge Impulse—onto an **ESP32 microcontroller**.
+This laboratory focuses on **systematic motion data collection** using a **smartphone as a sensing device** and **Edge Impulse** as the data acquisition platform.
 
-Students learn how a validated ML model can be transferred from a high-level CPS prototype (smartphone) to a real **embedded TinyML system**, enabling on-device inference and motion-triggered actuation.
+Students learn how to collect, label, and manage high-quality motion datasets using built-in smartphone sensors (accelerometer and gyroscope). This lab emphasizes **data quality, repeatability, and labeling**, which are critical for reliable machine learning models in later labs.
 
 ---
 
 ## Learning Objectives
 After completing this lab, students will be able to:
 
-- Export a trained Edge Impulse model for ESP32
-- Integrate the model into an ESP32 Arduino project
-- Perform real-time motion inference on embedded hardware
-- Implement safe, rule-based actuation from ML outputs
-- Understand deployment constraints (latency, memory)
+- Explain how smartphone motion sensors work
+- Use a smartphone as a CPS sensing node
+- Collect labeled motion data in Edge Impulse
+- Apply best practices for data quality and consistency
+- Prepare datasets suitable for motion classification
 
 ---
 
-## CPS Mapping (5C View)
-| 5C Layer | Implementation |
-|--------|----------------|
-| Connection | Accelerometer sensor |
-| Conversion | Feature extraction + ML inference |
-| Cyber | Trained Edge Impulse model |
-| Cognition | Motion classification decision |
-| Configuration | LED / actuator response |
+## CPS Context
+This lab implements the **physical sensing and data acquisition stage** of a Cyber-Physical System.
+
+| CPS Element | Implementation |
+|------------|----------------|
+| Physical World | Human / device motion |
+| Sensor | Smartphone accelerometer & gyroscope |
+| Cyber | Edge Impulse data ingestion |
+| Decision | Not included in this lab |
+| Actuation | Not included in this lab |
 
 ---
 
-## Hardware Requirements
-- ESP32 Dev Board
-- Accelerometer (choose one):
-  - MPU6050 (recommended)
-  - LIS3DH
-- LED + 220Ω resistor
-- Breadboard + jumper wires
-- USB cable
+## Tools and Requirements
+### Hardware
+- Smartphone (Android or iOS)
+
+### Software
+- Edge Impulse account (free)
+- Edge Impulse Mobile App
+- Internet connection
 
 ---
 
-## Software Requirements
-- Arduino IDE
-- Edge Impulse account
-- Edge Impulse CLI
-- USB driver for ESP32
+## Step 1: Create or Open Edge Impulse Project
+1. Go to https://studio.edgeimpulse.com
+2. Create a new project or open an existing one
+3. Project type:
+   - **Motion / Accelerometer data**
+4. Recommended project name:
+   ```
+   smartphone-motion-dataset
+   ```
 
 ---
 
-## Step 1: Export Model from Edge Impulse
-1. Open your project in Edge Impulse Studio
-2. Go to **Deployment**
-3. Select **Arduino Library**
-4. Click **Build**
-5. Download the generated `.zip` file
+## Step 2: Install Edge Impulse Mobile App
+- Download **Edge Impulse** from:
+  - Google Play Store (Android)
+  - Apple App Store (iOS)
+- Log in using your Edge Impulse account
+
+Your smartphone now functions as a **wireless motion sensing device**.
 
 ---
 
-## Step 2: Prepare Arduino Environment
-1. Install ESP32 board support in Arduino IDE
-2. Install required libraries:
-   - Edge Impulse Arduino library (from ZIP)
-   - I2Cdev / MPU6050 library (if needed)
+## Step 3: Understand Motion Sensors
+Smartphones typically provide:
+- **Accelerometer (ax, ay, az)** – linear motion
+- **Gyroscope (gx, gy, gz)** – rotational motion
+
+These signals are streamed directly into Edge Impulse.
 
 ---
 
-## Step 3: Hardware Wiring (MPU6050)
-| MPU6050 | ESP32 |
-|-------|-------|
-| VCC | 3.3V |
-| GND | GND |
-| SDA | GPIO 21 |
-| SCL | GPIO 22 |
+## Step 4: Define Motion Classes
+Before recording, define clear motion labels.
 
-LED:
-- Anode → GPIO 25 (via resistor)
-- Cathode → GND
+### Recommended Motion Classes
+| Label | Description |
+|------|------------|
+| no_motion | Phone placed still on a flat surface |
+| walking | Walking while holding the phone |
+| shake | Shaking the phone by hand |
+| pickup | Picking up the phone from rest |
 
----
-
-## Step 4: ESP32 Inference Code (Template)
-
-```cpp
-#include <Your_Project_Name_inferencing.h>
-
-#define LED_PIN 25
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(LED_PIN, OUTPUT);
-}
-
-void loop() {
-  // 1. Read accelerometer data
-  // 2. Fill EI input buffer
-  // 3. Run inference
-  // 4. Act on result
-}
-```
-
-(Students complete sensor reading and inference loop)
+Consistency in labels is essential.
 
 ---
 
-## Step 5: Decision Logic (Safe Control)
-Example:
-- If class == `walking` or `shake` → LED ON
-- Else → LED OFF
+## Step 5: Data Recording Procedure
+Using the Edge Impulse mobile app:
 
-ML provides **recommendation**, control remains **deterministic**.
+- Recording length: **3–5 seconds**
+- Samples per class: **10–20**
+- Hold phone orientation consistently
+- Perform one motion type per recording
+
+Repeat recordings under similar conditions.
 
 ---
 
-## Step 6: Testing and Validation
-- Move or shake the ESP32 device
-- Observe:
-  - Serial output (predicted class + confidence)
-  - LED response
+## Step 6: Data Review and Cleaning
+In Edge Impulse Studio:
+
+1. Open **Data Acquisition**
+2. Inspect each sample:
+   - Correct label
+   - No unexpected motion
+3. Delete incorrect or noisy samples if needed
+
+Balanced datasets improve model performance.
 
 ---
 
 ## Expected Results
-- Inference latency < 100 ms
-- Correct class prediction for trained motions
-- Stable LED actuation
+- Well-labeled motion dataset
+- Similar number of samples per class
+- Clear motion patterns in signal plots
 
 ---
 
 ## Deliverables
 Students must submit:
-- Arduino source code
-- Serial output screenshot
-- Short report:
-  - Model size (Flash / RAM)
-  - Accuracy vs smartphone
-  - Deployment challenges
+- Screenshot of dataset overview
+- Screenshot of raw signal plots
+- Short report (1 page):
+  - Motion classes used
+  - Number of samples per class
+  - Data collection challenges
 
 ---
 
-## Discussion Questions
-1. Why is accuracy often lower on ESP32 than on smartphone?
-2. What limits TinyML deployment?
-3. How does this lab close the CPS loop?
+## Common Mistakes to Avoid
+- Mixing motion types in one recording
+- Inconsistent phone orientation
+- Too few samples per class
+- Recording while labels are incorrect
 
 ---
 
-## Extension Ideas
-- Replace LED with buzzer or relay
-- Add MQTT publishing of motion events
-- Compare threshold-based vs ML-based detection
+## Extension (Next Labs)
+This lab prepares students for:
+- **Lab 2:** Motion Classification with Edge Impulse
+- **Lab 3:** Deploying Motion Model to ESP32
+- **Lab 4:** Motion-Based Actuation
+
+---
+
+## Key Takeaway
+High-quality data collection is the **foundation of successful TinyML and CPS systems**.  
+Good models start with good data.
 
 
