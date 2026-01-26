@@ -1,0 +1,156 @@
+# Lab 3: Deploying a Smartphone-Trained Motion Model to ESP32
+
+## Overview
+This laboratory extends **Lab 0** by deploying a motion classification model—trained using smartphone sensor data in Edge Impulse—onto an **ESP32 microcontroller**.
+
+Students learn how a validated ML model can be transferred from a high-level CPS prototype (smartphone) to a real **embedded TinyML system**, enabling on-device inference and motion-triggered actuation.
+
+---
+
+## Learning Objectives
+After completing this lab, students will be able to:
+
+- Export a trained Edge Impulse model for ESP32
+- Integrate the model into an ESP32 Arduino project
+- Perform real-time motion inference on embedded hardware
+- Implement safe, rule-based actuation from ML outputs
+- Understand deployment constraints (latency, memory)
+
+---
+
+## CPS Mapping (5C View)
+| 5C Layer | Implementation |
+|--------|----------------|
+| Connection | Accelerometer sensor |
+| Conversion | Feature extraction + ML inference |
+| Cyber | Trained Edge Impulse model |
+| Cognition | Motion classification decision |
+| Configuration | LED / actuator response |
+
+---
+
+## Hardware Requirements
+- ESP32 Dev Board
+- Accelerometer (choose one):
+  - MPU6050 (recommended)
+  - LIS3DH
+- LED + 220Ω resistor
+- Breadboard + jumper wires
+- USB cable
+
+---
+
+## Software Requirements
+- Arduino IDE
+- Edge Impulse account
+- Edge Impulse CLI
+- USB driver for ESP32
+
+---
+
+## Step 1: Export Model from Edge Impulse
+1. Open your project in Edge Impulse Studio
+2. Go to **Deployment**
+3. Select **Arduino Library**
+4. Click **Build**
+5. Download the generated `.zip` file
+
+---
+
+## Step 2: Prepare Arduino Environment
+1. Install ESP32 board support in Arduino IDE
+2. Install required libraries:
+   - Edge Impulse Arduino library (from ZIP)
+   - I2Cdev / MPU6050 library (if needed)
+
+---
+
+## Step 3: Hardware Wiring (MPU6050)
+| MPU6050 | ESP32 |
+|-------|-------|
+| VCC | 3.3V |
+| GND | GND |
+| SDA | GPIO 21 |
+| SCL | GPIO 22 |
+
+LED:
+- Anode → GPIO 25 (via resistor)
+- Cathode → GND
+
+---
+
+## Step 4: ESP32 Inference Code (Template)
+
+```cpp
+#include <Your_Project_Name_inferencing.h>
+
+#define LED_PIN 25
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop() {
+  // 1. Read accelerometer data
+  // 2. Fill EI input buffer
+  // 3. Run inference
+  // 4. Act on result
+}
+```
+
+(Students complete sensor reading and inference loop)
+
+---
+
+## Step 5: Decision Logic (Safe Control)
+Example:
+- If class == `walking` or `shake` → LED ON
+- Else → LED OFF
+
+ML provides **recommendation**, control remains **deterministic**.
+
+---
+
+## Step 6: Testing and Validation
+- Move or shake the ESP32 device
+- Observe:
+  - Serial output (predicted class + confidence)
+  - LED response
+
+---
+
+## Expected Results
+- Inference latency < 100 ms
+- Correct class prediction for trained motions
+- Stable LED actuation
+
+---
+
+## Deliverables
+Students must submit:
+- Arduino source code
+- Serial output screenshot
+- Short report:
+  - Model size (Flash / RAM)
+  - Accuracy vs smartphone
+  - Deployment challenges
+
+---
+
+## Discussion Questions
+1. Why is accuracy often lower on ESP32 than on smartphone?
+2. What limits TinyML deployment?
+3. How does this lab close the CPS loop?
+
+---
+
+## Extension Ideas
+- Replace LED with buzzer or relay
+- Add MQTT publishing of motion events
+- Compare threshold-based vs ML-based detection
+
+---
+
+## License
+Educational use only.
