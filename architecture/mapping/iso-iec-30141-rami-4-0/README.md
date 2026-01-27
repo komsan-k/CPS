@@ -1,6 +1,6 @@
 # Mapping the CPS 5C Architecture to ISO/IEC 30141 and RAMI 4.0
 
-This README explains how the **CPS 5C Architecture** aligns with two important international reference models:
+This section explains how the **CPS 5C Architecture** aligns with two important international reference models:
 
 - **ISO/IEC 30141 – Internet of Things Reference Architecture (IoT RA)**
 - **RAMI 4.0 – Reference Architectural Model Industrie 4.0**
