@@ -1,6 +1,6 @@
 # ISO/IEC 30141 – Internet of Things Reference Architecture 
 
-This section provides a **deep, structured explanation of ISO/IEC 30141**, the international **Internet of Things Reference Architecture (IoT RA)** standard.  
+This section provides a **structured explanation of ISO/IEC 30141**, the international **Internet of Things Reference Architecture (IoT RA)** standard.  
 It is written for **students, instructors, researchers, and CPS/Industry 4.0 practitioners** who need both **conceptual clarity** and **implementation insight**.
 
 ---
@@ -229,6 +229,4 @@ Use ISO/IEC 30141 when:
 
 > ISO/IEC 30141: Internet of Things Reference Architecture, International Organization for Standardization / International Electrotechnical Commission.
 
----
 
-**Status:** ✅ Deep-dive | ✅ Standards-aligned | ✅ CPS-ready | ✅ Industry 4.0 compatible
