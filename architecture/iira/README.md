@@ -1,7 +1,6 @@
 # IIRA – Industrial Internet Reference Architecture 
 
 This section provides a **deep, structured explanation of the Industrial Internet Reference Architecture (IIRA)** developed by the **Industrial Internet Consortium (IIC)**.  
-It is intended for **students, instructors, researchers, and industrial CPS practitioners** who require both **architectural understanding** and **practical design insight**.
 
 ---
 
