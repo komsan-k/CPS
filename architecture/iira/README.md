@@ -1,6 +1,6 @@
 # Mapping the CPS 5C Architecture to IIRA (Industrial Internet Reference Architecture)
 
-This README explains how the **CPS 5C Architecture** maps to the **Industrial Internet Reference Architecture (IIRA)** defined by the Industrial Internet Consortium (IIC).
+This section explains how the **CPS 5C Architecture** maps to the **Industrial Internet Reference Architecture (IIRA)** defined by the Industrial Internet Consortium (IIC).
 
 The goal is to show that the CPS 5C model is **fully compatible with IIRA** and can be used as a **functional design abstraction** for Industrial Internet and Industrial CPS systems.
 
@@ -98,6 +98,4 @@ Together, they provide:
 - It provides an **implementation-ready intelligence pipeline**
 - It is suitable for **education, labs, and industrial CPS design**
 
----
-
-**Status:** ✅ IIRA-aligned | ✅ Industry-ready | ✅ CPS-focused
+ ✅ IIRA-aligned | ✅ Industry-ready | ✅ CPS-focused
