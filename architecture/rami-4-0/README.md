@@ -1,6 +1,6 @@
 # RAMI 4.0 – Reference Architectural Model Industrie 4.0 
 
-This section provides a **deep, structured explanation of RAMI 4.0**, the **Reference Architectural Model Industrie 4.0**.  
+This section provides a **structured explanation of RAMI 4.0**, the **Reference Architectural Model Industrie 4.0**.  
 It is designed for **students, instructors, researchers, and Industry 4.0 practitioners** who need both **conceptual understanding** and **practical design insight**.
 
 ---
