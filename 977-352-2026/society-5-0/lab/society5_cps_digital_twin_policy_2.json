@@ -1,4 +1,129 @@
-{
-  "info": "Import this JSON into Node-RED (Menu → Import → Clipboard)",
-  "note": "Full flow provided in course materials"
-}
+[
+  {
+    "id": "ui_group_policy",
+    "type": "ui_group",
+    "name": "Policy + Human Control",
+    "tab": "ui_tab_society5",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_slider_threshold",
+    "type": "ui_slider",
+    "z": "tab_society5_lab",
+    "name": "Threshold Slider",
+    "label": "LDR Threshold",
+    "tooltip": "Set LDR threshold (0–4095)",
+    "group": "ui_group_policy",
+    "order": 7,
+    "width": 12,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "threshold",
+    "min": 0,
+    "max": 4095,
+    "step": 1,
+    "x": 220,
+    "y": 360,
+    "wires": [
+      [
+        "store_threshold"
+      ]
+    ]
+  },
+  {
+    "id": "store_threshold",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Store threshold (context)",
+    "func": "const v = Number(msg.payload);\nif (!isFinite(v)) return null;\nconst th = Math.max(0, Math.min(4095, Math.round(v)));\ncontext.set('ui_threshold', th);\nmsg.payload = `Threshold staged: ${th}`;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 490,
+    "y": 360,
+    "wires": [
+      [
+        "ui_threshold_staged"
+      ]
+    ]
+  },
+  {
+    "id": "ui_threshold_staged",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_policy",
+    "order": 8,
+    "width": 12,
+    "height": 1,
+    "name": "Threshold staged text",
+    "label": "Threshold Control",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 740,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "ui_btn_send_threshold",
+    "type": "ui_button",
+    "z": "tab_society5_lab",
+    "name": "Send Threshold",
+    "group": "ui_group_policy",
+    "order": 9,
+    "width": 6,
+    "height": 1,
+    "passthru": false,
+    "label": "Send Threshold to ESP32",
+    "tooltip": "Publishes {\"threshold\": value} to cps/esp32/lab01/command",
+    "color": "",
+    "bgcolor": "",
+    "icon": "send",
+    "payload": "send",
+    "payloadType": "str",
+    "topic": "threshold_send",
+    "topicType": "str",
+    "x": 230,
+    "y": 420,
+    "wires": [
+      [
+        "build_threshold_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "build_threshold_cmd",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Build {threshold} command",
+    "func": "const th = context.get('ui_threshold');\nif (typeof th !== 'number') {\n  msg.payload = 'No threshold staged yet. Move slider first.';\n  return msg;\n}\n\n// MQTT command payload for ESP32\nmsg.topic = \"cps/esp32/lab01/command\";\nmsg.payload = { threshold: th };\nmsg._ui_note = `Sent threshold=${th} to ESP32`;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 520,
+    "y": 420,
+    "wires": [
+      [
+        "mqtt_out_command",
+        "ui_threshold_sent"
+      ]
+    ]
+  },
+  {
+    "id": "ui_threshold_sent",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_policy",
+    "order": 10,
+    "width": 6,
+    "height": 1,
+    "name": "Threshold sent text",
+    "label": "MQTT",
+    "format": "{{msg._ui_note}}",
+    "layout": "row-spread",
+    "x": 760,
+    "y": 420,
+    "wires": []
+  }
+]
