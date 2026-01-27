@@ -6,7 +6,7 @@
 
 ## 📘 Overview
 
-This graduate-level laboratory is designed as a **standalone, publication-ready lab** that demonstrates the full **Society 5.0 cyber-physical loop**.
+This graduate-level laboratory is designed as a **standalone lab** that demonstrates the full **Society 5.0 cyber-physical loop**.
 
 The lab integrates physical sensing, cyber intelligence, digital twin modeling, policy-based decision-making, and human-in-the-loop supervision into a **closed-loop Cyber-Physical System (CPS)**.
 
@@ -207,7 +207,7 @@ Sense → Model → Decide → Constrain (Policy) → Act → Sense
 | Policy integration | 20% |
 | Human-in-the-loop design | 15% |
 | Robustness & safety | 10% |
-| Technical report | 10% |
+| Technical discussion | 10% |
 
 ---
 
@@ -241,14 +241,4 @@ Sense → Model → Decide → Constrain (Policy) → Act → Sense
 - Policy as a first-class system element
 - Direct alignment with **Society 5.0 deep drivers**
 
----
 
-## 📜 Usage
-
-This lab may be used for:
-- Graduate CPS and IoT courses
-- Society 5.0 teaching modules
-- Digital Twin demonstrations
-- Research prototyping and case studies
-
-Attribution is appreciated for academic reuse.
