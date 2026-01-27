@@ -117,5 +117,5 @@ Together, **Industry 5.0 supports Society 5.0**, a vision originally proposed by
 
 ---
 
-## One-Paragraph Textbook Summary
+## Summary
 The industrial revolution has evolved through five major stages, from steam-powered mechanization to human-centric intelligent manufacturing. While Industry 1.0–3.0 emphasized mechanization and automation, Industry 4.0 introduced cyber–physical integration and data-driven intelligence. The emerging Industry 5.0 highlights sustainability, resilience, and close collaboration between humans and intelligent machines, marking a shift toward value-driven and socially responsible industrial development.
