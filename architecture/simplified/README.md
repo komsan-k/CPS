@@ -74,7 +74,4 @@ Sensor reads light → system decides → LED turns ON/OFF.
 - 5C explains CPS clearly
 - Perfect for labs and projects
 
----
-
-**Status:** Student-friendly | Lab-ready
 
