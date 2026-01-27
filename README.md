@@ -4,7 +4,7 @@
 Cyber-Physical Systems (CPS) integrate computation, networking, and physical processes.
 Embedded computers and software monitor and control physical processes through feedback loops.
 
-This repository provides learning materials, labs, models, and simulations for CPS education and research.
+This section provides learning materials, labs, models, and simulations for CPS education and research.
 
 ---
 
