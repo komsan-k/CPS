@@ -2,7 +2,6 @@
 
 This section explains the **CPS 5C Architecture** in a **simple way**. It is designed for undergraduate and early graduate students studying **Cyber-Physical Systems (CPS), IoT, and Industry 4.0**.
 
-You do **not** need prior knowledge of standards or advanced control theory to understand this document.
 
 ---
 
