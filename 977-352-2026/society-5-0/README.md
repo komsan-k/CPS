@@ -9,7 +9,7 @@
 Rather than focusing solely on industrial productivity, Society 5.0 integrates **Cyber-Physical Systems (CPS)**, **Artificial Intelligence (AI)**, 
 and **governance frameworks** to address complex societal challenges.
 
-This README summarizes the **deep drivers** that motivate and sustain Society 5.0, providing a systems-level explanation suitable for 
+This part summarizes the **deep drivers** that motivate and sustain Society 5.0, providing a systems-level explanation suitable for 
 graduate education, research, and policy-oriented CPS design.
 
 ---
