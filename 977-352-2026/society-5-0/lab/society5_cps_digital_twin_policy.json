@@ -1,4 +1,650 @@
-{
-  "info": "Import this JSON into Node-RED (Menu → Import → Clipboard)",
-  "note": "Full flow provided in course materials"
-}
+[
+  {
+    "id": "tab_society5_lab",
+    "type": "tab",
+    "label": "Society5.0 Lab: ESP32→Twin→Policy→ESP32",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt_broker_local",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "nodered_society5_lab",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "ui_tab_society5",
+    "type": "ui_tab",
+    "name": "Society 5.0 CPS",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_live",
+    "type": "ui_group",
+    "name": "Live Telemetry",
+    "tab": "ui_tab_society5",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_twin",
+    "type": "ui_group",
+    "name": "Digital Twin",
+    "tab": "ui_tab_society5",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_policy",
+    "type": "ui_group",
+    "name": "Policy + Human Control",
+    "tab": "ui_tab_society5",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_in_telemetry",
+    "type": "mqtt in",
+    "z": "tab_society5_lab",
+    "name": "MQTT IN telemetry",
+    "topic": "cps/esp32/lab01/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_local",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 100,
+    "wires": [
+      [
+        "json_parse",
+        "dbg_raw"
+      ]
+    ]
+  },
+  {
+    "id": "json_parse",
+    "type": "json",
+    "z": "tab_society5_lab",
+    "name": "JSON parse",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 340,
+    "y": 100,
+    "wires": [
+      [
+        "validate_and_extract"
+      ]
+    ]
+  },
+  {
+    "id": "validate_and_extract",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Validate + Extract",
+    "func": "// Validate telemetry payload and normalize fields\n// Expected: {device, ts, ldr, threshold, mode, auto_decision_led, led}\n\nconst p = msg.payload || {};\n\nfunction isNum(x){return typeof x === 'number' && isFinite(x);}\n\n// Basic validation\nif (!p.device) p.device = \"unknown\";\nif (!isNum(p.ldr)) return null;\nif (!isNum(p.threshold)) p.threshold = 500;\nif (!p.mode) p.mode = \"AUTO\";\n\n// Enforce range checks\nif (p.ldr < 0 || p.ldr > 4095) {\n  msg.anomaly = true;\n} else {\n  msg.anomaly = false;\n}\n\n// Provide a clean message for downstream\nmsg.telemetry = {\n  device: String(p.device),\n  ts: isNum(p.ts) ? p.ts : Math.floor(Date.now()/1000),\n  ldr: p.ldr,\n  threshold: p.threshold,\n  mode: String(p.mode),\n  auto_decision_led: !!p.auto_decision_led,\n  led: !!p.led\n};\n\n// For UI nodes\nmsg.payload = msg.telemetry;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 540,
+    "y": 100,
+    "wires": [
+      [
+        "ui_ldr_gauge",
+        "ui_ldr_chart",
+        "twin_and_policy",
+        "ui_anomaly",
+        "ui_mode_text"
+      ]
+    ]
+  },
+  {
+    "id": "twin_and_policy",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Digital Twin + Policy Engine",
+    "func": "// Digital Twin + Policy enforcement\n// Policy: LED ON time <= 60% within last 10 minutes (rolling window)\n// Human override: context.human.mode in {AUTO, ON, OFF}\n\nconst t = msg.telemetry;\nconst nowMs = Date.now();\n\n// ---- Digital Twin model (simple expected band + residual) ----\n// Define an \"expected\" band around threshold; this is a lightweight twin.\nconst expectedCenter = t.threshold;\nconst band = 150; // expected +/- band\nconst expectedLow = Math.max(0, expectedCenter - band);\nconst expectedHigh = Math.min(4095, expectedCenter + band);\n\nlet residual = 0;\nif (t.ldr < expectedLow) residual = expectedLow - t.ldr;\nelse if (t.ldr > expectedHigh) residual = t.ldr - expectedHigh;\n\n// Keep short history (for twin visualization)\nlet hist = context.get('ldr_hist') || [];\nhist.push({ts: nowMs, ldr: t.ldr, led: t.led});\n// keep last 5 minutes for history\nconst HIST_MS = 5 * 60 * 1000;\nhist = hist.filter(e => (nowMs - e.ts) <= HIST_MS);\ncontext.set('ldr_hist', hist);\n\n// ---- Human-in-the-loop mode ----\nconst human = context.get('human') || { mode: 'AUTO' }; // AUTO / ON / OFF\n\n// ---- Baseline decision (AI/rules) ----\n// Use the device's suggested auto_decision as baseline (explainable)\nconst baseDecision = !!t.auto_decision_led;\n\n// ---- Policy window tracking (10 minutes) ----\nlet win = context.get('policy_win') || [];\n// win entries: {ts, led} sampled at telemetry rate\nwin.push({ts: nowMs, led: baseDecision});\nconst WIN_MS = 10 * 60 * 1000;\nwin = win.filter(e => (nowMs - e.ts) <= WIN_MS);\ncontext.set('policy_win', win);\n\n// Approximate ON ratio from samples\nconst onCount = win.reduce((a,e)=> a + (e.led ? 1 : 0), 0);\nconst ratioOn = win.length ? (onCount / win.length) : 0;\n\n// Policy: allow ON only if ratio <= 0.60 (or turning ON would exceed)\n// We'll be conservative: if baseDecision==true and ratioOn>0.60 -> block\nlet policyBlocked = false;\nlet policyReason = \"\";\nlet finalMode = human.mode;\n\nlet finalDecision;\n\nif (finalMode === 'ON') {\n  // Human forces ON, but still show policy warning (do not block human here)\n  finalDecision = true;\n  if (ratioOn > 0.60) {\n    policyBlocked = true;\n    policyReason = \"Policy limit exceeded (ON ratio > 60%); human override active\";\n  }\n} else if (finalMode === 'OFF') {\n  finalDecision = false;\n} else {\n  // AUTO mode: policy can constrain\n  if (baseDecision === true && ratioOn > 0.60) {\n    finalDecision = false;\n    policyBlocked = true;\n    policyReason = \"Policy enforced: energy-saving constraint (ON ratio > 60% in 10 min)\";\n  } else {\n    finalDecision = baseDecision;\n  }\n}\n\n// ---- Build Digital Twin state object ----\nconst twin = {\n  expected: { center: expectedCenter, low: expectedLow, high: expectedHigh },\n  residual: residual,\n  residual_level: residual === 0 ? \"NORMAL\" : (residual < 120 ? \"WARN\" : \"ALERT\"),\n  window_on_ratio: ratioOn,\n  policy_blocked: policyBlocked,\n  policy_reason: policyReason,\n  human_mode: finalMode,\n  base_decision: baseDecision,\n  final_decision: finalDecision\n};\n\ncontext.set('twin', twin);\n\n// ---- Prepare MQTT command to ESP32 ----\n// We'll send mode commands only (AUTO/ON/OFF) to keep the device robust.\n// In AUTO mode, ESP32 will follow its local decision; policy is enforced by switching to OFF if needed.\n// Here we implement:\n//  - If human_mode==ON -> send {mode:\"ON\"}\n//  - If human_mode==OFF -> send {mode:\"OFF\"}\n//  - If AUTO and finalDecision==true -> send {mode:\"AUTO\"} (ESP32 turns ON by threshold)\n//  - If AUTO and finalDecision==false but baseDecision==true and policy blocked -> we can force OFF\n//    to override local AUTO.\n\nlet cmd;\nlet explain;\n\nif (finalMode === 'ON') {\n  cmd = { mode: \"ON\" };\n  explain = \"Human override: LED forced ON\";\n} else if (finalMode === 'OFF') {\n  cmd = { mode: \"OFF\" };\n  explain = \"Human override: LED forced OFF\";\n} else {\n  // AUTO\n  if (policyBlocked) {\n    cmd = { mode: \"OFF\" };\n    explain = twin.policy_reason;\n  } else {\n    cmd = { mode: \"AUTO\" };\n    explain = baseDecision ? \"AUTO decision: LED ON (below threshold)\" : \"AUTO decision: LED OFF (above threshold)\";\n  }\n}\n\n// For downstream (UI + MQTT)\nmsg.twin = twin;\nmsg.command = cmd;\nmsg.explain = explain;\n\n// Multi-output style through node-wiring: set msg.payload for UI, clone for MQTT\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 780,
+    "y": 180,
+    "wires": [
+      [
+        "ui_twin_status",
+        "ui_policy_ratio",
+        "ui_explain_text",
+        "build_cmd_msg",
+        "dbg_twin"
+      ]
+    ]
+  },
+  {
+    "id": "build_cmd_msg",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Build MQTT command msg",
+    "func": "const cmd = msg.command || {mode:\"AUTO\"};\nmsg.payload = cmd;\nmsg.topic = \"cps/esp32/lab01/command\";\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 1040,
+    "y": 220,
+    "wires": [
+      [
+        "mqtt_out_command",
+        "dbg_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_command",
+    "type": "mqtt out",
+    "z": "tab_society5_lab",
+    "name": "MQTT OUT command",
+    "topic": "",
+    "qos": "0",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker_local",
+    "x": 1240,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "ui_ldr_gauge",
+    "type": "ui_gauge",
+    "z": "tab_society5_lab",
+    "name": "LDR",
+    "group": "ui_group_live",
+    "order": 1,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "LDR (0–4095)",
+    "label": "",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 4095,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "1300",
+    "seg2": "2800",
+    "x": 780,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ui_ldr_chart",
+    "type": "ui_chart",
+    "z": "tab_society5_lab",
+    "name": "LDR chart",
+    "group": "ui_group_live",
+    "order": 2,
+    "width": 12,
+    "height": 4,
+    "label": "LDR (trend)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#aec7e8",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd",
+      "#8c564b",
+      "#e377c2",
+      "#7f7f7f"
+    ],
+    "outputs": 1,
+    "x": 790,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_anomaly",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_live",
+    "order": 3,
+    "width": 6,
+    "height": 1,
+    "name": "Anomaly",
+    "label": "Anomaly Flag",
+    "format": "{{msg.anomaly ? \"YES\" : \"NO\"}}",
+    "layout": "row-spread",
+    "x": 790,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "ui_mode_text",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_live",
+    "order": 4,
+    "width": 6,
+    "height": 1,
+    "name": "Device Mode",
+    "label": "Device Mode (from ESP32)",
+    "format": "{{payload.mode}}",
+    "layout": "row-spread",
+    "x": 810,
+    "y": 20,
+    "wires": []
+  },
+  {
+    "id": "ui_twin_status",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_twin",
+    "order": 1,
+    "width": 12,
+    "height": 1,
+    "name": "Twin status",
+    "label": "Digital Twin",
+    "format": "Residual: {{twin.residual}} ({{twin.residual_level}}) | Expected band: [{{twin.expected.low}}, {{twin.expected.high}}] | Base decision: {{twin.base_decision ? \"ON\" : \"OFF\"}} | Final: {{twin.final_decision ? \"ON\" : \"OFF\"}}",
+    "layout": "row-spread",
+    "x": 1040,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ui_policy_ratio",
+    "type": "ui_gauge",
+    "z": "tab_society5_lab",
+    "name": "Policy ON ratio",
+    "group": "ui_group_policy",
+    "order": 2,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Policy: ON ratio (10 min)",
+    "label": "",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 1,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "0.6",
+    "seg2": "0.75",
+    "x": 1040,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ui_explain_text",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_policy",
+    "order": 3,
+    "width": 12,
+    "height": 1,
+    "name": "Explain",
+    "label": "Explanation",
+    "format": "{{msg.explain}}",
+    "layout": "row-spread",
+    "x": 1030,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "ui_dropdown_mode",
+    "type": "ui_dropdown",
+    "z": "tab_society5_lab",
+    "name": "Human Mode",
+    "label": "Human Mode",
+    "tooltip": "AUTO allows policy enforcement; ON/OFF forces output",
+    "place": "Select mode",
+    "group": "ui_group_policy",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "multiple": false,
+    "options": [
+      {
+        "label": "AUTO",
+        "value": "AUTO",
+        "type": "str"
+      },
+      {
+        "label": "ON",
+        "value": "ON",
+        "type": "str"
+      },
+      {
+        "label": "OFF",
+        "value": "OFF",
+        "type": "str"
+      }
+    ],
+    "payload": "",
+    "topic": "human_mode",
+    "topicType": "str",
+    "className": "",
+    "x": 220,
+    "y": 220,
+    "wires": [
+      [
+        "set_human_mode"
+      ]
+    ]
+  },
+  {
+    "id": "set_human_mode",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Set human mode (context)",
+    "func": "const m = String(msg.payload || 'AUTO').toUpperCase();\nconst allowed = ['AUTO','ON','OFF'];\nconst mode = allowed.includes(m) ? m : 'AUTO';\n\nconst human = context.get('human') || { mode: 'AUTO' };\nhuman.mode = mode;\ncontext.set('human', human);\n\nmsg.payload = `Human mode set to ${mode}`;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 480,
+    "y": 220,
+    "wires": [
+      [
+        "ui_human_mode_confirm"
+      ]
+    ]
+  },
+  {
+    "id": "ui_human_mode_confirm",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_policy",
+    "order": 4,
+    "width": 6,
+    "height": 1,
+    "name": "Human mode confirm",
+    "label": "Human Control",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 740,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "ui_policy_reset_btn",
+    "type": "ui_button",
+    "z": "tab_society5_lab",
+    "name": "Reset policy window",
+    "group": "ui_group_policy",
+    "order": 5,
+    "width": 6,
+    "height": 1,
+    "passthru": false,
+    "label": "Reset Policy Window (10 min)",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "refresh",
+    "payload": "reset",
+    "payloadType": "str",
+    "topic": "policy_reset",
+    "topicType": "str",
+    "x": 240,
+    "y": 280,
+    "wires": [
+      [
+        "policy_reset"
+      ]
+    ]
+  },
+  {
+    "id": "policy_reset",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Policy reset",
+    "func": "context.set('policy_win', []);\nmsg.payload = 'Policy window reset.';\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 470,
+    "y": 280,
+    "wires": [
+      [
+        "ui_policy_reset_text"
+      ]
+    ]
+  },
+  {
+    "id": "ui_policy_reset_text",
+    "type": "ui_text",
+    "z": "tab_society5_lab",
+    "group": "ui_group_policy",
+    "order": 6,
+    "width": 6,
+    "height": 1,
+    "name": "Policy reset text",
+    "label": "Policy",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 720,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "dbg_raw",
+    "type": "debug",
+    "z": "tab_society5_lab",
+    "name": "dbg raw",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 360,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "dbg_twin",
+    "type": "debug",
+    "z": "tab_society5_lab",
+    "name": "dbg twin",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "twin",
+    "targetType": "msg",
+    "x": 1030,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "dbg_cmd",
+    "type": "debug",
+    "z": "tab_society5_lab",
+    "name": "dbg cmd",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 1240,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ui_ratio_mapper",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Map ratio to gauge",
+    "func": "msg.payload = (msg.twin && typeof msg.twin.window_on_ratio === 'number') ? msg.twin.window_on_ratio : 0;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 1040,
+    "y": 340,
+    "wires": [
+      [
+        "ui_policy_ratio"
+      ]
+    ]
+  },
+  {
+    "id": "twin_to_ratio",
+    "type": "link in",
+    "z": "tab_society5_lab",
+    "name": "twin->ratio",
+    "links": [],
+    "x": 875,
+    "y": 340,
+    "wires": [
+      [
+        "ui_ratio_mapper"
+      ]
+    ]
+  },
+  {
+    "id": "link_out_ratio",
+    "type": "link out",
+    "z": "tab_society5_lab",
+    "name": "ratio link out",
+    "mode": "link",
+    "links": [
+      "twin_to_ratio"
+    ],
+    "x": 915,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "twin_ratio_wire",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Send ratio to gauge",
+    "func": "return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 860,
+    "y": 260,
+    "wires": [
+      [
+        "link_out_ratio"
+      ]
+    ]
+  },
+  {
+    "id": "ui_ldr_gauge_mapper",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Map LDR to gauge",
+    "func": "msg.payload = msg.payload.ldr;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 700,
+    "y": 60,
+    "wires": [
+      [
+        "ui_ldr_gauge"
+      ]
+    ]
+  },
+  {
+    "id": "ui_ldr_chart_mapper",
+    "type": "function",
+    "z": "tab_society5_lab",
+    "name": "Map LDR to chart",
+    "func": "msg.topic = \"ldr\";\nmsg.payload = msg.payload.ldr;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 700,
+    "y": 100,
+    "wires": [
+      [
+        "ui_ldr_chart"
+      ]
+    ]
+  },
+  {
+    "id": "wire_ui_maps",
+    "type": "link in",
+    "z": "tab_society5_lab",
+    "name": "telemetry->ui maps",
+    "links": [],
+    "x": 585,
+    "y": 20,
+    "wires": [
+      [
+        "ui_ldr_gauge_mapper",
+        "ui_ldr_chart_mapper"
+      ]
+    ]
+  },
+  {
+    "id": "link_out_ui",
+    "type": "link out",
+    "z": "tab_society5_lab",
+    "name": "ui link out",
+    "mode": "link",
+    "links": [
+      "wire_ui_maps"
+    ],
+    "x": 675,
+    "y": 20,
+    "wires": []
+  }
+]
