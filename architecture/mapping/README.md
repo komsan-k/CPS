@@ -68,6 +68,4 @@ Together, they provide a **complete architectural view** for CPS and Industrial 
 - The unified table provides a **clear, practical mapping**
 - Together, they enable **standard-aligned, intelligent, and scalable CPS design**
 
----
 
-**Status:** ✅ Unified | ✅ Standards-aligned | ✅ CPS-ready | ✅ Industry 4.0 & Industrial Internet compatible
