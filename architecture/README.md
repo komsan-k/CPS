@@ -1,7 +1,6 @@
 # CPS 5C Architecture
 
-This part presents a **clear, structured explanation of the CPS 5C Architecture**, adapted from a textbook-style LaTeX section into a **student- and instructor-friendly Markdown format**.  
-It is suitable for **GitHub repositories, LMS uploads, lab manuals, and CPS course materials**.
+This part presents a **clear, structured explanation of the CPS 5C Architecture**.
 
 ---
 
