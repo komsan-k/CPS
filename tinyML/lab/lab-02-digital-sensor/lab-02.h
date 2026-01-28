@@ -6,7 +6,7 @@
  ***************************************************/
 
 // ====== Pin Configuration ======
-#define BUTTON_PIN 15      // Digital input (button / PIR)
+#define BUTTON_PIN 14      // Digital input (button / PIR)
 #define LED_PIN     2      // Onboard LED (ESP32)
 
 // ====== Debounce Parameters ======
