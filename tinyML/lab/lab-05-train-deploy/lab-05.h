@@ -3,7 +3,7 @@
  * Full Arduino Code (Feature-based + Embedded Model)
  *
  * What this sketch does:
- *  1) Samples an analog sensor (e.g., LDR on GPIO34)
+ *  1) Samples an analog sensor (e.g., LDR on GPIO36)
  *  2) Maintains a sliding window (circular buffer)
  *  3) Extracts features: mean, min, max, variance, RMS, slope
  *  4) Runs an on-device classifier (embedded weights/bias)
