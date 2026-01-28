@@ -20,8 +20,8 @@
  * Wiring (typical):
  *  - MPU6050 VCC  -> 3.3V (or 5V if your module supports it; prefer 3.3V)
  *  - MPU6050 GND  -> GND
- *  - MPU6050 SDA  -> ESP32 GPIO21
- *  - MPU6050 SCL  -> ESP32 GPIO22
+ *  - MPU6050 SDA  -> ESP32 GPIO4
+ *  - MPU6050 SCL  -> ESP32 GPIO5
  ***************************************************/
 
 #include <Arduino.h>
@@ -103,7 +103,8 @@ bool i2cReadBytes(uint8_t reg, uint8_t *buf, uint8_t len) {
 
 // -------------------- MPU init + read --------------------
 bool mpuInit() {
-  Wire.begin(); // default SDA=21, SCL=22 on ESP32
+  // Wire.begin(); // default SDA=21, SCL=22 on ESP32
+  Wire.begin(4, 5);            // ESP32: SDA=GPIO4, SCL=GPIO5
   Wire.setClock(400000);
 
   // Wake up MPU6050 (clear sleep bit)
