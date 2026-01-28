@@ -3,7 +3,7 @@
  * Full Arduino Code (ESP32)
  *
  * This sketch:
- *  1) Samples an analog sensor (e.g., LDR on GPIO34)
+ *  1) Samples an analog sensor (e.g., LDR on GPIO36)
  *  2) Maintains a sliding window
  *  3) Extracts features: mean, min, max, variance, RMS, slope
  *  4) Runs BOTH:
@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 // ===================== Pin Configuration =====================
-#define SENSOR_PIN 34
+#define SENSOR_PIN 36
 #define LED_PIN     2
 
 // ===================== Timing =====================
