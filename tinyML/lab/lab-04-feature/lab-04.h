@@ -114,7 +114,7 @@ void loop() {
     addSample(raw);
 
     // Optional: LED indicator based on latest sample
-    digitalWrite(LED_PIN, (raw > 2500) ? HIGH : LOW);
+    digitalWrite(LED_PIN, (raw > 400) ? HIGH : LOW);
   }
 
   // 2) Feature output (only after buffer is "ready")
