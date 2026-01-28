@@ -12,7 +12,7 @@
 #include <Arduino.h>
 
 // ====== Pin Configuration ======
-#define SENSOR_PIN 34          // ADC input pin (GPIO34 recommended)
+#define SENSOR_PIN 36          // ADC input pin (GPIO36 recommended)
 #define LED_PIN    2           // Onboard LED (optional indicator)
 
 // ====== Sampling Configuration ======
