@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 // ===================== Pins =====================
-#define SENSOR_PIN 34
+#define SENSOR_PIN 36
 #define LED_PIN     2
 
 // ===================== Timing =====================
@@ -47,7 +47,7 @@ const int8_t Wi[NUM_CLASSES][INPUT_SIZE] = {
 };
 const int32_t bi[NUM_CLASSES] = { 10, 0, -10 };
 
-// Input quantization params (EXAMPLE — replace properly)
+// Input quantization params (EXAMPLE â€” replace properly)
 const float X_SCALE = 50.0f;
 const int   X_ZERO_POINT = 0;
 // ---------------------------------------------------------------
