@@ -1,4 +1,4 @@
-# Lab 0: Introduction to TinyML and ESP32  
+# Lab 1: Introduction to TinyML and ESP32  
 ## From Sensor to Decision on a Microcontroller
 
 ---
