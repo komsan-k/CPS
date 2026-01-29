@@ -86,7 +86,7 @@ AI-optimized delivery, EV fleets, carbon-aware routing
 
 ---
 
-## 🧪 Example CPS Loop (Course-Ready)
+## 🧪 Example CPS Loop 
 
 ```
 Sensors (Road / Vehicle)
@@ -107,7 +107,7 @@ Actuators (Signals / Vehicles)
 
 ---
 
-## ❓ What is Transportation 5.0? (Exam-Ready)
+## ❓ What is Transportation 5.0? 
 
 **One-sentence definition:**
 
@@ -144,15 +144,4 @@ Actuators (Signals / Vehicles)
 - Ideal foundation for **Transportation 5.0 labs and simulations**
 - Perfect for **ESP32 + Node-RED + MQTT** teaching labs
 
----
 
-## 📘 Suggested Extensions
-- Expand into a **3,000–5,000 word textbook chapter**
-- Design **Transportation 5.0 CPS labs** (ESP32 / NS-3 / Node-RED)
-- Create **publication-quality PNG diagrams**
-- Develop **student quizzes and exam questions**
-
----
-
-**License:** Educational use  
-**Audience:** Undergraduate & Graduate CPS / ITS / Smart City courses
