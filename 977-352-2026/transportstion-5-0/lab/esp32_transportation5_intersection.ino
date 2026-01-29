@@ -17,7 +17,7 @@
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
 
-const char* MQTT_HOST = "broker.hivemq.com"; // <-- set to your broker IP
+const char* MQTT_HOST = "test.mosquitto.org"; // <-- set to your broker IP
 const uint16_t MQTT_PORT = 1883;
 
 const char* TOPIC_TELE = "t50/intersection/telemetry";
