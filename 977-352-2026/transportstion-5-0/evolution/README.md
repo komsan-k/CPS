@@ -1,5 +1,4 @@
 # 🚦 The Revolution of Transportation
-*A Clear, Structured Explanation*
 
 ---
 
