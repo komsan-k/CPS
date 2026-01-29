@@ -29,11 +29,11 @@ This lab builds a **closed-loop Cyber-Physical System (CPS)** for a **smart inte
 - (Optional) 1 LED for pedestrian walk signal
 
 ### Wiring (example pins)
-- **LDR**: ADC `GPIO34`
-- **Ped button**: `GPIO27` to GND (uses `INPUT_PULLUP`)
-- **Lane A LEDs**: R=`GPIO25`, Y=`GPIO26`, G=`GPIO33`
-- **Lane B LEDs**: R=`GPIO14`, Y=`GPIO12`, G=`GPIO13`
-- **Ped LED**: `GPIO32`
+- **LDR**: ADC `GPIO36`
+- **Ped button**: `GPIO16` to GND (uses `INPUT_PULLUP`)
+- **Lane A LEDs**: R=`GPIO2`, Y=`GPIO26`, G=`GPIO12`
+- **Lane B LEDs**: R=`GPIO23`, Y=`GPIO19`, G=`GPIO18`
+- **Ped Buzzer (eg. LED)**: `GPIO13`
 
 > If your board uses different pins, edit the constants in the Arduino code.
 
