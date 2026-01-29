@@ -17,7 +17,7 @@
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
 
-const char* MQTT_HOST = "192.168.1.10"; // <-- set to your broker IP
+const char* MQTT_HOST = "broker.hivemq.com"; // <-- set to your broker IP
 const uint16_t MQTT_PORT = 1883;
 
 const char* TOPIC_TELE = "t50/intersection/telemetry";
@@ -26,8 +26,8 @@ const char* TOPIC_CMD  = "t50/intersection/cmd";
 const char* DEVICE_ID = "esp32-intersection-01";
 
 // ====== PINS ======
-const int PIN_LDR = 34;          // ADC
-const int PIN_PED_BTN = 27;      // to GND, INPUT_PULLUP
+const int PIN_LDR = 36;          // ADC
+const int PIN_PED_BTN = 16;      // to GND, INPUT_PULLUP
 
 // Lane A LEDs
 const int A_R = 25;
