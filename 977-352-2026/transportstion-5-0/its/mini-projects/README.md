@@ -5,7 +5,7 @@ This section defines **hands-on student mini-projects** inspired by **real-world
 
 ---
 
-## 📌 Project Structure (Common to All)
+## 📌 Project Structure 
 Each mini-project should include:
 - Clear **problem statement**
 - **CPS 5C mapping**
