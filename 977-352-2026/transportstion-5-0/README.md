@@ -127,7 +127,4 @@ Actuators (Signals / Vehicles)
 - Strongly aligned with **Transportation 5.0, Society 5.0, and Industry 5.0** curricula
 - Prepares engineers for **human-centered and sustainable mobility systems**
 
----
 
-**Author / Course Use:**  
-This README is suitable for textbooks, lecture notes, laboratory introductions, and CPS/ITS course repositories.
