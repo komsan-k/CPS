@@ -1,7 +1,7 @@
 # 🎓 Student Mini-Projects Based on Real-World ITS Cities
 
 This section defines **hands-on student mini-projects** inspired by **real-world Intelligent Transportation Systems (ITS) deployments**.  
-Each project is scoped for **2–3 weeks**, suitable for **undergraduate or graduate CPS / ITS / Smart City courses**.
+
 
 ---
 
