@@ -1,0 +1,452 @@
+[
+  {
+    "id": "tab_t50",
+    "type": "tab",
+    "label": "Transportation 5.0 - Smart Intersection (CPS 5C)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt_broker",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "ui_tab",
+    "type": "ui_tab",
+    "name": "T5.0 Intersection",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_grp_ctrl",
+    "type": "ui_group",
+    "name": "Controls (Policy)",
+    "tab": "ui_tab",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_grp_live",
+    "type": "ui_group",
+    "name": "Live Telemetry",
+    "tab": "ui_tab",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_grp_status",
+    "type": "ui_group",
+    "name": "Status & Explainability",
+    "tab": "ui_tab",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "in_telemetry",
+    "type": "mqtt in",
+    "z": "tab_t50",
+    "name": "Telemetry (ESP32)",
+    "topic": "t50/intersection/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "json_telemetry"
+      ]
+    ]
+  },
+  {
+    "id": "json_telemetry",
+    "type": "json",
+    "z": "tab_t50",
+    "name": "Parse JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 330,
+    "y": 120,
+    "wires": [
+      [
+        "fn_preprocess",
+        "ui_laneA_g",
+        "ui_laneB_g",
+        "ui_ped_txt",
+        "chart_demand"
+      ]
+    ]
+  },
+  {
+    "id": "fn_preprocess",
+    "type": "function",
+    "z": "tab_t50",
+    "name": "Conversion: Normalize + Update latest",
+    "func": "// Expects msg.payload = {device, ts, laneA, laneB, ped}\n// Normalize ADC readings (0..4095) into 0..1 demand scores.\n\nconst p = msg.payload || {};\nconst laneA = Number(p.laneA ?? 0);\nconst laneB = Number(p.laneB ?? 0);\nconst ped   = Number(p.ped ?? 0);\n\nfunction clamp01(x){ return Math.max(0, Math.min(1, x)); }\n\n// Simple normalization: assume useful range 200..3500\nfunction norm(v){\n  const lo = 200, hi = 3500;\n  return clamp01((v - lo) / (hi - lo));\n}\n\nconst demandA = norm(laneA);\nconst demandB = norm(laneB);\n\nlet twin = flow.get('twin') || {};\n\n// Edge-detect ped press\nconst pedNow = (ped === 1);\nconst pedPrev = !!twin.pedPrev;\nconst pedRising = pedNow && !pedPrev;\n\n// Rolling averages\nconst alpha = 0.2;\ntwin.avgA = (twin.avgA == null) ? demandA : (alpha*demandA + (1-alpha)*twin.avgA);\ntwin.avgB = (twin.avgB == null) ? demandB : (alpha*demandB + (1-alpha)*twin.avgB);\n\ntwin.last = {\n  ts: p.ts || Math.floor(Date.now()/1000),\n  laneA, laneB,\n  demandA, demandB,\n  ped: pedNow\n};\n\ntwin.pedPrev = pedNow;\n\n// Latch a pedestrian request until served\nif (pedRising) {\n  twin.pedLatched = true;\n  twin.pedRequestedAt = Date.now();\n}\n\nflow.set('twin', twin);\n\n// Send debug-friendly payload\nmsg.payload = { demandA, demandB, avgA: twin.avgA, avgB: twin.avgB, pedLatched: !!twin.pedLatched };\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 620,
+    "y": 120,
+    "wires": [
+      [
+        "dbg_twin"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_twin",
+    "type": "debug",
+    "z": "tab_t50",
+    "name": "Twin update (debug)",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 860,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ui_eco",
+    "type": "ui_switch",
+    "z": "tab_t50",
+    "name": "Eco Mode",
+    "label": "Eco Mode",
+    "group": "ui_grp_ctrl",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "decouple": "false",
+    "topic": "eco",
+    "style": "",
+    "onvalue": true,
+    "onvalueType": "bool",
+    "offvalue": false,
+    "offvalueType": "bool",
+    "x": 160,
+    "y": 220,
+    "wires": [
+      [
+        "fn_set_policy"
+      ]
+    ]
+  },
+  {
+    "id": "ui_pedprio",
+    "type": "ui_switch",
+    "z": "tab_t50",
+    "name": "Ped Priority",
+    "label": "Pedestrian Priority",
+    "group": "ui_grp_ctrl",
+    "order": 2,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "decouple": "false",
+    "topic": "ped_priority",
+    "style": "",
+    "onvalue": true,
+    "onvalueType": "bool",
+    "offvalue": false,
+    "offvalueType": "bool",
+    "x": 170,
+    "y": 260,
+    "wires": [
+      [
+        "fn_set_policy"
+      ]
+    ]
+  },
+  {
+    "id": "fn_set_policy",
+    "type": "function",
+    "z": "tab_t50",
+    "name": "Store policy toggles",
+    "func": "let policy = flow.get('policy') || {eco:false, ped_priority:false, max_green_ms:15000};\nif (msg.topic === 'eco') policy.eco = !!msg.payload;\nif (msg.topic === 'ped_priority') policy.ped_priority = !!msg.payload;\n// keep a safe bound\npolicy.max_green_ms = 15000;\nflow.set('policy', policy);\nmsg.payload = JSON.stringify(policy);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 240,
+    "wires": [
+      [
+        "ui_policy_txt"
+      ]
+    ]
+  },
+  {
+    "id": "ui_policy_txt",
+    "type": "ui_text",
+    "z": "tab_t50",
+    "group": "ui_grp_ctrl",
+    "order": 3,
+    "width": 12,
+    "height": 1,
+    "name": "Policy Status",
+    "label": "Policy",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 700,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "ui_laneA_g",
+    "type": "ui_gauge",
+    "z": "tab_t50",
+    "name": "Lane A (raw)",
+    "group": "ui_grp_live",
+    "order": 1,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Lane A (ADC)",
+    "label": "",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "1400",
+    "seg2": "2800",
+    "x": 620,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ui_laneB_g",
+    "type": "ui_gauge",
+    "z": "tab_t50",
+    "name": "Lane B (raw)",
+    "group": "ui_grp_live",
+    "order": 2,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Lane B (ADC)",
+    "label": "",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "1400",
+    "seg2": "2800",
+    "x": 620,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ui_ped_txt",
+    "type": "ui_text",
+    "z": "tab_t50",
+    "group": "ui_grp_live",
+    "order": 3,
+    "width": 12,
+    "height": 1,
+    "name": "Ped Request",
+    "label": "Ped Button",
+    "format": "{{msg.payload.ped}}",
+    "layout": "row-spread",
+    "x": 620,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "chart_demand",
+    "type": "ui_chart",
+    "z": "tab_t50",
+    "name": "Demand Chart",
+    "group": "ui_grp_live",
+    "order": 4,
+    "width": 12,
+    "height": 4,
+    "label": "Lane A/B (raw)",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "10",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 630,
+    "y": 360,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "inj_tick",
+    "type": "inject",
+    "z": "tab_t50",
+    "name": "Tick (1s)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "1",
+    "crontab": "",
+    "once": true,
+    "onceDelay": "1",
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 140,
+    "y": 420,
+    "wires": [
+      [
+        "fn_controller"
+      ]
+    ]
+  },
+  {
+    "id": "fn_controller",
+    "type": "function",
+    "z": "tab_t50",
+    "name": "Cognition+Config: Policy-aware Phase Controller",
+    "func": "// Runs every 1s. Uses flow.twin (latest telemetry + state) and flow.policy (toggles).\n// Publishes deterministic phase commands when a phase expires.\n\nconst now = Date.now();\nlet twin = flow.get('twin') || {};\nlet policy = flow.get('policy') || {eco:false, ped_priority:false, max_green_ms:15000};\n\nif (!twin.last) return null; // no telemetry yet\n\n// Initialize state if missing\nif (!twin.phase) {\n  twin.phase = 'A_GREEN';\n  twin.phaseEndsAt = now + 8000;\n  twin.reason = 'Init: start with A_GREEN';\n  flow.set('twin', twin);\n  return [ {payload: buildCmd(twin.phase, 8000, twin.reason, policy)},\n           {payload: JSON.stringify(policy)},\n           {payload: twin.phase},\n           {payload: twin.reason} ];\n}\n\n// If current phase still active, just update status outputs\nif (now < (twin.phaseEndsAt || 0)) {\n  return [ null,\n           {payload: JSON.stringify(policy)},\n           {payload: twin.phase},\n           {payload: twin.reason} ];\n}\n\n// Phase expired: compute next phase\nconst avgA = Number(twin.avgA ?? twin.last.demandA ?? 0);\nconst avgB = Number(twin.avgB ?? twin.last.demandB ?? 0);\nconst pedLatched = !!twin.pedLatched;\n\n// Safety timings\nconst YELLOW_MS = 2000;\nconst ALL_RED_MS = 500;\nconst PED_MS = 6000;\n\nfunction greenDuration(phase){\n  const baseMin = 6000;\n  const baseMax = policy.eco ? policy.max_green_ms : 20000;\n  const d = (phase === 'A_GREEN') ? avgA : avgB;\n  const ms = Math.round(baseMin + d * (baseMax - baseMin));\n  return Math.max(baseMin, Math.min(baseMax, ms));\n}\n\nfunction chooseTargetGreen(){\n  if (pedLatched && policy.ped_priority) return 'PED_CROSS';\n  let scoreA = avgA;\n  let scoreB = avgB;\n  if (policy.eco) {\n    if (twin.phase.includes('A_')) scoreA += 0.08;\n    if (twin.phase.includes('B_')) scoreB += 0.08;\n  }\n  return (scoreA >= scoreB) ? 'A_GREEN' : 'B_GREEN';\n}\n\nfunction nextPhaseSequence(target){\n  const cur = twin.phase;\n\n  // After yellow -> all red\n  if (cur === 'A_YELLOW' || cur === 'B_YELLOW') return {phase:'ALL_RED', dur:ALL_RED_MS};\n\n  // After all red -> target\n  if (cur === 'ALL_RED') return {phase: target, dur: (target==='PED_CROSS')?PED_MS:greenDuration(target)};\n\n  // After ped -> all red\n  if (cur === 'PED_CROSS') return {phase:'ALL_RED', dur:ALL_RED_MS};\n\n  // From A_GREEN to B_GREEN\n  if (cur === 'A_GREEN' && target === 'B_GREEN') return {phase:'A_YELLOW', dur:YELLOW_MS};\n  if (cur === 'B_GREEN' && target === 'A_GREEN') return {phase:'B_YELLOW', dur:YELLOW_MS};\n\n  // Stay on same green (extend)\n  if (cur === target) return {phase: target, dur: greenDuration(target)};\n\n  // If target is PED_CROSS from a green, go yellow first then ped (via all-red next tick)\n  if (target === 'PED_CROSS') {\n    if (cur === 'A_GREEN') return {phase:'A_YELLOW', dur:YELLOW_MS};\n    if (cur === 'B_GREEN') return {phase:'B_YELLOW', dur:YELLOW_MS};\n  }\n\n  // fallback\n  return {phase:'ALL_RED', dur:ALL_RED_MS};\n}\n\nfunction buildReason(nextPhase){\n  return `avgA=${avgA.toFixed(2)} | avgB=${avgB.toFixed(2)} | ped=${pedLatched?'YES':'NO'} | eco=${policy.eco} | ped_priority=${policy.ped_priority} | next=${nextPhase}`;\n}\n\nfunction buildCmd(phase, duration, reason, policyObj){\n  return {\n    phase,\n    duration_ms: duration,\n    reason,\n    policy: {\n      eco: !!policyObj.eco,\n      ped_priority: !!policyObj.ped_priority,\n      max_green_ms: Number(policyObj.max_green_ms || 15000)\n    }\n  };\n}\n\nconst target = chooseTargetGreen();\nconst seq = nextPhaseSequence(target);\n\n// If we are going to serve ped now, clear the latch\nif (seq.phase === 'PED_CROSS') {\n  twin.pedLatched = false;\n  twin.lastPedWaitMs = twin.pedRequestedAt ? (now - twin.pedRequestedAt) : null;\n}\n\nconst reason = buildReason(seq.phase);\n\n// Update state\ntwin.phase = seq.phase;\ntwin.phaseEndsAt = now + seq.dur;\ntwin.reason = reason;\nflow.set('twin', twin);\n\nreturn [ {payload: buildCmd(twin.phase, seq.dur, reason, policy)},\n         {payload: JSON.stringify(policy)},\n         {payload: twin.phase},\n         {payload: twin.reason} ];",
+    "outputs": 4,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 470,
+    "y": 420,
+    "wires": [
+      [
+        "json_cmd"
+      ],
+      [
+        "ui_policy_txt"
+      ],
+      [
+        "ui_phase_txt"
+      ],
+      [
+        "ui_reason_txt"
+      ]
+    ]
+  },
+  {
+    "id": "json_cmd",
+    "type": "json",
+    "z": "tab_t50",
+    "name": "To JSON string",
+    "property": "payload",
+    "action": "str",
+    "pretty": false,
+    "x": 720,
+    "y": 420,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_cmd",
+    "type": "mqtt out",
+    "z": "tab_t50",
+    "name": "Command to ESP32",
+    "topic": "t50/intersection/cmd",
+    "qos": "0",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker",
+    "x": 940,
+    "y": 420,
+    "wires": []
+  },
+  {
+    "id": "ui_phase_txt",
+    "type": "ui_text",
+    "z": "tab_t50",
+    "group": "ui_grp_status",
+    "order": 1,
+    "width": 12,
+    "height": 1,
+    "name": "Phase",
+    "label": "Current Phase",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 750,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "ui_reason_txt",
+    "type": "ui_text",
+    "z": "tab_t50",
+    "group": "ui_grp_status",
+    "order": 2,
+    "width": 12,
+    "height": 2,
+    "name": "Reason",
+    "label": "Explainability (Reason)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 770,
+    "y": 520,
+    "wires": []
+  }
+]
