@@ -26,7 +26,7 @@ This lab builds a **closed-loop Cyber-Physical System (CPS)** for a **smart inte
 - LDR + 10k resistor (voltage divider)
 - Push button (pedestrian request)
 - 6 LEDs + resistors (Lane A: R/Y/G, Lane B: R/Y/G)
-- (Optional) 1 LED for pedestrian walk signal
+- 1 Buzzer/LED for pedestrian walk signal
 
 ### Wiring (example pins)
 - **LDR**: ADC `GPIO36`
