@@ -1,6 +1,6 @@
 # Closed-Loop CPS (ESP32 + MQTT + Node-RED + ChatGPT Explanation)
 
-This bundle implements a **safe, deterministic CPS loop**:
+This part implements a **safe, deterministic CPS loop**:
 
 **ESP32 sensor → MQTT → Node-RED rule controller → MQTT actuator → ESP32 LED**
 and **ChatGPT (via OpenAI Responses API) provides explanations only**.
