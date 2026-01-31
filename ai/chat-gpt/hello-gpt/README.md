@@ -1,4 +1,4 @@
-# Lab 0: “Hello ChatGPT” in Node-RED (Dashboard Chatbot)
+# “Hello ChatGPT” in Node-RED (Dashboard Chatbot)
 
 ## 🎯 Goal
 
@@ -18,7 +18,7 @@ Build a simple ChatGPT chatbot using Node-RED with the following flow:
 
 ---
 
-## Step 1 — Install Dashboard Nodes (Optional)
+## Step 1 — Install Dashboard Nodes
 
 In Node-RED:
 
