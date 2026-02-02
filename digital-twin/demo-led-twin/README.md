@@ -1,4 +1,4 @@
-# 🌐 Lab: Digital Twin for ESP32 LED Toggle with Button Interrupt (Node-RED Integration)
+# 🌐 Digital Twin for ESP32 LED Toggle with Button Interrupt (Node-RED Integration)
 
 ## 🧩 1. Objective
 This lab demonstrates how to build a **Digital Twin** for the physical ESP32 LED system using **Node-RED**.  
