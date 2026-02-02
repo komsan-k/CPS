@@ -1,6 +1,6 @@
 # Control Theory in Cyber-Physical Systems
 
-This section introduces **Control Theory** as the mathematical and algorithmic foundation of **Cyber-Physical Systems (CPS)**. It is suitable for use as a **textbook chapter**, **course reading**, or **self-study reference** in CPS, control, robotics, and intelligent systems programs.
+This section introduces **Control Theory** as the mathematical and algorithmic foundation of **Cyber-Physical Systems (CPS)**. It is suitable for use in CPS, control, robotics, and intelligent systems programs.
 
 ---
 
