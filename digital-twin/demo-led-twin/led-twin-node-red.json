@@ -1,0 +1,432 @@
+[
+  {
+    "id": "e43e09d6dffb4cb2",
+    "type": "tab",
+    "label": "ESP32 LED Digital Twin",
+    "disabled": false,
+    "info": "Digital twin for ESP32 LED Toggle with Button Interrupt + Debounce"
+  },
+  {
+    "id": "6763fcb1f61b4f7a",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "sessionExpiry": ""
+  },
+  {
+    "id": "ui_base",
+    "type": "ui_base",
+    "theme": {
+      "name": "theme-light",
+      "lightTheme": {
+        "default": "#0094CE",
+        "baseColor": "#0094CE",
+        "baseFont": "Helvetica Neue",
+        "edited": true,
+        "reset": false
+      },
+      "darkTheme": {
+        "default": "#097479",
+        "baseColor": "#097479",
+        "baseFont": "Helvetica Neue",
+        "edited": true
+      },
+      "customTheme": {
+        "name": "Untitled Theme 1"
+      },
+      "themeState": {
+        "base-color": {
+          "default": "#0094CE",
+          "value": "#0094CE",
+          "name": "base-color"
+        },
+        "page-titlebar-backgroundColor": {
+          "value": "#0094CE",
+          "name": "page-titlebar-backgroundColor"
+        }
+      }
+    },
+    "site": {
+      "name": "ESP32 LED Twin",
+      "hideToolbar": "false",
+      "allowSwipe": "true",
+      "dateFormat": "DD/MM/YYYY",
+      "sizes": {
+        "sx": 48,
+        "sy": 48,
+        "gx": 6,
+        "gy": 6,
+        "cx": 6,
+        "cy": 6
+      }
+    }
+  },
+  {
+    "id": "ui_tab_led",
+    "type": "ui_tab",
+    "z": "",
+    "name": "LED Twin",
+    "icon": "dashboard",
+    "order": 1
+  },
+  {
+    "id": "ui_group_main",
+    "type": "ui_group",
+    "z": "",
+    "name": "Main",
+    "tab": "ui_tab_led",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_log",
+    "type": "ui_group",
+    "z": "",
+    "name": "Event Log",
+    "tab": "ui_tab_led",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "60240fb6b3c9441c",
+    "type": "mqtt in",
+    "z": "e43e09d6dffb4cb2",
+    "name": "LED state in",
+    "topic": "iot/lab/led/state",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "6763fcb1f61b4f7a",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "fmt_state_text",
+        "map_state_num"
+      ]
+    ]
+  },
+  {
+    "id": "fmt_state_text",
+    "type": "function",
+    "z": "e43e09d6dffb4cb2",
+    "name": "Format state text",
+    "func": "let s = String(msg.payload).toUpperCase();\nif (s === '1' || s === 'ON' || s === 'TRUE') s = 'ON';\nelse if (s === '0' || s === 'OFF' || s === 'FALSE') s = 'OFF';\nmsg.payload = 'LED State: ' + s;\nmsg.state = s; // keep a clean state\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 100,
+    "wires": [
+      [
+        "ui_text_state",
+        "ui_toast_state",
+        "to_led_payload"
+      ]
+    ]
+  },
+  {
+    "id": "to_led_payload",
+    "type": "function",
+    "z": "e43e09d6dffb4cb2",
+    "name": "Prepare LED value",
+    "func": "let s = (msg.state !== undefined) ? String(msg.state).toUpperCase() : String(msg.payload).toUpperCase();\nif (s === '1' || s === 'ON' || s === 'TRUE') s = 'ON';\nelse s = 'OFF';\nmsg.payload = s;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 420,
+    "y": 60,
+    "wires": [
+      [
+        "ui_led_indicator"
+      ]
+    ]
+  },
+  {
+    "id": "ui_led_indicator",
+    "type": "ui_led",
+    "z": "e43e09d6dffb4cb2",
+    "group": "ui_group_main",
+    "order": 3,
+    "width": "3",
+    "height": "1",
+    "label": "LED",
+    "labelPlacement": "left",
+    "colorForValue": [
+      {
+        "color": "#d62728",
+        "value": "OFF",
+        "valueType": "str"
+      },
+      {
+        "color": "#2ca02c",
+        "value": "ON",
+        "valueType": "str"
+      }
+    ],
+    "allowColorForValueInMessage": false,
+    "shape": "dot",
+    "name": "LED status",
+    "x": 660,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ui_text_state",
+    "type": "ui_text",
+    "z": "e43e09d6dffb4cb2",
+    "group": "ui_group_main",
+    "order": 1,
+    "width": "6",
+    "height": "1",
+    "name": "LED state text",
+    "label": "",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 650,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "ui_toast_state",
+    "type": "ui_toast",
+    "z": "e43e09d6dffb4cb2",
+    "position": "top right",
+    "displayTime": "2",
+    "highlight": "",
+    "sendall": true,
+    "outputs": 0,
+    "ok": "OK",
+    "cancel": "",
+    "raw": false,
+    "topic": "",
+    "name": "Toast on state change",
+    "x": 680,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "map_state_num",
+    "type": "function",
+    "z": "e43e09d6dffb4cb2",
+    "name": "State→Number",
+    "func": "let s = String(msg.payload).toUpperCase();\nlet n = (s === '1' || s === 'ON' || s === 'TRUE') ? 1 : 0;\nreturn {payload: n};",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 390,
+    "y": 150,
+    "wires": [
+      [
+        "ui_chart_state"
+      ]
+    ]
+  },
+  {
+    "id": "ui_chart_state",
+    "type": "ui_chart",
+    "z": "e43e09d6dffb4cb2",
+    "name": "LED State chart",
+    "group": "ui_group_log",
+    "order": 1,
+    "width": "12",
+    "height": "4",
+    "label": "LED State (0=OFF, 1=ON)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "step",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": "12",
+    "removeOlderUnit": "60",
+    "outputs": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#aec7e8",
+      "#ff7f0e"
+    ],
+    "x": 650,
+    "y": 150,
+    "wires": []
+  },
+  {
+    "id": "ui_switch_cmd",
+    "type": "ui_switch",
+    "z": "e43e09d6dffb4cb2",
+    "name": "LED Command",
+    "label": "LED Command",
+    "tooltip": "Toggle to send LED ON/OFF",
+    "group": "ui_group_main",
+    "order": 2,
+    "width": "6",
+    "height": "1",
+    "passthru": true,
+    "decouple": "false",
+    "topic": "",
+    "style": "",
+    "onvalue": "ON",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "green",
+    "offvalue": "OFF",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "red",
+    "animate": true,
+    "x": 410,
+    "y": 220,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_cmd",
+    "type": "mqtt out",
+    "z": "e43e09d6dffb4cb2",
+    "name": "LED cmd out",
+    "topic": "iot/lab/led/cmd",
+    "qos": "0",
+    "retain": "true",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "6763fcb1f61b4f7a",
+    "x": 670,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "mqtt_in_btn",
+    "type": "mqtt in",
+    "z": "e43e09d6dffb4cb2",
+    "name": "Button events in",
+    "topic": "iot/lab/button/event",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "6763fcb1f61b4f7a",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 150,
+    "y": 300,
+    "wires": [
+      [
+        "fmt_btn_text",
+        "map_btn_to_num"
+      ]
+    ]
+  },
+  {
+    "id": "fmt_btn_text",
+    "type": "function",
+    "z": "e43e09d6dffb4cb2",
+    "name": "Format button text",
+    "func": "const t = new Date().toLocaleTimeString();\nmsg.payload = `Button: ${String(msg.payload)} @ ${t}`;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 390,
+    "y": 280,
+    "wires": [
+      [
+        "ui_text_btn"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_btn",
+    "type": "ui_text",
+    "z": "e43e09d6dffb4cb2",
+    "group": "ui_group_log",
+    "order": 2,
+    "width": "12",
+    "height": "1",
+    "name": "Button event text",
+    "label": "",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 660,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "map_btn_to_num",
+    "type": "function",
+    "z": "e43e09d6dffb4cb2",
+    "name": "Button→Number",
+    "func": "let s = String(msg.payload).toUpperCase();\nlet n = (s.includes('PRESS')) ? 1 : 0;\nreturn {payload: n};",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 400,
+    "y": 320,
+    "wires": [
+      [
+        "ui_chart_btn"
+      ]
+    ]
+  },
+  {
+    "id": "ui_chart_btn",
+    "type": "ui_chart",
+    "z": "e43e09d6dffb4cb2",
+    "name": "Button Presses",
+    "group": "ui_group_log",
+    "order": 3,
+    "width": "12",
+    "height": "4",
+    "label": "Button Press (spikes)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "step",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": "12",
+    "removeOlderUnit": "60",
+    "outputs": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728"
+    ],
+    "x": 660,
+    "y": 320,
+    "wires": []
+  }
+]
