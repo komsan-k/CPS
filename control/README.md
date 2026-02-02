@@ -1,6 +1,6 @@
 # Control Theory in Cyber-Physical Systems
 
-This README-style chapter introduces **Control Theory** as the mathematical and algorithmic foundation of **Cyber-Physical Systems (CPS)**. It is suitable for use as a **textbook chapter**, **course reading**, or **self-study reference** in CPS, control, robotics, and intelligent systems programs.
+This section introduces **Control Theory** as the mathematical and algorithmic foundation of **Cyber-Physical Systems (CPS)**. It is suitable for use as a **textbook chapter**, **course reading**, or **self-study reference** in CPS, control, robotics, and intelligent systems programs.
 
 ---
 
@@ -316,15 +316,15 @@ Future CPS require **co-design of control, computation, and communication**.
 
 ---
 
-## 11. Chapter Summary
+## 11. Summary
 
 Control theory provides the foundational mechanisms enabling CPS to function as **autonomous, stable, and efficient systems**. By integrating feedback, modeling, optimization, and intelligence, control theory transforms CPS from passive integrations into **adaptive, goal-driven systems** capable of operating safely in complex real-world environments.
 
 ---
 
-## References (suggested)
+## References 
 
 - K. J. Åström and R. M. Murray, *Feedback Systems: An Introduction for Scientists and Engineers*  
 - G. C. Goodwin, S. F. Graebe, M. E. Salgado, *Control System Design*  
 - E. A. Lee, *Cyber Physical Systems: Design Challenges*  
-- IEEE CPS Initiative: https://ieeecps.org
+
