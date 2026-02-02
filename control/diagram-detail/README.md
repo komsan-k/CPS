@@ -149,7 +149,7 @@ With feedback, CPS become:
 
 ---
 
-## One-Sentence Figure Interpretation (Caption-Ready)
+## Figure Interpretation
 
 > **The basic control concept illustrates a closed-loop feedback system in which sensor measurements are used by a controller to compute control actions that regulate the behavior of a physical plant toward a desired reference.**
 
