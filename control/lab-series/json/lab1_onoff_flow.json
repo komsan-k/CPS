@@ -1,0 +1,340 @@
+[
+  {
+    "id": "2425275b9c69e918",
+    "type": "tab",
+    "label": "LAB1 - OnOff Control",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "41e72e18b11e8123",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "e8738e3de0b460bf",
+    "type": "ui_tab",
+    "name": "CPS Control Labs",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "df4bf4b3972471e9",
+    "type": "ui_group",
+    "name": "Lab 1: On/Off",
+    "tab": "e8738e3de0b460bf",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "50f41e601679f451",
+    "type": "ui_slider",
+    "z": "2425275b9c69e918",
+    "name": "Setpoint (ADC)",
+    "label": "Setpoint (0-4095)",
+    "group": "df4bf4b3972471e9",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "sp",
+    "min": 0,
+    "max": "4095",
+    "step": 10,
+    "x": 170,
+    "y": 80,
+    "wires": [
+      [
+        "8febb6b57ee66911"
+      ]
+    ]
+  },
+  {
+    "id": "8febb6b57ee66911",
+    "type": "function",
+    "z": "2425275b9c69e918",
+    "name": "Build setpoint JSON",
+    "func": "// msg.payload is number from slider\nmsg.topic = 'cps/ctrl/setpoint';\nmsg.payload = {sp: Number(msg.payload)};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 420,
+    "y": 80,
+    "wires": [
+      [
+        "f7052b292a8ac340"
+      ]
+    ]
+  },
+  {
+    "id": "f7052b292a8ac340",
+    "type": "mqtt out",
+    "z": "2425275b9c69e918",
+    "name": "MQTT setpoint",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "41e72e18b11e8123",
+    "x": 660,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "31c6eaf3a88446b3",
+    "type": "mqtt in",
+    "z": "2425275b9c69e918",
+    "name": "MQTT sensor",
+    "topic": "cps/ctrl/sensor",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "41e72e18b11e8123",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 160,
+    "wires": [
+      [
+        "78ec8ad3e2a45442",
+        "d2fca0c3a2bcfe13"
+      ]
+    ]
+  },
+  {
+    "id": "78ec8ad3e2a45442",
+    "type": "json",
+    "z": "2425275b9c69e918",
+    "name": "to JS obj",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 350,
+    "y": 160,
+    "wires": [
+      [
+        "1a4fb3384a1f8ad9",
+        "23239e8698e6478c",
+        "da02544b26cdbc2e",
+        "d3924cf2c0260ed1"
+      ]
+    ]
+  },
+  {
+    "id": "1a4fb3384a1f8ad9",
+    "type": "ui_gauge",
+    "z": "2425275b9c69e918",
+    "name": "Sensor y",
+    "group": "df4bf4b3972471e9",
+    "order": 2,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "Sensor (y)",
+    "label": "ADC",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 560,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "5272b0528ec04a9d",
+    "type": "ui_text",
+    "z": "2425275b9c69e918",
+    "group": "df4bf4b3972471e9",
+    "order": 3,
+    "width": 6,
+    "height": 1,
+    "name": "LED state",
+    "label": "LED",
+    "format": "{{msg.payload.led || msg.payload.led_state || 'see status topic'}}",
+    "layout": "row-spread",
+    "x": 560,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "da02544b26cdbc2e",
+    "type": "debug",
+    "z": "2425275b9c69e918",
+    "name": "sensor raw",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 560,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "b1b726e4d523de8c",
+    "type": "mqtt in",
+    "z": "2425275b9c69e918",
+    "name": "MQTT status",
+    "topic": "cps/ctrl/status",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "41e72e18b11e8123",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 240,
+    "wires": [
+      [
+        "7cb193ecf96cfa30"
+      ]
+    ]
+  },
+  {
+    "id": "7cb193ecf96cfa30",
+    "type": "json",
+    "z": "2425275b9c69e918",
+    "name": "status json",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 350,
+    "y": 240,
+    "wires": [
+      [
+        "e99bd1444adc95a7"
+      ]
+    ]
+  },
+  {
+    "id": "e99bd1444adc95a7",
+    "type": "ui_text",
+    "z": "2425275b9c69e918",
+    "group": "df4bf4b3972471e9",
+    "order": 4,
+    "width": 6,
+    "height": 1,
+    "name": "LED status (from status topic)",
+    "label": "LED status",
+    "format": "{{msg.payload.led}}",
+    "layout": "row-spread",
+    "x": 620,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "d2fca0c3a2bcfe13",
+    "type": "ui_chart",
+    "z": "2425275b9c69e918",
+    "name": "y over time",
+    "group": "df4bf4b3972471e9",
+    "order": 5,
+    "width": 12,
+    "height": 5,
+    "label": "Sensor y",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "className": "",
+    "x": 560,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "23239e8698e6478c",
+    "type": "function",
+    "z": "2425275b9c69e918",
+    "name": "Extract y for chart",
+    "func": "// Expect payload: {ts,y,sp}\nmsg.topic='y';\nmsg.payload = Number(msg.payload.y);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 560,
+    "y": 120,
+    "wires": [
+      [
+        "d2fca0c3a2bcfe13"
+      ]
+    ]
+  },
+  {
+    "id": "d3924cf2c0260ed1",
+    "type": "function",
+    "z": "2425275b9c69e918",
+    "name": "Format for UI text",
+    "func": "// show sp and y\nmsg.payload = {y:msg.payload.y, sp:msg.payload.sp};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 560,
+    "y": 200,
+    "wires": [
+      [
+        "5272b0528ec04a9d"
+      ]
+    ]
+  }
+]

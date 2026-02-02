@@ -1,0 +1,423 @@
+[
+  {
+    "id": "ef3cc4f3388ae5bf",
+    "type": "tab",
+    "label": "LAB4 - PI Control Tuning",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "1656985a0da0c5b1",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "bcd5befcbd297c26",
+    "type": "ui_tab",
+    "name": "CPS Control Labs",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "101f05073fa692ff",
+    "type": "ui_group",
+    "name": "Lab 4: PI control",
+    "tab": "bcd5befcbd297c26",
+    "order": 4,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "d29ee406065696a6",
+    "type": "ui_slider",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Setpoint",
+    "label": "Setpoint (0-4095)",
+    "group": "101f05073fa692ff",
+    "order": 1,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "sp",
+    "min": 0,
+    "max": "4095",
+    "step": 10,
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "f8b44226c75072a7"
+      ]
+    ]
+  },
+  {
+    "id": "0e8f1d146dd816cc",
+    "type": "ui_slider",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Kp",
+    "label": "Kp (0..0.3)",
+    "group": "101f05073fa692ff",
+    "order": 2,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "kp",
+    "min": 0,
+    "max": "0.3",
+    "step": "0.005",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "f8b44226c75072a7"
+      ]
+    ]
+  },
+  {
+    "id": "4dd8c3c71ade9bf8",
+    "type": "ui_slider",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Ki",
+    "label": "Ki (0..0.02)",
+    "group": "101f05073fa692ff",
+    "order": 3,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "ki",
+    "min": 0,
+    "max": "0.02",
+    "step": "0.0005",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "f8b44226c75072a7"
+      ]
+    ]
+  },
+  {
+    "id": "067725de879b6243",
+    "type": "ui_button",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Reset I",
+    "group": "101f05073fa692ff",
+    "order": 4,
+    "width": 4,
+    "height": 1,
+    "passthru": false,
+    "label": "Reset Integral",
+    "payload": "true",
+    "payloadType": "bool",
+    "topic": "resetI",
+    "x": 150,
+    "y": 200,
+    "wires": [
+      [
+        "408590f5b40732b8"
+      ]
+    ]
+  },
+  {
+    "id": "f8b44226c75072a7",
+    "type": "join",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Join sp+kp+ki",
+    "mode": "custom",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "accumulate": true,
+    "timeout": "2",
+    "count": "3",
+    "x": 420,
+    "y": 120,
+    "wires": [
+      [
+        "c8eaf660fee763a7"
+      ]
+    ]
+  },
+  {
+    "id": "c8eaf660fee763a7",
+    "type": "function",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Build setpoint JSON (PI)",
+    "func": "msg.topic='cps/ctrl/setpoint';\nmsg.payload={sp:Number(msg.payload.sp), kp:Number(msg.payload.kp), ki:Number(msg.payload.ki)};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 690,
+    "y": 120,
+    "wires": [
+      [
+        "f015ecdca191b996"
+      ]
+    ]
+  },
+  {
+    "id": "f015ecdca191b996",
+    "type": "mqtt out",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "MQTT setpoint",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "1656985a0da0c5b1",
+    "x": 920,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "408590f5b40732b8",
+    "type": "function",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "Merge resetI",
+    "func": "// Pass resetI command as-is; ESP32 handles resetI=true\nmsg.topic='cps/ctrl/setpoint';\nmsg.payload={resetI:true};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 420,
+    "y": 200,
+    "wires": [
+      [
+        "2f0e09b5f99033ad"
+      ]
+    ]
+  },
+  {
+    "id": "2f0e09b5f99033ad",
+    "type": "mqtt out",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "MQTT resetI",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "1656985a0da0c5b1",
+    "x": 690,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "10c8f9aab62dd35b",
+    "type": "mqtt in",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "MQTT sensor",
+    "topic": "cps/ctrl/sensor",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "1656985a0da0c5b1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 320,
+    "wires": [
+      [
+        "84a6b65267f79970"
+      ]
+    ]
+  },
+  {
+    "id": "84a6b65267f79970",
+    "type": "json",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "to obj",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 350,
+    "y": 320,
+    "wires": [
+      [
+        "c9cea3cf5173c2ca",
+        "9de8feb5a86ada46",
+        "fa9576bfad722286",
+        "7f54006346d1d1fb",
+        "29cae38a9ef16795"
+      ]
+    ]
+  },
+  {
+    "id": "c9cea3cf5173c2ca",
+    "type": "function",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "y chart",
+    "func": "msg.topic='y'; msg.payload=Number(msg.payload.y); return msg;",
+    "x": 560,
+    "y": 280,
+    "wires": [
+      [
+        "21264f6a47596ec8"
+      ]
+    ]
+  },
+  {
+    "id": "9de8feb5a86ada46",
+    "type": "function",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "u chart",
+    "func": "msg.topic='u'; msg.payload=Number(msg.payload.u); return msg;",
+    "x": 560,
+    "y": 320,
+    "wires": [
+      [
+        "7238ff86f61882dd"
+      ]
+    ]
+  },
+  {
+    "id": "fa9576bfad722286",
+    "type": "function",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "I term chart",
+    "func": "msg.topic='I'; msg.payload=Number(msg.payload.i); return msg;",
+    "x": 560,
+    "y": 360,
+    "wires": [
+      [
+        "79318bbc769c8cb0"
+      ]
+    ]
+  },
+  {
+    "id": "21264f6a47596ec8",
+    "type": "ui_chart",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "y",
+    "group": "101f05073fa692ff",
+    "order": 5,
+    "width": 12,
+    "height": 4,
+    "label": "Output y",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7238ff86f61882dd",
+    "type": "ui_chart",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "u",
+    "group": "101f05073fa692ff",
+    "order": 7,
+    "width": 12,
+    "height": 3,
+    "label": "Control u (0..255)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "255",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 320,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "79318bbc769c8cb0",
+    "type": "ui_chart",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "I",
+    "group": "101f05073fa692ff",
+    "order": 8,
+    "width": 12,
+    "height": 3,
+    "label": "Integral term I",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "-255",
+    "ymax": "255",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 360,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7f54006346d1d1fb",
+    "type": "ui_text",
+    "z": "ef3cc4f3388ae5bf",
+    "group": "101f05073fa692ff",
+    "order": 6,
+    "width": 4,
+    "height": 1,
+    "name": "Saturation",
+    "label": "Saturation",
+    "format": "{{msg.payload.sat}}",
+    "layout": "row-spread",
+    "x": 560,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "29cae38a9ef16795",
+    "type": "debug",
+    "z": "ef3cc4f3388ae5bf",
+    "name": "telemetry",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 560,
+    "y": 440,
+    "wires": []
+  }
+]

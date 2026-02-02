@@ -1,0 +1,331 @@
+[
+  {
+    "id": "d2e8f72d73b95e6c",
+    "type": "tab",
+    "label": "LAB3 - P Control Tuning",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "67cb9a24d6536b74",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "e0ab99e8061ad049",
+    "type": "ui_tab",
+    "name": "CPS Control Labs",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "35ba8ebdef6634a6",
+    "type": "ui_group",
+    "name": "Lab 3: P control",
+    "tab": "e0ab99e8061ad049",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "38e8ae4fcd39ae0c",
+    "type": "ui_slider",
+    "z": "d2e8f72d73b95e6c",
+    "name": "Setpoint",
+    "label": "Setpoint (0-4095)",
+    "group": "35ba8ebdef6634a6",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "sp",
+    "min": 0,
+    "max": "4095",
+    "step": 10,
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "4eaa585098883247"
+      ]
+    ]
+  },
+  {
+    "id": "a518c1d87255adb2",
+    "type": "ui_slider",
+    "z": "d2e8f72d73b95e6c",
+    "name": "Kp",
+    "label": "Kp (0..0.3)",
+    "group": "35ba8ebdef6634a6",
+    "order": 2,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "kp",
+    "min": 0,
+    "max": "0.3",
+    "step": "0.005",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "4eaa585098883247"
+      ]
+    ]
+  },
+  {
+    "id": "4eaa585098883247",
+    "type": "join",
+    "z": "d2e8f72d73b95e6c",
+    "name": "Join sp+kp",
+    "mode": "custom",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "accumulate": false,
+    "timeout": "2",
+    "count": "2",
+    "x": 400,
+    "y": 100,
+    "wires": [
+      [
+        "c34f7b7e88bf6db4"
+      ]
+    ]
+  },
+  {
+    "id": "c34f7b7e88bf6db4",
+    "type": "function",
+    "z": "d2e8f72d73b95e6c",
+    "name": "Build setpoint JSON",
+    "func": "msg.topic='cps/ctrl/setpoint';\nmsg.payload={sp:Number(msg.payload.sp), kp:Number(msg.payload.kp)};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 640,
+    "y": 100,
+    "wires": [
+      [
+        "a18a7dda4d54fb81"
+      ]
+    ]
+  },
+  {
+    "id": "a18a7dda4d54fb81",
+    "type": "mqtt out",
+    "z": "d2e8f72d73b95e6c",
+    "name": "MQTT setpoint",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "67cb9a24d6536b74",
+    "x": 860,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "07b52e0c3c6c7900",
+    "type": "mqtt in",
+    "z": "d2e8f72d73b95e6c",
+    "name": "MQTT sensor",
+    "topic": "cps/ctrl/sensor",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "67cb9a24d6536b74",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 220,
+    "wires": [
+      [
+        "1b9f73c057eff624"
+      ]
+    ]
+  },
+  {
+    "id": "1b9f73c057eff624",
+    "type": "json",
+    "z": "d2e8f72d73b95e6c",
+    "name": "to obj",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 350,
+    "y": 220,
+    "wires": [
+      [
+        "a197d6da850486d7",
+        "f27274de83db1329",
+        "3d1bd48b9dadf378",
+        "29ba855112afc03b"
+      ]
+    ]
+  },
+  {
+    "id": "a197d6da850486d7",
+    "type": "function",
+    "z": "d2e8f72d73b95e6c",
+    "name": "y chart",
+    "func": "msg.topic='y'; msg.payload=Number(msg.payload.y); return msg;",
+    "x": 560,
+    "y": 200,
+    "wires": [
+      [
+        "3105d3dc21b7c56d"
+      ]
+    ]
+  },
+  {
+    "id": "f27274de83db1329",
+    "type": "function",
+    "z": "d2e8f72d73b95e6c",
+    "name": "u chart",
+    "func": "msg.topic='u'; msg.payload=Number(msg.payload.u); return msg;",
+    "x": 560,
+    "y": 240,
+    "wires": [
+      [
+        "4c4c882c1dfbf209"
+      ]
+    ]
+  },
+  {
+    "id": "3d1bd48b9dadf378",
+    "type": "function",
+    "z": "d2e8f72d73b95e6c",
+    "name": "e chart",
+    "func": "msg.topic='e'; msg.payload=Number(msg.payload.e); return msg;",
+    "x": 560,
+    "y": 280,
+    "wires": [
+      [
+        "25b0a5c7de00d317"
+      ]
+    ]
+  },
+  {
+    "id": "29ba855112afc03b",
+    "type": "debug",
+    "z": "d2e8f72d73b95e6c",
+    "name": "telemetry",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 560,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "3105d3dc21b7c56d",
+    "type": "ui_chart",
+    "z": "d2e8f72d73b95e6c",
+    "name": "y",
+    "group": "35ba8ebdef6634a6",
+    "order": 3,
+    "width": 12,
+    "height": 4,
+    "label": "Output y vs time",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "4c4c882c1dfbf209",
+    "type": "ui_chart",
+    "z": "d2e8f72d73b95e6c",
+    "name": "u",
+    "group": "35ba8ebdef6634a6",
+    "order": 4,
+    "width": 12,
+    "height": 3,
+    "label": "Control u (0..255)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "255",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "25b0a5c7de00d317",
+    "type": "ui_chart",
+    "z": "d2e8f72d73b95e6c",
+    "name": "e",
+    "group": "35ba8ebdef6634a6",
+    "order": 5,
+    "width": 12,
+    "height": 3,
+    "label": "Error e = sp - y",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "-4095",
+    "ymax": "4095",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  }
+]

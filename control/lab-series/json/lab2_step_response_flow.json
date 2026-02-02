@@ -1,0 +1,347 @@
+[
+  {
+    "id": "296fab243e6bb5a4",
+    "type": "tab",
+    "label": "LAB2 - Step Response",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "81643327b333e127",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "44fc472f39285547",
+    "type": "ui_tab",
+    "name": "CPS Control Labs",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "2b8696369ca5e2a9",
+    "type": "ui_group",
+    "name": "Lab 2: Dynamics",
+    "tab": "44fc472f39285547",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "3f8b67b126d01f4f",
+    "type": "ui_button",
+    "z": "296fab243e6bb5a4",
+    "name": "u=0",
+    "group": "2b8696369ca5e2a9",
+    "order": 1,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "Step u=0",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "",
+    "payload": "0",
+    "payloadType": "num",
+    "topic": "u",
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "605b1ee320e69355"
+      ]
+    ]
+  },
+  {
+    "id": "550d24dd4dd14083",
+    "type": "ui_button",
+    "z": "296fab243e6bb5a4",
+    "name": "u=128",
+    "group": "2b8696369ca5e2a9",
+    "order": 2,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "Step u=128",
+    "payload": "128",
+    "payloadType": "num",
+    "topic": "u",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "605b1ee320e69355"
+      ]
+    ]
+  },
+  {
+    "id": "e4a87ff3390de74f",
+    "type": "ui_button",
+    "z": "296fab243e6bb5a4",
+    "name": "u=255",
+    "group": "2b8696369ca5e2a9",
+    "order": 3,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "Step u=255",
+    "payload": "255",
+    "payloadType": "num",
+    "topic": "u",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "605b1ee320e69355"
+      ]
+    ]
+  },
+  {
+    "id": "88b28b9a690ac708",
+    "type": "ui_slider",
+    "z": "296fab243e6bb5a4",
+    "name": "alpha",
+    "label": "alpha (0.5..0.99)",
+    "group": "2b8696369ca5e2a9",
+    "order": 4,
+    "width": 3,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "alpha",
+    "min": 0.5,
+    "max": "0.99",
+    "step": "0.01",
+    "x": 160,
+    "y": 200,
+    "wires": [
+      [
+        "605b1ee320e69355"
+      ]
+    ]
+  },
+  {
+    "id": "605b1ee320e69355",
+    "type": "join",
+    "z": "296fab243e6bb5a4",
+    "name": "Join u+alpha",
+    "mode": "custom",
+    "build": "object",
+    "property": "payload",
+    "propertyType": "msg",
+    "key": "topic",
+    "joiner": "\\n",
+    "joinerType": "str",
+    "accumulate": false,
+    "timeout": "2",
+    "count": "2",
+    "reduceRight": false,
+    "reduceExp": "",
+    "reduceInit": "",
+    "reduceInitType": "",
+    "reduceFixup": "",
+    "x": 420,
+    "y": 140,
+    "wires": [
+      [
+        "f475d7b53760ba90"
+      ]
+    ]
+  },
+  {
+    "id": "f475d7b53760ba90",
+    "type": "function",
+    "z": "296fab243e6bb5a4",
+    "name": "Build act JSON",
+    "func": "// payload is {u:..., alpha:...}\nmsg.topic='cps/ctrl/act';\nmsg.payload = {\n  u: Number(msg.payload.u ?? msg.payload['u'] ?? 0),\n  alpha: Number(msg.payload.alpha ?? msg.payload['alpha'] ?? 0.92)\n};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 650,
+    "y": 140,
+    "wires": [
+      [
+        "8d06bff21b321b93"
+      ]
+    ]
+  },
+  {
+    "id": "8d06bff21b321b93",
+    "type": "mqtt out",
+    "z": "296fab243e6bb5a4",
+    "name": "MQTT act",
+    "topic": "",
+    "qos": "0",
+    "retain": "false",
+    "broker": "81643327b333e127",
+    "x": 870,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "1244aa1405364a57",
+    "type": "mqtt in",
+    "z": "296fab243e6bb5a4",
+    "name": "MQTT sensor",
+    "topic": "cps/ctrl/sensor",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "81643327b333e127",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 280,
+    "wires": [
+      [
+        "7868de21f2e6381d",
+        "01c7a537902435df"
+      ]
+    ]
+  },
+  {
+    "id": "7868de21f2e6381d",
+    "type": "json",
+    "z": "296fab243e6bb5a4",
+    "name": "to obj",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 350,
+    "y": 280,
+    "wires": [
+      [
+        "d693c8cc726f3e52",
+        "41956a91934bd5b6",
+        "d8ac6cc00c93e580"
+      ]
+    ]
+  },
+  {
+    "id": "d693c8cc726f3e52",
+    "type": "function",
+    "z": "296fab243e6bb5a4",
+    "name": "y for chart",
+    "func": "msg.topic='y'; msg.payload=Number(msg.payload.y); return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 560,
+    "y": 260,
+    "wires": [
+      [
+        "e4b04b47562fb735"
+      ]
+    ]
+  },
+  {
+    "id": "41956a91934bd5b6",
+    "type": "function",
+    "z": "296fab243e6bb5a4",
+    "name": "u for chart",
+    "func": "msg.topic='u'; msg.payload=Number(msg.payload.u); return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 560,
+    "y": 300,
+    "wires": [
+      [
+        "d6a96caa45562ae2"
+      ]
+    ]
+  },
+  {
+    "id": "e4b04b47562fb735",
+    "type": "ui_chart",
+    "z": "296fab243e6bb5a4",
+    "name": "y",
+    "group": "2b8696369ca5e2a9",
+    "order": 5,
+    "width": 12,
+    "height": 5,
+    "label": "Plant output y (first-order)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "255",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 820,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d6a96caa45562ae2",
+    "type": "ui_chart",
+    "z": "296fab243e6bb5a4",
+    "name": "u",
+    "group": "2b8696369ca5e2a9",
+    "order": 6,
+    "width": 12,
+    "height": 3,
+    "label": "Input u (PWM cmd)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "255",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 800,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d8ac6cc00c93e580",
+    "type": "debug",
+    "z": "296fab243e6bb5a4",
+    "name": "sensor raw",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 560,
+    "y": 340,
+    "wires": []
+  }
+]

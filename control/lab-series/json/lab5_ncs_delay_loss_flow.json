@@ -1,0 +1,528 @@
+[
+  {
+    "id": "259bf4df329c0e26",
+    "type": "tab",
+    "label": "LAB5 - Networked Control (Delay/Loss)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "5fb6dbc70a16d770",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "a7c36edf4f372cfb",
+    "type": "ui_tab",
+    "name": "CPS Control Labs",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "8968e0573e4e7923",
+    "type": "ui_group",
+    "name": "Lab 5: NCS",
+    "tab": "a7c36edf4f372cfb",
+    "order": 5,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "8b663fe99839661e",
+    "type": "ui_slider",
+    "z": "259bf4df329c0e26",
+    "name": "Setpoint",
+    "label": "Setpoint (0-4095)",
+    "group": "8968e0573e4e7923",
+    "order": 1,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "sp",
+    "min": 0,
+    "max": "4095",
+    "step": 10,
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "1c348b16abe80279"
+      ]
+    ]
+  },
+  {
+    "id": "527cda091445db64",
+    "type": "ui_slider",
+    "z": "259bf4df329c0e26",
+    "name": "Kp",
+    "label": "Kp (0..0.3)",
+    "group": "8968e0573e4e7923",
+    "order": 2,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "kp",
+    "min": 0,
+    "max": "0.3",
+    "step": "0.005",
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "120c7d651a437e69"
+      ]
+    ]
+  },
+  {
+    "id": "a6203b724c977ad5",
+    "type": "ui_slider",
+    "z": "259bf4df329c0e26",
+    "name": "Ki",
+    "label": "Ki (0..0.02)",
+    "group": "8968e0573e4e7923",
+    "order": 3,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "ki",
+    "min": 0,
+    "max": "0.02",
+    "step": "0.0005",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "1baae16dbac96ce9"
+      ]
+    ]
+  },
+  {
+    "id": "e69647e9e3b050a1",
+    "type": "ui_slider",
+    "z": "259bf4df329c0e26",
+    "name": "Delay",
+    "label": "Delay ms (0..500)",
+    "group": "8968e0573e4e7923",
+    "order": 4,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "delay",
+    "min": 0,
+    "max": "500",
+    "step": 10,
+    "x": 160,
+    "y": 200,
+    "wires": [
+      [
+        "4402ea1300933236"
+      ]
+    ]
+  },
+  {
+    "id": "aeba7b537f2b1bbc",
+    "type": "ui_slider",
+    "z": "259bf4df329c0e26",
+    "name": "Jitter",
+    "label": "Jitter ms (0..300)",
+    "group": "8968e0573e4e7923",
+    "order": 5,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "jitter",
+    "min": 0,
+    "max": "300",
+    "step": 10,
+    "x": 160,
+    "y": 240,
+    "wires": [
+      [
+        "3ec6a3686a66519b"
+      ]
+    ]
+  },
+  {
+    "id": "b2b6c6e31d3c0a13",
+    "type": "ui_slider",
+    "z": "259bf4df329c0e26",
+    "name": "Drop",
+    "label": "Drop % (0..50)",
+    "group": "8968e0573e4e7923",
+    "order": 6,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "drop",
+    "min": 0,
+    "max": "50",
+    "step": 1,
+    "x": 150,
+    "y": 280,
+    "wires": [
+      [
+        "f004e968cb7fa71f"
+      ]
+    ]
+  },
+  {
+    "id": "1c348b16abe80279",
+    "type": "change",
+    "z": "259bf4df329c0e26",
+    "name": "set sp",
+    "rules": [
+      {
+        "t": "set",
+        "p": "sp",
+        "pt": "flow",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "x": 430,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "120c7d651a437e69",
+    "type": "change",
+    "z": "259bf4df329c0e26",
+    "name": "set kp",
+    "rules": [
+      {
+        "t": "set",
+        "p": "kp",
+        "pt": "flow",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "x": 430,
+    "y": 120,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1baae16dbac96ce9",
+    "type": "change",
+    "z": "259bf4df329c0e26",
+    "name": "set ki",
+    "rules": [
+      {
+        "t": "set",
+        "p": "ki",
+        "pt": "flow",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "x": 430,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "4402ea1300933236",
+    "type": "change",
+    "z": "259bf4df329c0e26",
+    "name": "set delay",
+    "rules": [
+      {
+        "t": "set",
+        "p": "delay",
+        "pt": "flow",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "x": 430,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "3ec6a3686a66519b",
+    "type": "change",
+    "z": "259bf4df329c0e26",
+    "name": "set jitter",
+    "rules": [
+      {
+        "t": "set",
+        "p": "jitter",
+        "pt": "flow",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "x": 430,
+    "y": 240,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "f004e968cb7fa71f",
+    "type": "change",
+    "z": "259bf4df329c0e26",
+    "name": "set drop",
+    "rules": [
+      {
+        "t": "set",
+        "p": "drop",
+        "pt": "flow",
+        "to": "payload",
+        "tot": "msg"
+      }
+    ],
+    "x": 430,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "31e4a29ed64d269c",
+    "type": "mqtt in",
+    "z": "259bf4df329c0e26",
+    "name": "MQTT sensor",
+    "topic": "cps/ctrl/sensor",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "5fb6dbc70a16d770",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 360,
+    "wires": [
+      [
+        "88901cdb3a71a8ac"
+      ]
+    ]
+  },
+  {
+    "id": "88901cdb3a71a8ac",
+    "type": "json",
+    "z": "259bf4df329c0e26",
+    "name": "to obj",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 350,
+    "y": 360,
+    "wires": [
+      [
+        "4c2ac911c6209b2c",
+        "b091e7fc26bd298e"
+      ]
+    ]
+  },
+  {
+    "id": "4c2ac911c6209b2c",
+    "type": "function",
+    "z": "259bf4df329c0e26",
+    "name": "y chart",
+    "func": "msg.topic='y'; msg.payload=Number(msg.payload.y); return msg;",
+    "x": 560,
+    "y": 340,
+    "wires": [
+      [
+        "613e0b69f2c791af"
+      ]
+    ]
+  },
+  {
+    "id": "613e0b69f2c791af",
+    "type": "ui_chart",
+    "z": "259bf4df329c0e26",
+    "name": "y",
+    "group": "8968e0573e4e7923",
+    "order": 7,
+    "width": 12,
+    "height": 4,
+    "label": "Plant sensor y",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 800,
+    "y": 340,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b091e7fc26bd298e",
+    "type": "function",
+    "z": "259bf4df329c0e26",
+    "name": "Set delay params",
+    "func": "// Reads flow.delay and flow.jitter (ms)\nconst d = Number(flow.get('delay')||0);\nconst j = Number(flow.get('jitter')||0);\n// delay node: use msg.delay (ms)\nmsg.delay = d;\nmsg.random = j;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 560,
+    "y": 380,
+    "wires": [
+      [
+        "cbd55f4e1641b258"
+      ]
+    ]
+  },
+  {
+    "id": "cbd55f4e1641b258",
+    "type": "delay",
+    "z": "259bf4df329c0e26",
+    "name": "Network delay+jitter",
+    "pauseType": "delay",
+    "timeout": "5",
+    "timeoutUnits": "seconds",
+    "rate": "1",
+    "nbRateUnits": "1",
+    "rateUnits": "second",
+    "randomFirst": "1",
+    "randomLast": "1",
+    "randomUnits": "milliseconds",
+    "drop": false,
+    "x": 570,
+    "y": 420,
+    "wires": [
+      [
+        "2b2cfb6c29cbee2b"
+      ]
+    ]
+  },
+  {
+    "id": "2b2cfb6c29cbee2b",
+    "type": "function",
+    "z": "259bf4df329c0e26",
+    "name": "Packet drop",
+    "func": "const p = Number(flow.get('drop')||0)/100;\nif (Math.random() < p) return null; // drop\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 780,
+    "y": 420,
+    "wires": [
+      [
+        "0aa3171a77be0868"
+      ]
+    ]
+  },
+  {
+    "id": "0aa3171a77be0868",
+    "type": "function",
+    "z": "259bf4df329c0e26",
+    "name": "PI Controller (Node-RED)",
+    "func": "// Centralized PI controller\n// Inputs: msg.payload.y (ADC 0..4095)\nconst sp = Number(flow.get('sp')||2000);\nconst kp = Number(flow.get('kp')||0.08);\nconst ki = Number(flow.get('ki')||0.002);\nconst y = Number(msg.payload.y);\nconst e = sp - y;\nlet I = flow.get('I')||0;\n// Integrate with simple anti-windup clamp\nI = I + ki*e;\nI = Math.max(-255, Math.min(255, I));\nlet u = kp*e + I;\n// saturate\nu = Math.max(0, Math.min(255, Math.round(u)));\nflow.set('I', I);\nmsg.payload = {u: u, sp: sp, y: y, e: e, I: I, kp: kp, ki: ki};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "flow.set('I',0);",
+    "finalize": "",
+    "x": 1040,
+    "y": 420,
+    "wires": [
+      [
+        "3e15713cc98e66b0",
+        "3922e9cc98bf7dc6",
+        "61c4490423c9b54d"
+      ]
+    ]
+  },
+  {
+    "id": "3e15713cc98e66b0",
+    "type": "mqtt out",
+    "z": "259bf4df329c0e26",
+    "name": "MQTT act",
+    "topic": "cps/ctrl/act",
+    "qos": "0",
+    "retain": "false",
+    "broker": "5fb6dbc70a16d770",
+    "x": 1280,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "3922e9cc98bf7dc6",
+    "type": "ui_chart",
+    "z": "259bf4df329c0e26",
+    "name": "u",
+    "group": "8968e0573e4e7923",
+    "order": 8,
+    "width": 12,
+    "height": 3,
+    "label": "Control u (after network effects)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "255",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "outputs": 1,
+    "x": 1280,
+    "y": 440,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "61c4490423c9b54d",
+    "type": "function",
+    "z": "259bf4df329c0e26",
+    "name": "Extract u for chart",
+    "func": "msg.topic='u'; msg.payload=Number(msg.payload.u); return msg;",
+    "x": 1260,
+    "y": 480,
+    "wires": [
+      [
+        "3922e9cc98bf7dc6"
+      ]
+    ]
+  }
+]
