@@ -1,6 +1,6 @@
 # Explanation of the Basic Control Concepts Figure
 
-This part provides a **clear, textbook-style explanation** of the **Basic Control Concepts** figure, which illustrates a **closed-loop feedback control system**—the fundamental building block of **Control Theory** and **Cyber-Physical Systems (CPS)**.
+This part provides a **clear explanation** of the **Basic Control Concepts** figure, which illustrates a **closed-loop feedback control system**—the fundamental building block of **Control Theory** and **Cyber-Physical Systems (CPS)**.
 
 The figure depicts how information and physical actions flow continuously between the cyber and physical domains to regulate system behavior.
 
