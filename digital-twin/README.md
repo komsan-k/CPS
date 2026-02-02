@@ -128,7 +128,7 @@ Digital Twins enable:
 ---
 
 
-## Suggested Citation Sentence
+## Key Sentence
 
 > A Digital Twin is a virtual, continuously synchronized representation of a physical system that enables monitoring, prediction, and closed-loop control within a Cyber-Physical System.
 
