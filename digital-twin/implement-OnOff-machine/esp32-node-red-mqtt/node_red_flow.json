@@ -1,0 +1,9 @@
+[
+  {
+    "id": "mqtt_in",
+    "type": "mqtt in",
+    "topic": "esp32/main_led",
+    "name": "Main LED Status",
+    "wires": [[]]
+  }
+]
