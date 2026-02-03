@@ -50,8 +50,6 @@ Submit the following files in **LMS**:
 - Course Code / Course Name  
 - Student Name  
 - Student ID  
-- Instructor Name  
-- Submission Date  
 
 ---
 
