@@ -1,7 +1,7 @@
 # 📝 Report Submission 
 ## Digital Twin for an On–Off Machine (ESP32 + Node-RED + MQTT)
 
-This README provides **instructions and a report template** for submitting the lab report for the **Digital Twin CPS experiment**.  
+This part provides **instructions and a report template** for submitting the lab report for the **Digital Twin CPS experiment**.  
 Students must follow the structure below to ensure **consistent, fair, and transparent evaluation**.
 
 ---
