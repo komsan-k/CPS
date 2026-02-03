@@ -46,12 +46,12 @@ Node-RED Dashboard  ⇄  MQTT Broker  ⇄  ESP32  ⇄  LED (Physical)
 - LED cathode (–) → **220Ω** → **GND**
 
 ### Backup LED (optional extension)
-- Backup LED anode (+) → **GPIO 5**
+- Backup LED anode (+) → **GPIO 12**
 - Backup LED cathode (–) → **220Ω** → **GND**
 
 ### LDR (optional extension)
 Use a voltage divider:
-- **3.3V → LDR → (GPIO34 ADC) → 10kΩ → GND**
+- **3.3V → LDR → (GPIO36 ADC) → 10kΩ → GND**
 
 ---
 
