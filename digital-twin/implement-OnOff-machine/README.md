@@ -4,18 +4,18 @@
 
 ---
 
-## 📌 Lab Overview
+## 📌 Overview
 
-This laboratory guides students through the **design and implementation of a Digital Twin** for a simple **on–off machine controlling an LED load**.  
+This session guides students through the **design and implementation of a Digital Twin** for a simple **on–off machine controlling an LED load**.  
 The system evolves through **five phases**, from manual control to **AI-driven predictive maintenance**, using **ESP32, LDR sensors, MQTT, and Node-RED**.
 
-The lab emphasizes **Cyber-Physical Systems (CPS)** principles: perception, communication, visualization, cognition, and closed-loop control.
+The part emphasizes **Cyber-Physical Systems (CPS)** principles: perception, communication, visualization, cognition, and closed-loop control.
 
 ---
 
 ## 🎯 Learning Objectives
 
-By completing this lab, students will be able to:
+By completing this session, students will be able to:
 
 - Design an interrupt-based on–off controller using ESP32
 - Implement perception using LDR sensors for fault detection
@@ -42,7 +42,7 @@ ESP32 (LED + Button + LDR)
 
 ---
 
-## 🔬 Lab Phases
+## 🔬 Design Phases
 
 ### Phase 1: Manual On–Off Machine (ESP32 Interrupt)
 - Button-triggered interrupt toggles LED
@@ -133,6 +133,6 @@ Digital Twin · Cyber-Physical Systems · ESP32 · MQTT · Node-RED · Predictiv
 
 ---
 
-**This lab demonstrates a complete CPS loop:**
+**This session demonstrates a complete CPS loop:**
 > *Physical → Cyber → Cognition → Control*
 
