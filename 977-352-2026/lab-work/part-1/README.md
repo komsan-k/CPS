@@ -22,14 +22,12 @@ The system uses:
 
 ## 📂 Submission Checklist
 
-Submit the following files in **one ZIP folder**:
+Submit the following files in **LMS**:
 
-- [ ] 📄 **Report** (`PDF` or `Markdown`)
+- [ ] 📄 **Report** (`PDF`)
 - [ ] 💻 **ESP32 source code** (`.ino`)
 - [ ] 🔁 **Node-RED flow** (`.json` export)
 - [ ] 🖼️ **Dashboard screenshots**
-- [ ] 📘 **This README file**
-
 ---
 
 ## 📊 Evaluation Rubric (10 Marks)
@@ -114,12 +112,6 @@ Submit the following files in **one ZIP folder**:
 
 ---
 
-### 9. References (if any)
-- Node-RED documentation
-- MQTT references
-- CPS / Digital Twin resources
-
----
 
 ## 🎓 Instructor Notes
 
