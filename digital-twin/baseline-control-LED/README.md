@@ -1,4 +1,4 @@
-# 🧪 CPS / IoT Lab (Student Version)
+# 🧪 CPS / IoT Lab 
 ## Implementing a Digital Twin in Node-RED for On–Off LED Control Using ESP32
 
 > **You will build a Digital Twin** that can **control** and **monitor** a physical LED connected to an ESP32 using **MQTT + Node-RED Dashboard**.
