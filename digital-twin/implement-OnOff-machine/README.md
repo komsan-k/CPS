@@ -1,4 +1,4 @@
-# 🧪 CPS / IoT Laboratory
+# 🧪 Design
 ## Digital Twin for an On–Off Machine (ESP32 + Node-RED + MQTT)
 ### **Grading Scheme: 100 Marks**
 
