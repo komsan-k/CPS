@@ -71,7 +71,7 @@ mean, min, max, variance, rms, slope, label
 ```
 
 **Example labels (LDR-based):**
-- `0` → Brightk  
+- `0` → Bright 
 - `1` → Normal  
 - `2` → Dark  
 
