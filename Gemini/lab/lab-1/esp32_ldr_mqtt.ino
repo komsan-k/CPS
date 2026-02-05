@@ -1,162 +1,148 @@
 /*
-  ESP32 LDR → MQTT (JSON) + optional LED control
+  Clean ESP32 LDR → MQTT (JSON) + LED control (error-free PubSubClient types)
 
-  Publishes JSON like:
-  {"device":"esp32-ldr-01","ts":1700000000000,"adc":1234,"v":0.99,"lux_index":456.7,"lux_smooth":440.2}
+  Publishes JSON to:  cps/ldr/data
+  Subscribes LED cmd: cps/led/cmd   ("ON"/"OFF"/"1"/"0"/"true"/"false")
+  Status topic:       cps/ldr/status
 
-  Subscribes control topic for LED:
-  payload examples: "ON", "OFF", "1", "0", "true", "false"
+  Required libraries (Arduino Library Manager):
+  - PubSubClient (Nick O'Leary)
+  - ArduinoJson (Benoit Blanchon)
 
-  Libraries (install via Arduino Library Manager):
-  - PubSubClient (by Nick O'Leary)
-  - ArduinoJson (by Benoit Blanchon)
+  Wiring (typical voltage divider):
+    3V3 --- LDR ---+--- ADC(GPIO36)
+                   |
+                  10k
+                   |
+                  GND
 
   Notes:
-  - This code produces "lux_index" (relative lux). For true lux, you must calibrate your LDR circuit.
+  - "lux_index" is a RELATIVE brightness scale (0..1000). Calibrate if you need real lux.
+  - Fixes the common compile error by publishing payload as (const uint8_t*).
 */
 
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-// -------------------- WiFi --------------------
+// ======================= USER CONFIG =======================
 const char* WIFI_SSID     = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
-// -------------------- MQTT --------------------
-const char* MQTT_HOST     = "broker.hivemq.com";   // your broker IP / hostname
-const uint16_t MQTT_PORT  = 1883;
+const char* MQTT_HOST = "192.168.1.10";   // broker IP / hostname
+const uint16_t MQTT_PORT = 1883;
 
-const char* MQTT_USER     = "";               // optional
-const char* MQTT_PASS     = "";               // optional
+// Leave empty if not used
+const char* MQTT_USER = "";
+const char* MQTT_PASS = "";
 
 // Topics
-const char* TOPIC_LDR_PUB   = "cps/ldr/data";
-const char* TOPIC_LED_SUB   = "cps/led/cmd";
-const char* TOPIC_STATUS    = "cps/ldr/status";
+const char* TOPIC_LDR_PUB = "cps/ldr/data";
+const char* TOPIC_LED_SUB = "cps/led/cmd";
+const char* TOPIC_STATUS  = "cps/ldr/status";
 
-// Client ID
+// Device ID (must be unique on broker)
 const char* DEVICE_ID = "esp32-ldr-01";
 
-// -------------------- Pins --------------------
-const int PIN_LDR_ADC = 36;     // GPIO36 (ADC1_CH0) good for analog input
-const int PIN_LED     = 2;      // onboard LED on many ESP32 dev boards (change if needed)
+// Pins
+const int PIN_LDR_ADC = 36;  // GPIO36 (ADC1_CH0)
+const int PIN_LED     = 2;   // many ESP32 dev boards have LED on GPIO2 (change if needed)
 
-// -------------------- Sampling --------------------
-const uint32_t SAMPLE_MS = 500;     // publish every 500 ms
+// Sampling
+const uint32_t SAMPLE_MS = 500;
 
-// -------------------- ADC / Voltage --------------------
-// ESP32 ADC reference is not perfectly linear; treat voltage as approximate.
-const float ADC_MAX = 4095.0f;
-const float VREF    = 3.3f;
+// LDR mapping
+const bool INVERT = true;   // if ADC increases when it's darker, keep true; else set false
+const float GAMMA = 2.2f;   // curve shape (1.0 = linear)
+const float ALPHA = 0.25f;  // smoothing factor (0..1)
 
-// -------------------- Simple smoothing --------------------
-const float ALPHA = 0.25f;  // 0..1 (higher = more responsive, lower = smoother)
-float luxSmooth = NAN;
+// ===========================================================
 
-// -------------------- LuxIndex mapping --------------------
-// LDR reading is inverse-ish depending on divider wiring.
-// We'll compute lux_index using a simple monotonic mapping from ADC.
-// If your divider makes ADC larger in darkness, set INVERT = true.
-// If ADC larger in brightness, set INVERT = false.
-const bool INVERT = true;
+WiFiClient wifiClient;
+PubSubClient mqtt(wifiClient);
 
-// -------------------- MQTT objects --------------------
-WiFiClient espClient;
-PubSubClient mqtt(espClient);
+static float luxSmooth = NAN;
+static uint32_t lastSample = 0;
 
-uint32_t lastSample = 0;
-
-// -------------------- Helpers --------------------
-void setLed(bool on) {
+// ---------- Helpers ----------
+static inline void setLed(bool on) {
   digitalWrite(PIN_LED, on ? HIGH : LOW);
 }
 
-bool parseOnOff(const String& s) {
-  String t = s;
-  t.trim();
-  t.toLowerCase();
-  return (t == "1" || t == "on" || t == "true" || t == "yes");
+static inline bool parseOnOff(String s) {
+  s.trim();
+  s.toLowerCase();
+  return (s == "1" || s == "on" || s == "true" || s == "yes");
+}
+
+static float adcToLuxIndex(int adc) {
+  // 12-bit ADC: 0..4095
+  float x = (float)adc / 4095.0f;    // 0..1
+  if (INVERT) x = 1.0f - x;          // make larger = brighter (if needed)
+  x = constrain(x, 0.0f, 1.0f);
+  float y = powf(x, GAMMA);          // nonlinear curve
+  return 1000.0f * y;                // relative brightness scale
+}
+
+static void publishStatus(const char* statusText) {
+  mqtt.publish(TOPIC_STATUS, statusText, true); // retained online/offline
 }
 
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  String msg;
-  msg.reserve(length + 1);
-  for (unsigned int i = 0; i < length; i++) msg += (char)payload[i];
+  // Convert payload bytes -> String
+  String s;
+  s.reserve(length + 1);
+  for (unsigned int i = 0; i < length; i++) s += (char)payload[i];
 
   if (String(topic) == TOPIC_LED_SUB) {
-    bool on = parseOnOff(msg);
+    bool on = parseOnOff(s);
     setLed(on);
 
-    // Publish status ack
-    StaticJsonDocument<256> doc;
+    // Optional: publish JSON ack to status topic
+    StaticJsonDocument<192> doc;
     doc["device"] = DEVICE_ID;
-    doc["ts"] = (uint64_t)millis(); // local uptime ms (ok for status)
+    doc["ts"] = (uint32_t)millis();
     doc["led"] = on ? "ON" : "OFF";
-    char out[256];
+
+    char out[192];
     size_t n = serializeJson(doc, out, sizeof(out));
-    mqtt.publish(TOPIC_STATUS, out, n, false);
+
+    mqtt.publish(TOPIC_STATUS, (const uint8_t*)out, n, false); // <-- type-safe
   }
 }
 
-void connectWiFi() {
+static void connectWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(400);
+    delay(300);
   }
 }
 
-void connectMQTT() {
+static void connectMQTT() {
   mqtt.setServer(MQTT_HOST, MQTT_PORT);
   mqtt.setCallback(mqttCallback);
 
+  // Last Will (offline) retained
   while (!mqtt.connected()) {
     bool ok;
-    if (String(MQTT_USER).length() > 0) {
+    if (MQTT_USER && strlen(MQTT_USER) > 0) {
       ok = mqtt.connect(DEVICE_ID, MQTT_USER, MQTT_PASS, TOPIC_STATUS, 1, true, "offline");
     } else {
-      ok = mqtt.connect(DEVICE_ID, TOPIC_STATUS, 1, true, "offline");
+      ok = mqtt.connect(DEVICE_ID, nullptr, nullptr, TOPIC_STATUS, 1, true, "offline");
     }
 
     if (ok) {
+      publishStatus("online");
       mqtt.subscribe(TOPIC_LED_SUB);
-
-      // LWT/online status
-      mqtt.publish(TOPIC_STATUS, "online", true);
-
-      // Optional: publish device info
-      StaticJsonDocument<256> doc;
-      doc["device"] = DEVICE_ID;
-      doc["ip"] = WiFi.localIP().toString();
-      doc["rssi"] = WiFi.RSSI();
-      char out[256];
-      size_t n = serializeJson(doc, out, sizeof(out));
-      mqtt.publish(TOPIC_STATUS, out, n, false);
     } else {
       delay(1000);
     }
   }
 }
 
-// Convert ADC to a relative "lux index" (0..1000-ish)
-float adcToLuxIndex(int adc) {
-  float x = (float)adc / ADC_MAX; // 0..1
-
-  // Make brightness go up when light increases
-  // If INVERT=true, high ADC means darker, so invert it.
-  if (INVERT) x = 1.0f - x;
-
-  // Nonlinear curve (gamma) to emphasize low light changes
-  // You can tune gamma (1.0 = linear). Typical: 1.5..3.0
-  const float gamma = 2.2f;
-  float y = powf(constrain(x, 0.0f, 1.0f), gamma);
-
-  // Scale to a convenient range
-  return 1000.0f * y; // "lux_index" (relative)
-}
-
+// ---------- Setup / Loop ----------
 void setup() {
   Serial.begin(115200);
   delay(200);
@@ -164,9 +150,9 @@ void setup() {
   pinMode(PIN_LED, OUTPUT);
   setLed(false);
 
-  // ADC config (ESP32)
-  analogReadResolution(12);             // 0..4095
-  analogSetPinAttenuation(PIN_LDR_ADC, ADC_11db); // better range up to ~3.3V (approx)
+  // ADC setup
+  analogReadResolution(12);
+  analogSetPinAttenuation(PIN_LDR_ADC, ADC_11db);
 
   connectWiFi();
   connectMQTT();
@@ -175,6 +161,7 @@ void setup() {
 }
 
 void loop() {
+  // Maintain connections
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
@@ -183,35 +170,35 @@ void loop() {
   }
   mqtt.loop();
 
+  // Publish sensor data periodically
   uint32_t now = millis();
   if (now - lastSample >= SAMPLE_MS) {
     lastSample = now;
 
     int adc = analogRead(PIN_LDR_ADC);
-    float v = (adc / ADC_MAX) * VREF;
     float luxIndex = adcToLuxIndex(adc);
 
     // Exponential smoothing
     if (isnan(luxSmooth)) luxSmooth = luxIndex;
     luxSmooth = ALPHA * luxIndex + (1.0f - ALPHA) * luxSmooth;
 
-    // Build JSON
+    // Build JSON payload
     StaticJsonDocument<256> doc;
     doc["device"] = DEVICE_ID;
-    doc["ts"] = (uint64_t)millis();     // uptime ms; Node-RED can stamp real time if needed
+    doc["ts"] = (uint32_t)millis(); // uptime ms (Node-RED can add real timestamp)
     doc["adc"] = adc;
-    doc["v"] = v;
     doc["lux_index"] = luxIndex;
     doc["lux_smooth"] = luxSmooth;
     doc["rssi"] = WiFi.RSSI();
 
-    char payload[256];
-    size_t n = serializeJson(doc, payload, sizeof(payload));
+    char out[256];
+    size_t n = serializeJson(doc, out, sizeof(out));
 
-    // Publish
-    mqtt.publish(TOPIC_LDR_PUB, payload, n, false);
+    // Publish with correct payload type (fix compile error)
+    bool ok = mqtt.publish(TOPIC_LDR_PUB, (const uint8_t*)out, n, false);
 
     // Debug
-    Serial.println(payload);
+    if (!ok) Serial.println("MQTT publish failed");
+    Serial.println(out);
   }
 }
