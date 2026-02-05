@@ -1,0 +1,113 @@
+[
+  {
+    "id": "f1a0b0c0d0e0f001",
+    "type": "tab",
+    "label": "Lab-0 Hello ChatGPT (Responses API)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "inj_hello",
+    "type": "inject",
+    "z": "f1a0b0c0d0e0f001",
+    "name": "Ask ChatGPT (Inject)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "Explain Cyber-Physical Systems in 3 bullet points.",
+    "payloadType": "str",
+    "x": 170,
+    "y": 120,
+    "wires": [
+      [
+        "fn_build"
+      ]
+    ]
+  },
+  {
+    "id": "fn_build",
+    "type": "function",
+    "z": "f1a0b0c0d0e0f001",
+    "name": "Build OpenAI Request",
+    "func": "// === Lab-0: Build OpenAI Responses API request ===\n// IMPORTANT: Replace YOUR_API_KEY_HERE with your real key.\n// Tip: For teaching labs, prefer env var (process.env) or credential storage.\n\nconst apiKey = \"YOUR_API_KEY_HERE\";\n\nmsg.method = \"POST\";\nmsg.url = \"https://api.openai.com/v1/responses\";\n\nmsg.headers = {\n  \"Authorization\": `Bearer ${apiKey}`,\n  \"Content-Type\": \"application/json\"\n};\n\nmsg.payload = {\n  model: \"gpt-4.1-mini\",\n  input: String(msg.payload || \"\")\n};\n\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 430,
+    "y": 120,
+    "wires": [
+      [
+        "http_openai"
+      ]
+    ]
+  },
+  {
+    "id": "http_openai",
+    "type": "http request",
+    "z": "f1a0b0c0d0e0f001",
+    "name": "OpenAI Responses API",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 690,
+    "y": 120,
+    "wires": [
+      [
+        "fn_extract"
+      ]
+    ]
+  },
+  {
+    "id": "fn_extract",
+    "type": "function",
+    "z": "f1a0b0c0d0e0f001",
+    "name": "Extract AI Response",
+    "func": "// === Lab-0: Extract assistant text from Responses API ===\n// Handle success + useful error messages\n\nconst res = msg.payload;\n\n// If OpenAI returns an error shape\nif (res && res.error) {\n  msg.payload = `OpenAI error: ${res.error.message || JSON.stringify(res.error)}`;\n  return msg;\n}\n\ntry {\n  // Typical structure: output[0].content[0].text\n  const text = res?.output?.[0]?.content?.[0]?.text;\n\n  if (typeof text === \"string\" && text.length > 0) {\n    msg.payload = text;\n  } else {\n    // Fallback: show a compact view for debugging\n    msg.payload = \"No text found. Raw response:\\n\" + JSON.stringify(res, null, 2);\n  }\n\n  return msg;\n} catch (e) {\n  msg.payload = \"Parse error: \" + e.message + \"\\nRaw:\\n\" + JSON.stringify(res, null, 2);\n  return msg;\n}",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 940,
+    "y": 120,
+    "wires": [
+      [
+        "dbg_answer"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_answer",
+    "type": "debug",
+    "z": "f1a0b0c0d0e0f001",
+    "name": "Answer (Debug)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1180,
+    "y": 120,
+    "wires": []
+  }
+]
