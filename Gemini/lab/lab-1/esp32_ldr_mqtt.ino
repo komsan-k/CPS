@@ -24,7 +24,7 @@ const char* WIFI_SSID     = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
 // -------------------- MQTT --------------------
-const char* MQTT_HOST     = "192.168.1.10";   // your broker IP / hostname
+const char* MQTT_HOST     = "broker.hivemq.com";   // your broker IP / hostname
 const uint16_t MQTT_PORT  = 1883;
 
 const char* MQTT_USER     = "";               // optional
