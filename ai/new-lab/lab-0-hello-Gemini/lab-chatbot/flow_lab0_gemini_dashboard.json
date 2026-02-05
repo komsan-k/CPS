@@ -1,0 +1,89 @@
+[
+  {
+    "id": "tab_gemini_chatbot",
+    "type": "tab",
+    "label": "Lab-0 Gemini Dashboard Chatbot",
+    "disabled": false
+  },
+  {
+    "id": "ui_tab_lab0",
+    "type": "ui_tab",
+    "name": "Lab-0 AI Chatbot",
+    "icon": "chat"
+  },
+  {
+    "id": "ui_group_chat",
+    "type": "ui_group",
+    "name": "Gemini Chat",
+    "tab": "ui_tab_lab0",
+    "order": 1,
+    "width": "12"
+  },
+  {
+    "id": "ui_in",
+    "type": "ui_text_input",
+    "z": "tab_gemini_chatbot",
+    "label": "Ask Gemini",
+    "group": "ui_group_chat",
+    "order": 1,
+    "width": 12,
+    "mode": "text",
+    "topic": "user",
+    "x": 160,
+    "y": 120,
+    "wires": [["fn_build_prompt"]]
+  },
+  {
+    "id": "fn_build_prompt",
+    "type": "function",
+    "z": "tab_gemini_chatbot",
+    "name": "Build Prompt",
+    "func": "msg.payload = String(msg.payload || ''); return msg;",
+    "x": 420,
+    "y": 120,
+    "wires": [["fn_build_gemini"]]
+  },
+  {
+    "id": "fn_build_gemini",
+    "type": "function",
+    "z": "tab_gemini_chatbot",
+    "name": "Build Gemini Request",
+    "func": "const apiKey = 'YOUR_GEMINI_API_KEY_HERE'; const model = 'gemini-2.5-flash-lite'; msg.method='POST'; msg.url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`; msg.headers={'Content-Type':'application/json'}; msg.payload={contents:[{parts:[{text:msg.payload}]}]}; return msg;",
+    "x": 690,
+    "y": 120,
+    "wires": [["http_gemini"]]
+  },
+  {
+    "id": "http_gemini",
+    "type": "http request",
+    "z": "tab_gemini_chatbot",
+    "name": "Gemini API",
+    "method": "use",
+    "ret": "obj",
+    "x": 940,
+    "y": 120,
+    "wires": [["fn_extract"]]
+  },
+  {
+    "id": "fn_extract",
+    "type": "function",
+    "z": "tab_gemini_chatbot",
+    "name": "Extract Reply",
+    "func": "msg.payload = msg.payload?.candidates?.[0]?.content?.parts?.[0]?.text || 'No reply'; return msg;",
+    "x": 220,
+    "y": 220,
+    "wires": [["ui_out"]]
+  },
+  {
+    "id": "ui_out",
+    "type": "ui_text",
+    "z": "tab_gemini_chatbot",
+    "group": "ui_group_chat",
+    "order": 2,
+    "width": 12,
+    "label": "Gemini Reply",
+    "format": "{{msg.payload}}",
+    "x": 470,
+    "y": 220
+  }
+]
