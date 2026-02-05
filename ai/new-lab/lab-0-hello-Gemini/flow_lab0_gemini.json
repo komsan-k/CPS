@@ -1,0 +1,61 @@
+[
+  {
+    "id": "tab_gemini_lab0",
+    "type": "tab",
+    "label": "Lab-0 Hello Gemini (generateContent)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "inj_prompt",
+    "type": "inject",
+    "z": "tab_gemini_lab0",
+    "name": "Ask Gemini (Inject)",
+    "props": [{ "p": "payload" }],
+    "payload": "Explain Cyber-Physical Systems in 3 bullet points.",
+    "payloadType": "str",
+    "x": 160,
+    "y": 120,
+    "wires": [["fn_build_gemini"]]
+  },
+  {
+    "id": "fn_build_gemini",
+    "type": "function",
+    "z": "tab_gemini_lab0",
+    "name": "Build Gemini Request",
+    "func": "const apiKey = \"YOUR_GEMINI_API_KEY_HERE\";\nconst model = \"gemini-1.5-flash\";\nmsg.method = \"POST\";\nmsg.url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.payload = { contents: [{ parts: [{ text: msg.payload }] }] };\nreturn msg;",
+    "x": 430,
+    "y": 120,
+    "wires": [["http_gemini"]]
+  },
+  {
+    "id": "http_gemini",
+    "type": "http request",
+    "z": "tab_gemini_lab0",
+    "name": "Gemini API",
+    "method": "use",
+    "ret": "obj",
+    "x": 700,
+    "y": 120,
+    "wires": [["fn_extract_gemini"]]
+  },
+  {
+    "id": "fn_extract_gemini",
+    "type": "function",
+    "z": "tab_gemini_lab0",
+    "name": "Extract Gemini Text",
+    "func": "try { msg.payload = msg.payload.candidates[0].content.parts[0].text; } catch(e) { msg.payload = 'Parse error'; } return msg;",
+    "x": 960,
+    "y": 120,
+    "wires": [["dbg_answer"]]
+  },
+  {
+    "id": "dbg_answer",
+    "type": "debug",
+    "z": "tab_gemini_lab0",
+    "name": "Answer",
+    "complete": "payload",
+    "x": 1180,
+    "y": 120
+  }
+]
