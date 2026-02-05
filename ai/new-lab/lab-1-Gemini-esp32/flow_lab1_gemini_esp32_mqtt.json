@@ -1,0 +1,402 @@
+[
+  {
+    "id": "tab_lab1",
+    "type": "tab",
+    "label": "Lab-1 ESP32 + MQTT + Gemini",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ui_tab_lab1",
+    "type": "ui_tab",
+    "name": "Lab-1 CPS Twin",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_status",
+    "type": "ui_group",
+    "name": "Status",
+    "tab": "ui_tab_lab1",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_chat",
+    "type": "ui_group",
+    "name": "Gemini Cognition",
+    "tab": "ui_tab_lab1",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_in_tele",
+    "type": "mqtt in",
+    "z": "tab_lab1",
+    "name": "ESP32 Telemetry",
+    "topic": "lab1/esp32/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "fn_parse_tele",
+        "dbg_raw"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_raw",
+    "type": "debug",
+    "z": "tab_lab1",
+    "name": "Raw Telemetry",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 160,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "fn_parse_tele",
+    "type": "function",
+    "z": "tab_lab1",
+    "name": "Parse Telemetry JSON",
+    "func": "// Expect JSON string like: {\"ldr\":1234,\"led\":1,\"rssi\":-55}\nlet o = msg.payload;\nif (typeof o === 'string') {\n  try { o = JSON.parse(o); } catch(e) { return null; }\n}\nmsg.tele = o;\nmsg.payload = o; // keep for debug\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 120,
+    "wires": [
+      [
+        "ui_ldr",
+        "ui_led_state",
+        "ui_rssi",
+        "fn_make_ai_context"
+      ]
+    ]
+  },
+  {
+    "id": "ui_ldr",
+    "type": "ui_gauge",
+    "z": "tab_lab1",
+    "name": "LDR",
+    "group": "ui_group_status",
+    "order": 1,
+    "width": 4,
+    "height": 4,
+    "gtype": "gage",
+    "title": "LDR (ADC)",
+    "label": "0..4095",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 690,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "ui_led_state",
+    "type": "ui_text",
+    "z": "tab_lab1",
+    "group": "ui_group_status",
+    "order": 2,
+    "width": 4,
+    "height": 1,
+    "name": "LED State",
+    "label": "LED (reported)",
+    "format": "{{msg.tele.led}}",
+    "layout": "row-spread",
+    "x": 700,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ui_rssi",
+    "type": "ui_text",
+    "z": "tab_lab1",
+    "group": "ui_group_status",
+    "order": 3,
+    "width": 4,
+    "height": 1,
+    "name": "WiFi RSSI",
+    "label": "WiFi RSSI",
+    "format": "{{msg.tele.rssi}} dBm",
+    "layout": "row-spread",
+    "x": 690,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "ui_switch_led",
+    "type": "ui_switch",
+    "z": "tab_lab1",
+    "name": "LED Command",
+    "label": "LED Command",
+    "group": "ui_group_status",
+    "order": 4,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "decouple": "false",
+    "topic": "cmd",
+    "style": "",
+    "onvalue": "1",
+    "onvalueType": "str",
+    "onicon": "",
+    "oncolor": "",
+    "offvalue": "0",
+    "offvalueType": "str",
+    "officon": "",
+    "offcolor": "",
+    "animate": true,
+    "className": "",
+    "x": 150,
+    "y": 260,
+    "wires": [
+      [
+        "mqtt_out_led",
+        "ui_cmd_echo"
+      ]
+    ]
+  },
+  {
+    "id": "ui_cmd_echo",
+    "type": "ui_text",
+    "z": "tab_lab1",
+    "group": "ui_group_status",
+    "order": 5,
+    "width": 8,
+    "height": 1,
+    "name": "Cmd Echo",
+    "label": "Last LED cmd sent",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 420,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "mqtt_out_led",
+    "type": "mqtt out",
+    "z": "tab_lab1",
+    "name": "Send LED cmd",
+    "topic": "lab1/esp32/cmd/led",
+    "qos": "",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker",
+    "x": 420,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "fn_make_ai_context",
+    "type": "function",
+    "z": "tab_lab1",
+    "name": "Update AI Context (latest tele)",
+    "func": "// Store latest telemetry for the Ask Gemini button\nflow.set('latestTele', msg.tele);\nreturn null;",
+    "outputs": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ui_btn_ask",
+    "type": "ui_button",
+    "z": "tab_lab1",
+    "name": "Ask Gemini",
+    "group": "ui_group_chat",
+    "order": 1,
+    "width": 4,
+    "height": 1,
+    "passthru": false,
+    "label": "Ask Gemini",
+    "tooltip": "Explain status + recommend action",
+    "color": "",
+    "bgcolor": "",
+    "icon": "comment",
+    "payload": "ask",
+    "payloadType": "str",
+    "topic": "cmd",
+    "x": 140,
+    "y": 420,
+    "wires": [
+      [
+        "fn_build_prompt_ai"
+      ]
+    ]
+  },
+  {
+    "id": "fn_build_prompt_ai",
+    "type": "function",
+    "z": "tab_lab1",
+    "name": "Build Prompt for Gemini",
+    "func": "const t = flow.get('latestTele');\nif (!t) { msg.payload = 'No telemetry received yet. Wait for ESP32 data.'; return msg; }\n\n// Simple reasoning prompt (student-friendly)\nmsg.payload = `You are assisting a CPS lab.\\n\\nTelemetry (latest): ${JSON.stringify(t)}\\n\\nTasks:\\n1) Summarize system state in 3 bullets.\\n2) Detect possible fault/mismatch (e.g., LED reported ON but LDR unexpectedly low).\\n3) Recommend ONE safe action (e.g., check wiring, adjust threshold, toggle LED).\\n\\nKeep it concise.`;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 420,
+    "y": 420,
+    "wires": [
+      [
+        "fn_build_gemini_req"
+      ]
+    ]
+  },
+  {
+    "id": "fn_build_gemini_req",
+    "type": "function",
+    "z": "tab_lab1",
+    "name": "Build Gemini Request",
+    "func": "// Gemini generateContent request\n// Get key: https://aistudio.google.com/app/apikey\n\n// Option A (simple for labs): paste key here\nconst apiKey = 'YOUR_GEMINI_API_KEY_HERE';\n\n// Option B (recommended): use environment variable\n// const apiKey = process.env.GEMINI_API_KEY;\n\nconst model = 'gemini-2.5-flash-lite';\n\nmsg.method = 'POST';\nmsg.url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = {\n  contents: [{ parts: [{ text: String(msg.payload || '') }] }]\n};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 700,
+    "y": 420,
+    "wires": [
+      [
+        "http_gemini"
+      ]
+    ]
+  },
+  {
+    "id": "http_gemini",
+    "type": "http request",
+    "z": "tab_lab1",
+    "name": "Gemini API (generateContent)",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 980,
+    "y": 420,
+    "wires": [
+      [
+        "fn_extract_ai"
+      ]
+    ]
+  },
+  {
+    "id": "fn_extract_ai",
+    "type": "function",
+    "z": "tab_lab1",
+    "name": "Extract Gemini Reply",
+    "func": "const res = msg.payload;\nif (res && res.error) {\n  msg.payload = `Gemini error: ${res.error.message || JSON.stringify(res.error)}`;\n  return msg;\n}\nconst text = res?.candidates?.[0]?.content?.parts?.[0]?.text;\nmsg.payload = (typeof text === 'string' && text.length) ? text : ('No text found. Raw:\\n' + JSON.stringify(res, null, 2));\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 230,
+    "y": 500,
+    "wires": [
+      [
+        "ui_ai_reply",
+        "dbg_ai"
+      ]
+    ]
+  },
+  {
+    "id": "ui_ai_reply",
+    "type": "ui_text",
+    "z": "tab_lab1",
+    "group": "ui_group_chat",
+    "order": 2,
+    "width": 12,
+    "height": 8,
+    "name": "Gemini Reply",
+    "label": "Gemini (Cognition)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 520,
+    "y": 500,
+    "wires": []
+  },
+  {
+    "id": "dbg_ai",
+    "type": "debug",
+    "z": "tab_lab1",
+    "name": "Gemini Reply (debug)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 520,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "mqtt_broker",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "sessionExpiry": ""
+  }
+]
