@@ -1,4 +1,4 @@
-# Lab: RSSI-Based Twin-Control Beam Steering with ESP32 (Instructor Version)
+# Lab: RSSI-Based Twin-Control Beam Steering with ESP32 (Instructor)
 
 ## 1. Teaching Purpose
 This lab demonstrates Twin-Control applied to beam steering antennas using RSSI feedback.
