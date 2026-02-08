@@ -1,0 +1,332 @@
+[
+  {
+    "id": "tab1",
+    "type": "tab",
+    "label": "Twin-Control Beam Steering (MQTT Dashboard)",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt-broker",
+    "type": "mqtt-broker",
+    "name": "Mosquitto",
+    "broker": "192.168.1.100",
+    "port": "1883",
+    "clientid": "nodered_twincontrol",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true
+  },
+  {
+    "id": "ui-tab",
+    "type": "ui_tab",
+    "name": "Twin-Control",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui-group",
+    "type": "ui_group",
+    "name": "Beam & RSSI",
+    "tab": "ui-tab",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt-in-beam",
+    "type": "mqtt in",
+    "z": "tab1",
+    "name": "Beam Active (retained)",
+    "topic": "twin/beam/active",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "json-beam",
+        "ui-text-beam"
+      ]
+    ]
+  },
+  {
+    "id": "json-beam",
+    "type": "json",
+    "z": "tab1",
+    "name": "JSON parse",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 340,
+    "y": 80,
+    "wires": [
+      [
+        "fn-beam-text"
+      ]
+    ]
+  },
+  {
+    "id": "fn-beam-text",
+    "type": "function",
+    "z": "tab1",
+    "name": "Beam -> text",
+    "func": "let b = (msg.payload && msg.payload.beam !== undefined) ? msg.payload.beam : msg.payload;\nmsg.payload = `Active beam: ${b}`;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 520,
+    "y": 80,
+    "wires": [
+      [
+        "ui-text-beam"
+      ]
+    ]
+  },
+  {
+    "id": "ui-text-beam",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui-group",
+    "order": 1,
+    "width": "6",
+    "height": "1",
+    "name": "Active Beam",
+    "label": "Active Beam",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 740,
+    "y": 80,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "mqtt-in-rssi",
+    "type": "mqtt in",
+    "z": "tab1",
+    "name": "RSSI stream",
+    "topic": "twin/rssi",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 200,
+    "wires": [
+      [
+        "json-rssi",
+        "fn-rssi-series",
+        "fn-best-tracker"
+      ]
+    ]
+  },
+  {
+    "id": "json-rssi",
+    "type": "json",
+    "z": "tab1",
+    "name": "JSON parse",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 320,
+    "y": 200,
+    "wires": [
+      [
+        "fn-rssi-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "fn-rssi-gauge",
+    "type": "function",
+    "z": "tab1",
+    "name": "RSSI -> gauge",
+    "func": "let p = msg.payload || {};\nmsg.payload = p.rssi;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 510,
+    "y": 200,
+    "wires": [
+      [
+        "ui-gauge-rssi"
+      ]
+    ]
+  },
+  {
+    "id": "ui-gauge-rssi",
+    "type": "ui_gauge",
+    "z": "tab1",
+    "name": "RSSI (dBm)",
+    "group": "ui-group",
+    "order": 2,
+    "width": "6",
+    "height": "4",
+    "gtype": "gage",
+    "title": "RSSI (dBm)",
+    "label": "dBm",
+    "format": "{{value}}",
+    "min": "-100",
+    "max": "-20",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "-70",
+    "seg2": "-85",
+    "x": 730,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fn-rssi-series",
+    "type": "function",
+    "z": "tab1",
+    "name": "RSSI chart series",
+    "func": "let p = msg.payload;\ntry { if (typeof p === 'string') p = JSON.parse(p); } catch(e) {}\nif (p && p.beam !== undefined && p.rssi !== undefined) {\n  msg.topic = 'Beam ' + p.beam;\n  msg.payload = p.rssi;\n  return msg;\n}\nreturn null;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 520,
+    "y": 260,
+    "wires": [
+      [
+        "ui-chart-rssi"
+      ]
+    ]
+  },
+  {
+    "id": "ui-chart-rssi",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "RSSI Chart",
+    "group": "ui-group",
+    "order": 3,
+    "width": "12",
+    "height": "5",
+    "label": "RSSI vs Time (per beam series)",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "waiting...",
+    "dot": false,
+    "ymin": "-100",
+    "ymax": "-20",
+    "removeOlder": "5",
+    "removeOlderUnit": "60",
+    "useOneColor": false,
+    "useUTC": false,
+    "outputs": 1,
+    "x": 740,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fn-best-tracker",
+    "type": "function",
+    "z": "tab1",
+    "name": "Best beam (Node-RED, optional)",
+    "func": "let p = msg.payload;\ntry { if (typeof p === 'string') p = JSON.parse(p); } catch(e) {}\nif (!p || p.beam === undefined || p.rssi === undefined) return null;\n\nlet stats = flow.get('beamStats') || {};\nlet b = String(p.beam);\nif (!stats[b]) stats[b] = {sum:0, n:0};\nstats[b].sum += Number(p.rssi);\nstats[b].n += 1;\nflow.set('beamStats', stats);\n\nlet total = 0;\nlet bestBeam = null;\nlet bestAvg = -9999;\n\nfor (let k in stats) {\n  total += stats[k].n;\n  let avg = stats[k].sum / stats[k].n;\n  if (avg > bestAvg) { bestAvg = avg; bestBeam = Number(k); }\n}\n\nif (total >= 50 && bestBeam !== null) {\n  flow.set('beamStats', {});\n  let uiMsg = {payload: `Best beam: ${bestBeam} (avg ${bestAvg.toFixed(1)} dBm)`};\n  // Auto-lock (enable if you want):\n  // let lockMsg = {topic:'twin/beam/lock', payload: String(bestBeam)};\n  // return [uiMsg, lockMsg];\n  return [uiMsg, null];\n}\nreturn null;\n",
+    "outputs": 2,
+    "noerr": 0,
+    "x": 540,
+    "y": 340,
+    "wires": [
+      [
+        "ui-text-best"
+      ],
+      [
+        "mqtt-out-lock"
+      ]
+    ]
+  },
+  {
+    "id": "ui-text-best",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui-group",
+    "order": 4,
+    "width": "6",
+    "height": "1",
+    "name": "Best Beam",
+    "label": "Best Beam (Decision Window)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 740,
+    "y": 340,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui-num-beam",
+    "type": "ui_numeric",
+    "z": "tab1",
+    "name": "Manual Lock Beam",
+    "label": "Lock Beam ID (0-15)",
+    "group": "ui-group",
+    "order": 5,
+    "width": "6",
+    "height": "1",
+    "wrap": false,
+    "passthru": true,
+    "topic": "",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 15,
+    "step": 1,
+    "x": 170,
+    "y": 420,
+    "wires": [
+      [
+        "fn-manual-lock"
+      ]
+    ]
+  },
+  {
+    "id": "fn-manual-lock",
+    "type": "function",
+    "z": "tab1",
+    "name": "To lock topic",
+    "func": "msg.topic='twin/beam/lock'; msg.payload=String(msg.payload); return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 410,
+    "y": 420,
+    "wires": [
+      [
+        "mqtt-out-lock"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt-out-lock",
+    "type": "mqtt out",
+    "z": "tab1",
+    "name": "Lock Beam Command",
+    "topic": "twin/beam/lock",
+    "qos": "0",
+    "retain": "false",
+    "broker": "mqtt-broker",
+    "x": 720,
+    "y": 420,
+    "wires": [
+      []
+    ]
+  }
+]
