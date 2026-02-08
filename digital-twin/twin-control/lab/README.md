@@ -1,4 +1,4 @@
-# Lab: RSSI-Based Twin-Control Beam Steering with ESP32 (Student Version)
+# Lab: RSSI-Based Twin-Control Beam Steering with ESP32 
 
 ## 1. Objective
 In this lab, you will implement a Twin-Control beam steering system using two ESP32 boards.
