@@ -1,6 +1,6 @@
 # ESP32 RSSI-Based Twin-Control Beam Steering Lab
 
-This README describes a **complete, lab-ready Twin-Control beam-steering system** using two ESP32 boards. The setup demonstrates how **RSSI-based sensing**, **beam reconfiguration**, and **feedback-driven decision making** together realize a practical **Twin-Control loop** for smart antennas or reconfigurable metasurfaces.
+This part describes a **complete, lab-ready Twin-Control beam-steering system** using two ESP32 boards. The setup demonstrates how **RSSI-based sensing**, **beam reconfiguration**, and **feedback-driven decision making** together realize a practical **Twin-Control loop** for smart antennas or reconfigurable metasurfaces.
 
 ---
 
