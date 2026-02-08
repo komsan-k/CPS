@@ -1,0 +1,346 @@
+[
+  {
+    "id": "c1b2a3d4e5f6a7b8",
+    "type": "tab",
+    "label": "Twin-Control RSSI Dashboard",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ui_tab_tc",
+    "type": "ui_tab",
+    "name": "Twin-Control",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_tc",
+    "type": "ui_group",
+    "name": "Beam Search",
+    "tab": "ui_tab_tc",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false,
+    "className": ""
+  },
+  {
+    "id": "mqtt_broker_local",
+    "type": "mqtt-broker",
+    "name": "Local MQTT",
+    "broker": "127.0.0.1",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "mqtt_in_rssi",
+    "type": "mqtt in",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "RSSI samples (RX)",
+    "topic": "twincontrol/rssi",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_local",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 170,
+    "y": 120,
+    "wires": [
+      [
+        "json_parse_rssi"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_in_best",
+    "type": "mqtt in",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Best beam (RX)",
+    "topic": "twincontrol/best",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_local",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 200,
+    "wires": [
+      [
+        "json_parse_best"
+      ]
+    ]
+  },
+  {
+    "id": "json_parse_rssi",
+    "type": "json",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 360,
+    "y": 120,
+    "wires": [
+      [
+        "fn_accumulate"
+      ]
+    ]
+  },
+  {
+    "id": "json_parse_best",
+    "type": "json",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 360,
+    "y": 200,
+    "wires": [
+      [
+        "fn_best"
+      ]
+    ]
+  },
+  {
+    "id": "fn_accumulate",
+    "type": "function",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Accumulate per-beam RSSI + build chart",
+    "func": "// Expected msg.payload formats (any of these):\n// 1) {\"beam\":7,\"rssi\":-62}  (single sample)\n// 2) {\"beam\":7,\"avg\":-62.5} (already averaged)\n// 3) {\"beam_id\":7,\"rssi_dbm\":-62}\n//\n// This function keeps a rolling window per beam and pushes a Beam ID vs RSSI bar chart.\n\nconst beams = 16;              // change if you use more beams\nconst windowN = 15;            // rolling window size per beam\n\nlet state = context.get('state') || {};\nif (!state.samples) state.samples = Array.from({length: beams}, () => []);\nif (!state.latest) state.latest = Array.from({length: beams}, () => null);\n\nconst p = msg.payload || {};\nconst beam = (p.beam ?? p.beam_id ?? p.id ?? p.beamID);\nconst rssi = (p.rssi ?? p.avg ?? p.rssi_dbm ?? p.RSSI);\n\nif (beam === undefined || rssi === undefined) {\n  node.warn(\"Payload must include beam and rssi (e.g., {beam:7,rssi:-62}).\");\n  return null;\n}\nif (beam < 0 || beam >= beams) return null;\n\n// Add to rolling window\nstate.samples[beam].push(Number(rssi));\nif (state.samples[beam].length > windowN) state.samples[beam].shift();\n\n// Compute robust score: median\nconst arr = state.samples[beam].slice().sort((a,b)=>a-b);\nconst mid = Math.floor(arr.length/2);\nconst med = (arr.length % 2) ? arr[mid] : (arr[mid-1] + arr[mid]) / 2;\n\nstate.latest[beam] = med;\ncontext.set('state', state);\n\n// Build chart payload for ui_chart (bar with labels)\nconst labels = Array.from({length: beams}, (_,i)=>String(i));\nconst data = labels.map((_,i)=> state.latest[i] === null ? null : Number(state.latest[i]));\n\n// Node-RED Dashboard ui_chart expects:\n// msg.payload = [{series:[\"RSSI (dBm)\"], data:[[...]], labels:[...]}]\nconst chartMsg = {\n  payload: [{\n    series: [\"RSSI (median, dBm)\"],\n    data: [data],\n    labels: labels\n  }]\n};\n\n// Also output a table-friendly row\nconst rowMsg = {\n  payload: labels.map((lbl,i)=>({beam:i, rssi_median_dbm: state.latest[i]}))\n};\n\nreturn [chartMsg, rowMsg];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 650,
+    "y": 120,
+    "wires": [
+      [
+        "ui_chart_beam"
+      ],
+      [
+        "ui_table_beam"
+      ]
+    ]
+  },
+  {
+    "id": "ui_chart_beam",
+    "type": "ui_chart",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Beam ID vs RSSI",
+    "group": "ui_group_tc",
+    "order": 1,
+    "width": 12,
+    "height": 6,
+    "label": "Beam ID vs RSSI (median over rolling window)",
+    "chartType": "bar",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "Waiting for RSSI...",
+    "dot": false,
+    "ymin": "-100",
+    "ymax": "-20",
+    "removeOlder": 1,
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [],
+    "outputs": 1,
+    "x": 930,
+    "y": 90,
+    "wires": [
+      [
+        "debug_chart"
+      ]
+    ]
+  },
+  {
+    "id": "ui_table_beam",
+    "type": "ui_table",
+    "z": "c1b2a3d4e5f6a7b8",
+    "group": "ui_group_tc",
+    "name": "Per-beam RSSI table",
+    "order": 3,
+    "width": 12,
+    "height": 6,
+    "columns": [
+      {
+        "field": "beam",
+        "title": "Beam ID",
+        "width": "20%",
+        "align": "left",
+        "formatter": "plaintext",
+        "sortable": true
+      },
+      {
+        "field": "rssi_median_dbm",
+        "title": "RSSI median (dBm)",
+        "width": "80%",
+        "align": "left",
+        "formatter": "plaintext",
+        "sortable": true
+      }
+    ],
+    "outputs": 0,
+    "cts": false,
+    "x": 940,
+    "y": 150,
+    "wires": []
+  },
+  {
+    "id": "fn_best",
+    "type": "function",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Show best beam",
+    "func": "// Expected: {\"best\":7,\"rssi\":-61} or {\"beam\":7,\"rssi\":-61}\nconst p = msg.payload || {};\nconst best = (p.best ?? p.beam ?? p.beam_id ?? p.id);\nconst rssi = (p.rssi ?? p.avg ?? p.rssi_dbm ?? p.RSSI);\nif (best === undefined) return null;\n\nconst out1 = { payload: Number(best) };\nconst out2 = { payload: rssi !== undefined ? Number(rssi) : null };\nconst out3 = { payload: `Best Beam: ${best}` + (rssi !== undefined ? ` | RSSI: ${rssi} dBm` : \"\") };\nreturn [out1, out2, out3];",
+    "outputs": 3,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 600,
+    "y": 200,
+    "wires": [
+      [
+        "ui_gauge_best"
+      ],
+      [
+        "ui_gauge_rssi"
+      ],
+      [
+        "ui_text_best"
+      ]
+    ]
+  },
+  {
+    "id": "ui_gauge_best",
+    "type": "ui_gauge",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Best Beam",
+    "group": "ui_group_tc",
+    "order": 2,
+    "width": 4,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Best Beam ID",
+    "label": "beam",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 15,
+    "colors": [],
+    "seg1": "",
+    "seg2": "",
+    "x": 910,
+    "y": 210,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_rssi",
+    "type": "ui_gauge",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Best RSSI",
+    "group": "ui_group_tc",
+    "order": 2,
+    "width": 4,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Best RSSI (dBm)",
+    "label": "dBm",
+    "format": "{{value}}",
+    "min": -100,
+    "max": -20,
+    "colors": [],
+    "seg1": "",
+    "seg2": "",
+    "x": 910,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ui_text_best",
+    "type": "ui_text",
+    "z": "c1b2a3d4e5f6a7b8",
+    "group": "ui_group_tc",
+    "order": 2,
+    "width": 4,
+    "height": 1,
+    "name": "Best Beam Text",
+    "label": "Status",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 920,
+    "y": 310,
+    "wires": []
+  },
+  {
+    "id": "debug_chart",
+    "type": "debug",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "debug",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1120,
+    "y": 90,
+    "wires": []
+  },
+  {
+    "id": "inject_example",
+    "type": "inject",
+    "z": "c1b2a3d4e5f6a7b8",
+    "name": "Example RSSI message",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"beam\":0,\"rssi\":-70}",
+    "payloadType": "json",
+    "x": 180,
+    "y": 300,
+    "wires": [
+      [
+        "fn_accumulate"
+      ]
+    ]
+  }
+]
