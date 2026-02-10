@@ -131,15 +131,5 @@ Students will be able to:
 
 ---
 
-## 📎 Package Structure
-```
-CPS-LDR-Prediction-Lab/
-├── README.md
-├── esp32_ldr_mqtt.ino
-└── node-red-flow.json
-```
-
----
-
 ## 🏁 Conclusion
 This lab proves that **explainable CPS intelligence** can be achieved using simple, interpretable models—ideal for CPS, Digital Twin, and Society 5.0 education.
