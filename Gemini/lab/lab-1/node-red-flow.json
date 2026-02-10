@@ -1,374 +1,370 @@
 [
-  {
-    "id": "f0a1b2c3d4e5f6a7",
-    "type": "tab",
-    "label": "CPS LDR Predictor (MQTT + Dashboard)",
-    "disabled": false,
-    "info": ""
-  },
-  {
-    "id": "ui_tab_cps",
-    "type": "ui_tab",
-    "name": "CPS Dashboard",
-    "icon": "dashboard",
-    "disabled": false,
-    "hidden": false
-  },
-  {
-    "id": "ui_group_ldr",
-    "type": "ui_group",
-    "name": "LDR (Now vs Future)",
-    "tab": "ui_tab_cps",
-    "order": 1,
-    "disp": true,
-    "width": "12",
-    "collapse": false
-  },
-  {
-    "id": "ui_group_ctrl",
-    "type": "ui_group",
-    "name": "Control",
-    "tab": "ui_tab_cps",
-    "order": 2,
-    "disp": true,
-    "width": "12",
-    "collapse": false
-  },
-  {
-    "id": "mqtt_broker_local",
-    "type": "mqtt-broker",
-    "name": "MQTT Broker",
-    "broker": "127.0.0.1",
-    "port": "1883",
-    "clientid": "nodered-cps-ldr",
-    "autoConnect": true,
-    "usetls": false,
-    "protocolVersion": "4",
-    "keepalive": "60",
-    "cleansession": true,
-    "autoUnsubscribe": true,
-    "birthTopic": "",
-    "birthQos": "0",
-    "birthPayload": "",
-    "birthMsg": {},
-    "closeTopic": "",
-    "closeQos": "0",
-    "closePayload": "",
-    "closeMsg": {},
-    "willTopic": "",
-    "willQos": "0",
-    "willPayload": "",
-    "willMsg": {},
-    "userProps": "",
-    "sessionExpiry": ""
-  },
-  {
-    "id": "mqtt_in_ldr",
-    "type": "mqtt in",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "MQTT IN: cps/ldr/data",
-    "topic": "cps/ldr/data",
-    "qos": "0",
-    "datatype": "auto",
-    "broker": "mqtt_broker_local",
-    "nl": false,
-    "rap": true,
-    "rh": 0,
-    "inputs": 0,
-    "x": 160,
-    "y": 120,
-    "wires": [
-      [
-        "json_parse"
-      ]
-    ]
-  },
-  {
-    "id": "json_parse",
-    "type": "json",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "JSON parse",
-    "property": "payload",
-    "action": "",
-    "pretty": false,
-    "x": 360,
-    "y": 120,
-    "wires": [
-      [
-        "extract_fields",
-        "debug_raw"
-      ]
-    ]
-  },
-  {
-    "id": "extract_fields",
-    "type": "function",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "Extract lux_now",
-    "func": "// Expect payload from ESP32:\n// {device, ts, adc, v, lux_index, lux_smooth, rssi}\n\nconst p = msg.payload || {};\n\n// Prefer lux_smooth if present, else lux_index\nconst lux = Number(p.lux_smooth ?? p.lux_index);\nif (!Number.isFinite(lux)) return null;\n\nmsg.device = p.device || \"unknown\";\nmsg.ts = p.ts ?? Date.now();\nmsg.lux_now = lux;\nmsg.rssi = p.rssi;\nmsg.adc = p.adc;\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "x": 570,
-    "y": 120,
-    "wires": [
-      [
-        "predict_future",
-        "ui_now_text"
-      ]
-    ]
-  },
-  {
-    "id": "predict_future",
-    "type": "function",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "Cognition: slope + predict",
-    "func": "// Simple CPS Cognition: linear trend extrapolation\n// Keeps last N samples, estimates slope, predicts lux at horizonSec\n\nconst N = 20;\nconst horizonSec = 5;\n\nconst lux = Number(msg.lux_now);\nif (!Number.isFinite(lux)) return null;\n\nconst t = Date.now();\n\nlet buf = context.get(\"buf\") || [];\nbuf.push({ t, lux });\nif (buf.length > N) buf.shift();\n\nlet slope = 0;\nlet pred = lux;\n\nif (buf.length >= 2) {\n  const a = buf[0];\n  const b = buf[buf.length - 1];\n  const dt = (b.t - a.t) / 1000;\n  if (dt > 0) slope = (b.lux - a.lux) / dt; // lux per second\n  pred = b.lux + slope * horizonSec;\n}\n\ncontext.set(\"buf\", buf);\n\nmsg.slope = slope;\nmsg.pred_lux = pred;\nmsg.horizon_s = horizonSec;\n\nreturn msg;",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "x": 820,
-    "y": 120,
-    "wires": [
-      [
-        "chart_format",
-        "ui_pred_text",
-        "decision_hysteresis"
-      ]
-    ]
-  },
-  {
-    "id": "chart_format",
-    "type": "function",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "Format for chart (2 series)",
-    "func": "// ui_chart uses msg.topic to separate series\n// Output 2 messages: lux_now and pred_lux\n\nconst nowLux = Number(msg.lux_now);\nconst predLux = Number(msg.pred_lux);\n\nif (!Number.isFinite(nowLux) || !Number.isFinite(predLux)) return null;\n\nconst m1 = {\n  topic: \"lux_now\",\n  payload: nowLux,\n  timestamp: Date.now()\n};\n\nconst m2 = {\n  topic: \"pred_lux(+\" + (msg.horizon_s || 5) + \"s)\",\n  payload: predLux,\n  timestamp: Date.now()\n};\n\nreturn [m1, m2];",
-    "outputs": 2,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "x": 1070,
-    "y": 120,
-    "wires": [
-      [
-        "ui_chart_lux"
-      ],
-      [
-        "ui_chart_lux"
-      ]
-    ]
-  },
-  {
-    "id": "ui_chart_lux",
-    "type": "ui_chart",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "Lux Now vs Predicted",
-    "group": "ui_group_ldr",
-    "order": 1,
-    "width": 12,
-    "height": 6,
-    "label": "Lux (relative): now vs future",
-    "chartType": "line",
-    "legend": "true",
-    "xformat": "HH:mm:ss",
-    "interpolate": "linear",
-    "nodata": "waiting for MQTT...",
-    "dot": false,
-    "ymin": "",
-    "ymax": "",
-    "removeOlder": 1,
-    "removeOlderPoints": "",
-    "removeOlderUnit": "3600",
-    "cutout": 0,
-    "useOneColor": false,
-    "useUTC": false,
-    "colors": [
-      "#1f77b4",
-      "#ff7f0e",
-      "#2ca02c",
-      "#d62728",
-      "#9467bd",
-      "#8c564b",
-      "#e377c2",
-      "#7f7f7f",
-      "#bcbd22",
-      "#17becf"
-    ],
-    "outputs": 1,
-    "x": 1330,
-    "y": 120,
-    "wires": [
-      []
-    ]
-  },
-  {
-    "id": "ui_now_text",
-    "type": "ui_text",
-    "z": "f0a1b2c3d4e5f6a7",
-    "group": "ui_group_ldr",
-    "order": 2,
-    "width": 6,
-    "height": 1,
-    "name": "Now",
-    "label": "Lux now",
-    "format": "{{msg.lux_now | number:1}}",
-    "layout": "row-spread",
-    "x": 800,
-    "y": 200,
-    "wires": []
-  },
-  {
-    "id": "ui_pred_text",
-    "type": "ui_text",
-    "z": "f0a1b2c3d4e5f6a7",
-    "group": "ui_group_ldr",
-    "order": 3,
-    "width": 6,
-    "height": 1,
-    "name": "Pred",
-    "label": "Pred lux (+5s)",
-    "format": "{{msg.pred_lux | number:1}}",
-    "layout": "row-spread",
-    "x": 1080,
-    "y": 200,
-    "wires": []
-  },
-  {
-    "id": "decision_hysteresis",
-    "type": "function",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "Decision (pred thresholds → LED cmd)",
-    "func": "// Simple Configuration logic using predicted lux\n// If predicted lux < LOW -> LED ON\n// If predicted lux > HIGH -> LED OFF\n// Sends command only when it changes (hysteresis via state)\n\nconst LOW = 50;   // tune\nconst HIGH = 200; // tune\n\nconst pred = Number(msg.pred_lux);\nif (!Number.isFinite(pred)) return null;\n\nlet state = context.get(\"led_state\") || \"UNKNOWN\"; // ON/OFF\nlet cmd = null;\n\nif (pred < LOW && state !== \"ON\") {\n  cmd = \"ON\";\n  state = \"ON\";\n}\n\nif (pred > HIGH && state !== \"OFF\") {\n  cmd = \"OFF\";\n  state = \"OFF\";\n}\n\ncontext.set(\"led_state\", state);\n\nif (!cmd) return null;\n\nreturn {\n  topic: \"cps/led/cmd\",\n  payload: cmd,\n  pred_lux: pred,\n  led_state: state\n};",
-    "outputs": 1,
-    "timeout": 0,
-    "noerr": 0,
-    "initialize": "",
-    "finalize": "",
-    "x": 1120,
-    "y": 280,
-    "wires": [
-      [
-        "mqtt_out_led",
-        "ui_led_cmd",
-        "debug_cmd"
-      ]
-    ]
-  },
-  {
-    "id": "mqtt_out_led",
-    "type": "mqtt out",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "MQTT OUT: cps/led/cmd",
-    "topic": "cps/led/cmd",
-    "qos": "",
-    "retain": "",
-    "respTopic": "",
-    "contentType": "",
-    "userProps": "",
-    "correl": "",
-    "expiry": "",
-    "broker": "mqtt_broker_local",
-    "x": 1390,
-    "y": 280,
-    "wires": []
-  },
-  {
-    "id": "ui_led_cmd",
-    "type": "ui_text",
-    "z": "f0a1b2c3d4e5f6a7",
-    "group": "ui_group_ctrl",
-    "order": 1,
-    "width": 12,
-    "height": 1,
-    "name": "LED cmd",
-    "label": "Auto LED command sent",
-    "format": "CMD={{msg.payload}}  (pred={{msg.pred_lux | number:1}})",
-    "layout": "row-spread",
-    "x": 1390,
-    "y": 340,
-    "wires": []
-  },
-  {
-    "id": "ui_switch_manual",
-    "type": "ui_switch",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "Manual LED",
-    "label": "Manual LED (override)",
-    "tooltip": "",
-    "group": "ui_group_ctrl",
-    "order": 2,
-    "width": 6,
-    "height": 1,
-    "passthru": true,
-    "decouple": "false",
-    "topic": "cps/led/cmd",
-    "style": "",
-    "onvalue": "ON",
-    "onvalueType": "str",
-    "offvalue": "OFF",
-    "offvalueType": "str",
-    "x": 190,
-    "y": 280,
-    "wires": [
-      [
-        "mqtt_out_led",
-        "debug_cmd"
-      ]
-    ]
-  },
-  {
-    "id": "ui_note",
-    "type": "ui_text",
-    "z": "f0a1b2c3d4e5f6a7",
-    "group": "ui_group_ctrl",
-    "order": 3,
-    "width": 12,
-    "height": 2,
-    "name": "Note",
-    "label": "Notes",
-    "format": "1) Edit MQTT broker IP if needed (config node).<br/>2) Thresholds are in the Function node: LOW=50, HIGH=200 (relative lux).<br/>3) Chart shows 2 series: lux_now and pred_lux(+5s).",
-    "layout": "col-center",
-    "x": 170,
-    "y": 340,
-    "wires": []
-  },
-  {
-    "id": "debug_raw",
-    "type": "debug",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "debug raw JSON",
-    "active": false,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": false,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "",
-    "statusType": "auto",
-    "x": 580,
-    "y": 60,
-    "wires": []
-  },
-  {
-    "id": "debug_cmd",
-    "type": "debug",
-    "z": "f0a1b2c3d4e5f6a7",
-    "name": "debug LED cmd",
-    "active": true,
-    "tosidebar": true,
-    "console": false,
-    "tostatus": true,
-    "complete": "payload",
-    "targetType": "msg",
-    "statusVal": "payload",
-    "statusType": "auto",
-    "x": 1390,
-    "y": 400,
-    "wires": []
-  }
+    {
+        "id": "f0a1b2c3d4e5f6a7",
+        "type": "tab",
+        "label": "CPS LDR Predictor (MQTT + Dashboard)",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "mqtt_in_ldr",
+        "type": "mqtt in",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "MQTT IN: cps/ldr/data",
+        "topic": "cps/ldr/data",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "197ee62919eef87c",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "json_parse"
+            ]
+        ]
+    },
+    {
+        "id": "json_parse",
+        "type": "json",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "JSON parse",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 360,
+        "y": 120,
+        "wires": [
+            [
+                "extract_fields",
+                "debug_raw"
+            ]
+        ]
+    },
+    {
+        "id": "extract_fields",
+        "type": "function",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "Extract lux_now",
+        "func": "// Expect payload from ESP32:\n// {device, ts, adc, v, lux_index, lux_smooth, rssi}\n\nconst p = msg.payload || {};\n\n// Prefer lux_smooth if present, else lux_index\nconst lux = Number(p.lux_smooth ?? p.lux_index);\nif (!Number.isFinite(lux)) return null;\n\nmsg.device = p.device || \"unknown\";\nmsg.ts = p.ts ?? Date.now();\nmsg.lux_now = lux;\nmsg.rssi = p.rssi;\nmsg.adc = p.adc;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 570,
+        "y": 120,
+        "wires": [
+            [
+                "predict_future",
+                "ui_now_text"
+            ]
+        ]
+    },
+    {
+        "id": "predict_future",
+        "type": "function",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "Cognition: slope + predict",
+        "func": "// Simple CPS Cognition: linear trend extrapolation\n// Keeps last N samples, estimates slope, predicts lux at horizonSec\n\nconst N = 20;\nconst horizonSec = 5;\n\nconst lux = Number(msg.lux_now);\nif (!Number.isFinite(lux)) return null;\n\nconst t = Date.now();\n\nlet buf = context.get(\"buf\") || [];\nbuf.push({ t, lux });\nif (buf.length > N) buf.shift();\n\nlet slope = 0;\nlet pred = lux;\n\nif (buf.length >= 2) {\n  const a = buf[0];\n  const b = buf[buf.length - 1];\n  const dt = (b.t - a.t) / 1000;\n  if (dt > 0) slope = (b.lux - a.lux) / dt; // lux per second\n  pred = b.lux + slope * horizonSec;\n}\n\ncontext.set(\"buf\", buf);\n\nmsg.slope = slope;\nmsg.pred_lux = pred;\nmsg.horizon_s = horizonSec;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 820,
+        "y": 120,
+        "wires": [
+            [
+                "chart_format",
+                "ui_pred_text",
+                "decision_hysteresis"
+            ]
+        ]
+    },
+    {
+        "id": "chart_format",
+        "type": "function",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "Format for chart (2 series)",
+        "func": "// ui_chart uses msg.topic to separate series\n// Output 2 messages: lux_now and pred_lux\n\nconst nowLux = Number(msg.lux_now);\nconst predLux = Number(msg.pred_lux);\n\nif (!Number.isFinite(nowLux) || !Number.isFinite(predLux)) return null;\n\nconst m1 = {\n  topic: \"lux_now\",\n  payload: nowLux,\n  timestamp: Date.now()\n};\n\nconst m2 = {\n  topic: \"pred_lux(+\" + (msg.horizon_s || 5) + \"s)\",\n  payload: predLux,\n  timestamp: Date.now()\n};\n\nreturn [m1, m2];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 1070,
+        "y": 80,
+        "wires": [
+            [
+                "ui_chart_lux"
+            ],
+            [
+                "ui_chart_lux"
+            ]
+        ]
+    },
+    {
+        "id": "ui_chart_lux",
+        "type": "ui_chart",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "Lux Now vs Predicted",
+        "group": "ui_group_ldr",
+        "order": 1,
+        "width": 12,
+        "height": 6,
+        "label": "Lux (relative): now vs future",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "waiting for MQTT...",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#ff7f0e",
+            "#2ca02c",
+            "#d62728",
+            "#9467bd",
+            "#8c564b",
+            "#e377c2",
+            "#7f7f7f",
+            "#bcbd22",
+            "#17becf"
+        ],
+        "outputs": 1,
+        "x": 1300,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_now_text",
+        "type": "ui_text",
+        "z": "f0a1b2c3d4e5f6a7",
+        "group": "ui_group_ldr",
+        "order": 2,
+        "width": 6,
+        "height": 1,
+        "name": "Now",
+        "label": "Lux now",
+        "format": "{{msg.lux_now | number:1}}",
+        "layout": "row-spread",
+        "x": 830,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "ui_pred_text",
+        "type": "ui_text",
+        "z": "f0a1b2c3d4e5f6a7",
+        "group": "ui_group_ldr",
+        "order": 3,
+        "width": 6,
+        "height": 1,
+        "name": "Pred",
+        "label": "Pred lux (+5s)",
+        "format": "{{msg.pred_lux | number:1}}",
+        "layout": "row-spread",
+        "x": 1230,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "decision_hysteresis",
+        "type": "function",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "Decision (pred thresholds → LED cmd)",
+        "func": "// Simple Configuration logic using predicted lux\n// If predicted lux < LOW -> LED ON\n// If predicted lux > HIGH -> LED OFF\n// Sends command only when it changes (hysteresis via state)\n\nconst LOW = 50;   // tune\nconst HIGH = 200; // tune\n\nconst pred = Number(msg.pred_lux);\nif (!Number.isFinite(pred)) return null;\n\nlet state = context.get(\"led_state\") || \"UNKNOWN\"; // ON/OFF\nlet cmd = null;\n\nif (pred < LOW && state !== \"ON\") {\n  cmd = \"ON\";\n  state = \"ON\";\n}\n\nif (pred > HIGH && state !== \"OFF\") {\n  cmd = \"OFF\";\n  state = \"OFF\";\n}\n\ncontext.set(\"led_state\", state);\n\nif (!cmd) return null;\n\nreturn {\n  topic: \"cps/led/cmd\",\n  payload: cmd,\n  pred_lux: pred,\n  led_state: state\n};",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 650,
+        "y": 340,
+        "wires": [
+            [
+                "mqtt_out_led",
+                "ui_led_cmd",
+                "debug_cmd"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_led",
+        "type": "mqtt out",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "MQTT OUT: cps/led/cmd",
+        "topic": "cps/led/cmd",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "197ee62919eef87c",
+        "x": 1130,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "ui_led_cmd",
+        "type": "ui_text",
+        "z": "f0a1b2c3d4e5f6a7",
+        "group": "ui_group_ctrl",
+        "order": 1,
+        "width": 12,
+        "height": 1,
+        "name": "LED cmd",
+        "label": "Auto LED command sent",
+        "format": "CMD={{msg.payload}}  (pred={{msg.pred_lux | number:1}})",
+        "layout": "row-spread",
+        "x": 1080,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "ui_switch_manual",
+        "type": "ui_switch",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "Manual LED",
+        "label": "Manual LED (override)",
+        "tooltip": "",
+        "group": "ui_group_ctrl",
+        "order": 2,
+        "width": 6,
+        "height": 1,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "cps/led/cmd",
+        "style": "",
+        "onvalue": "ON",
+        "onvalueType": "str",
+        "offvalue": "OFF",
+        "offvalueType": "str",
+        "x": 350,
+        "y": 480,
+        "wires": [
+            [
+                "mqtt_out_led",
+                "debug_cmd"
+            ]
+        ]
+    },
+    {
+        "id": "debug_raw",
+        "type": "debug",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "debug raw JSON",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "debug_cmd",
+        "type": "debug",
+        "z": "f0a1b2c3d4e5f6a7",
+        "name": "debug LED cmd",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1120,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "197ee62919eef87c",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "ui_group_ldr",
+        "type": "ui_group",
+        "name": "LDR (Now vs Future)",
+        "tab": "ui_tab_cps",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "ui_group_ctrl",
+        "type": "ui_group",
+        "name": "Control",
+        "tab": "ui_tab_cps",
+        "order": 2,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "ui_tab_cps",
+        "type": "ui_tab",
+        "name": "CPS Dashboard",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "160966361d6f0e04",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
 ]
