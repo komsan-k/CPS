@@ -1,4 +1,4 @@
-# Lab Extension: Add LM73 Temperature Sensor (Clean MQTT JSON Pattern)
+# Lab Extension: Add LM73 Temperature Sensor 
 
 ## Goal
 
@@ -18,11 +18,10 @@ SAME JSON message - Keep the safe publish pattern:
   ------ ----------------------------
   VDD    3.3V
   GND    GND
-  SDA    GPIO21
-  SCL    GPIO22
-  ADDR   GND (typical address 0x48)
+  SDA    GPIO4
+  SCL    GPIO5
+  ADDR   0x4D
 
-If your module has no pull-ups, add 4.7kΩ to 3.3V on SDA/SCL.
 
 ------------------------------------------------------------------------
 
@@ -33,7 +32,7 @@ Add near USER CONFIG:
 ``` cpp
 #include <Wire.h>
 
-const uint8_t LM73_ADDR = 0x48;
+const uint8_t LM73_ADDR = 0x4D;
 const float LM73_SCALE  = 1.0f;
 const float LM73_OFFSET = 0.0f;
 const float LM73_UNC    = 1.0f;
@@ -44,7 +43,7 @@ const float LM73_UNC    = 1.0f;
 ## 3) Initialize I²C in setup()
 
 ``` cpp
-Wire.begin(21, 22);
+Wire.begin(4, 5);
 ```
 
 ------------------------------------------------------------------------
@@ -122,11 +121,4 @@ Add widgets: - MQTT IN topic: `cps/ldr/data` - JSON node - Gauge →
 4.  Calibration test:
     -   change `LM73_OFFSET` and observe difference
 
-------------------------------------------------------------------------
 
-## Instructor Checklist
-
--   Wire.begin(21,22) added
--   LM73 function returns true/false
--   JSON fields included
--   Publish uses `(const uint8_t*)out`
