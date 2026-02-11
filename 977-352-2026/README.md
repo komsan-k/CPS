@@ -27,7 +27,7 @@ By the end of this course, you will be able to:
 
 ---
 
-## 📚 Lecture Topics (Simple View)
+## 📚 Lecture Topics 
 
 - CPS fundamentals and perspectives  
 - Digital Twin concepts  
