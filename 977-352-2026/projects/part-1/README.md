@@ -152,22 +152,22 @@ Deliverables:
 
 ------------------------------------------------------------------------
 
-# 📊 Grading Scheme --- Midterm (100 Marks)
+# 📊 Grading Scheme --- Midterm (10 Marks)
 
   Component                Description                        Marks
   ------------------------ ------------------------------ ---------
-  Digital Twin Core        Interrupt + MQTT + Dashboard          20
-  Dataset Creation         Logging + Filtering                   15
-  Feature Engineering      Embedded features                     15
-  TinyML Deployment        Model + Inference                     20
-  Optimization             Quantization comparison               10
-  Streaming Monitoring     Windowed inference                    10
-  Documentation & Report   README + Explanation                  10
-  **Total**                                                 **100**
+  Digital Twin Core        Interrupt + MQTT + Dashboard          2
+  Dataset Creation         Logging + Filtering                   1
+  Feature Engineering      Embedded features                     1
+  TinyML Deployment        Model + Inference                     2
+  Optimization             Quantization comparison               1
+  Streaming Monitoring     Windowed inference                    1
+  Documentation & Report   Explanation                           2
+  **Total**                                                   **10**
 
 ------------------------------------------------------------------------
 
-# 📝 Report Rubric (10%)
+# 📝 Report Rubric 
 
 Students must include:
 
