@@ -23,7 +23,13 @@ The project follows the CPS 5C concept:
 
 Physical → Connection → Conversion → Cyber → Cognition → Configuration
 
+------------------------------------------------------------------------
+
+# TinyML Lab Series (ESP32-Based)
+
 https://github.com/komsan-k/CPS/tree/main/tinyML/lab
+
+
 ------------------------------------------------------------------------
 
 # 🎯 Learning Outcomes
