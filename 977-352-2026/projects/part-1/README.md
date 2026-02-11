@@ -6,7 +6,6 @@
 **Project Type:** Midterm Implementation\
 **Last Updated:** 2026-02-11
 
-https://github.com/komsan-k/CPS/tree/main/tinyML/lab
 ------------------------------------------------------------------------
 
 # 📌 Project Overview
@@ -24,6 +23,7 @@ The project follows the CPS 5C concept:
 
 Physical → Connection → Conversion → Cyber → Cognition → Configuration
 
+https://github.com/komsan-k/CPS/tree/main/tinyML/lab
 ------------------------------------------------------------------------
 
 # 🎯 Learning Outcomes
