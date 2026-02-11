@@ -66,14 +66,14 @@ Example: Bright / Normal / Dark prediction → control LED safely
 
 ------------------------------------------------------------------------
 
-## 📊 Grading (Simple)
+## 📊 Grading 10%
 
--   Manual Control: 15%
--   LDR Perception: 15%
--   MQTT + Node‑RED: 20%
--   Digital Twin Dashboard: 20%
--   TinyML Intelligence: 20%
--   Report & Presentation: 10%
+-   Manual Control: 1%
+-   LDR Perception: 1%
+-   MQTT + Node‑RED: 1%
+-   Digital Twin Dashboard: 2%
+-   TinyML Intelligence: 3%
+-   Report & Presentation: 2%
 
 ------------------------------------------------------------------------
 
@@ -88,13 +88,13 @@ Example: Bright / Normal / Dark prediction → control LED safely
 
 ------------------------------------------------------------------------
 
-## ✅ Checklist Before Submission
+## ✅ Checklist 
 
 -   [ ] LED control works
 -   [ ] LDR data visible on dashboard
 -   [ ] MQTT connected
 -   [ ] Digital Twin updates live
--   [ ] TinyML or rule‑based logic added
+-   [ ] TinyML and rule‑based logic added
 -   [ ] Report completed
 
 ------------------------------------------------------------------------
