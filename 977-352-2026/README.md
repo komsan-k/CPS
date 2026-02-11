@@ -31,7 +31,7 @@ By the end of this course, you will be able to:
 
 - CPS fundamentals and perspectives  
 - Digital Twin concepts  
-- Industry 4.0 and Smart Factories  
+- Industry 5.0 and Smart Factories  
 - Society 5.0 and smart technologies  
 - Transportation 5.0  
 - CPS architectures  
