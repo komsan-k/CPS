@@ -6,6 +6,7 @@
 **Project Type:** Midterm Implementation\
 **Last Updated:** 2026-02-11
 
+https://github.com/komsan-k/CPS/tree/main/tinyML/lab
 ------------------------------------------------------------------------
 
 # 📌 Project Overview
