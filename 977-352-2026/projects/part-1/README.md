@@ -1,106 +1,219 @@
-# 🧑‍🎓 Midterm Project --- Digital Twin + TinyML 
+# 🧪 Midterm Course Project --- Digital Twin + TinyML CPS
 
-## 🎯 Project Goal
+## Digital Twin for an On--Off Machine with TinyML Extension
 
-Build a simple **Digital Twin system** using **ESP32 + MQTT + Node‑RED**
-and extend it with **TinyML intelligence**.
-
-You will create a Cyber‑Physical System that: Sensor → Decision →
-Actuator → Visualization
+**Course:** 977-352 Cyber-Physical Systems\
+**Project Type:** Midterm Implementation\
+**Last Updated:** 2026-02-11
 
 ------------------------------------------------------------------------
 
-## 🧩 What You Will Build
+# 📌 Project Overview
 
--   ESP32 controls an LED machine
--   LDR sensor monitors brightness (health/perception)
--   MQTT sends data to Node‑RED
--   Node‑RED Dashboard acts as the Digital Twin
--   TinyML adds smart prediction or classification
+This midterm project extends the **Digital Twin On--Off Machine** into a
+**TinyML-enabled Cyber‑Physical System (CPS)**.
 
-------------------------------------------------------------------------
+Students will integrate:
 
-## 🛠️ Project Steps (Simple View)
+-   ESP32 physical machine (LED + Button + LDR + MQTT)
+-   Node‑RED Digital Twin dashboard
+-   TinyML data pipeline (dataset → feature → model → inference)
 
-### Phase 1 --- Manual Control
+The project follows the CPS 5C concept:
 
--   Button interrupt toggles LED
--   Basic ESP32 control works reliably
-
-### Phase 2 --- Perception
-
--   LDR reads brightness
--   Detect abnormal condition (LED ON but low light)
-
-### Phase 3 --- IoT Communication
-
--   Publish data via MQTT
--   Dashboard shows LED + LDR values
-
-### Phase 4 --- Digital Twin
-
--   Node‑RED Dashboard mirrors the physical system
--   Charts + indicators update in real time
-
-### Phase 5 --- TinyML Intelligence
-
-Use ideas from TinyML Labs:
-
--   Lab 2: Data logging (analog sensors)
--   Lab 3: Feature extraction
--   Lab 4: Train small classifier
--   Lab 5: Quantization (optional)
--   Lab 6: Time‑series windowing
-
-Example: Bright / Normal / Dark prediction → control LED safely
+Physical → Connection → Conversion → Cyber → Cognition → Configuration
 
 ------------------------------------------------------------------------
 
-## 📦 What You Must Submit
+# 🎯 Learning Outcomes
 
--   ESP32 Arduino code
--   Node‑RED JSON flow
--   Dashboard screenshot
--   Short report (3--5 pages)
--   Demo video (1--2 minutes)
+Students will be able to:
 
-------------------------------------------------------------------------
-
-## 📊 Grading (Simple)
-
--   Manual Control: 15%
--   LDR Perception: 15%
--   MQTT + Node‑RED: 20%
--   Digital Twin Dashboard: 20%
--   TinyML Intelligence: 20%
--   Report & Presentation: 10%
+-   Implement an ESP32 Digital Twin architecture
+-   Collect analog sensor datasets for TinyML
+-   Design feature extraction on embedded devices
+-   Deploy a lightweight ML model on ESP32
+-   Integrate CPS feedback with AI-assisted decision logic
 
 ------------------------------------------------------------------------
 
-## 📝 Report Template (Very Simple)
+# 🧩 System Architecture
 
-1.  System Overview
-2.  Hardware Setup
-3.  Digital Twin Architecture
-4.  TinyML Model (if used)
-5.  Results (charts/screenshots)
-6.  Discussion
+ESP32 (LED + LDR + Button)\
+↓ MQTT\
+Node‑RED Digital Twin\
+↓\
+TinyML Model\
+↓\
+Predictive Control / Backup Logic
 
 ------------------------------------------------------------------------
 
-## ✅ Checklist Before Submission
+# 🔬 Midterm Implementation Phases
 
--   [ ] LED control works
--   [ ] LDR data visible on dashboard
--   [ ] MQTT connected
--   [ ] Digital Twin updates live
--   [ ] TinyML or rule‑based logic added
+## Phase A --- Digital Twin Core (DT Implementation)
+
+-   Interrupt-based LED On--Off machine
+-   LDR perception for fault detection
+-   MQTT publishing and Node‑RED visualization
+
+Deliverable: - Working Digital Twin dashboard
+
+------------------------------------------------------------------------
+
+## Phase B --- Dataset Creation (TinyML Lab 2)
+
+Goal: Build datasets from analog sensors.
+
+Tasks:
+
+-   Read LDR ADC values
+-   Apply moving average filtering
+-   Log CSV-style serial output
+
+Deliverables:
+
+-   Dataset file
+-   ADC scaling explanation
+
+------------------------------------------------------------------------
+
+## Phase C --- Feature Engineering (TinyML Lab 3)
+
+Goal: Convert signals into features.
+
+Required features:
+
+-   Mean
+-   Variance
+-   RMS
+-   Min / Max
+-   Slope
+
+Deliverables:
+
+-   Feature extraction function
+-   Feature table
+
+------------------------------------------------------------------------
+
+## Phase D --- Tiny Classifier Deployment (TinyML Lab 4)
+
+Goal: Train and deploy a small model.
+
+Example Classes:
+
+-   Bright
+-   Normal
+-   Dark
+
+Deliverables:
+
+-   Trained model
+-   Exported C-array
+-   ESP32 inference controlling LED
+
+------------------------------------------------------------------------
+
+## Phase E --- Optimization (TinyML Lab 5)
+
+Goal: Improve performance.
+
+Tasks:
+
+-   Convert model to INT8
+-   Compare latency and memory
+
+Deliverables:
+
+-   Float vs INT8 comparison table
+
+------------------------------------------------------------------------
+
+## Phase F --- Streaming CPS Monitoring (TinyML Lab 6)
+
+Goal: Sliding-window inference.
+
+Tasks:
+
+-   Implement buffer window
+-   Real-time predictions
+
+Deliverables:
+
+-   Streaming inference demo
+
+------------------------------------------------------------------------
+
+# 📊 Grading Scheme --- Midterm (100 Marks)
+
+  Component                Description                        Marks
+  ------------------------ ------------------------------ ---------
+  Digital Twin Core        Interrupt + MQTT + Dashboard          20
+  Dataset Creation         Logging + Filtering                   15
+  Feature Engineering      Embedded features                     15
+  TinyML Deployment        Model + Inference                     20
+  Optimization             Quantization comparison               10
+  Streaming Monitoring     Windowed inference                    10
+  Documentation & Report   README + Explanation                  10
+  **Total**                                                 **100**
+
+------------------------------------------------------------------------
+
+# 📝 Report Rubric (10%)
+
+Students must include:
+
+-   System architecture diagram
+-   CPS loop explanation
+-   Dataset description
+-   Model summary
+-   Results table (accuracy / latency / memory)
+-   Screenshots of dashboard
+
+------------------------------------------------------------------------
+
+# 📄 Report Template (Student Submission)
+
+## 1. Introduction
+
+Explain the Digital Twin + TinyML concept.
+
+## 2. System Design
+
+Hardware + software architecture.
+
+## 3. Dataset & Features
+
+How data was collected and processed.
+
+## 4. Model Training
+
+Model type, classes, evaluation.
+
+## 5. Deployment Results
+
+Inference behavior and control outcome.
+
+## 6. Discussion
+
+Challenges and improvements.
+
+## 7. Conclusion
+
+------------------------------------------------------------------------
+
+# ✅ Midterm Checklist
+
+-   [ ] ESP32 Digital Twin works
+-   [ ] Dataset collected
+-   [ ] Feature extractor implemented
+-   [ ] TinyML inference running
+-   [ ] Dashboard synchronized
 -   [ ] Report completed
 
 ------------------------------------------------------------------------
 
-## 💡 Key Idea
+# 📚 Keywords
 
-This project demonstrates a full CPS loop:
-
-**Physical → Cyber → Cognition → Control**
+Digital Twin · CPS · TinyML · ESP32 · MQTT · Node‑RED · Edge AI
