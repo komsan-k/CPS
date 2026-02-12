@@ -41,9 +41,13 @@ All aligned with the **5C CPS architecture**.
   CPS Layer          Implementation in This Series
   ------------------ ----------------------------------------------
   1️⃣ Connection      LDR (ADC), LM73 (I²C), MPU6050 (I²C)
+  
   2️⃣ Conversion      Filtering, normalization, feature extraction
+  
   3️⃣ Cyber           MQTT + Node-RED Digital Twin
+  
   4️⃣ Cognition       TinyML classification / regression
+  
   5️⃣ Configuration   Automatic control policy (LED / alarm)
 
 ------------------------------------------------------------------------
