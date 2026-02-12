@@ -3,11 +3,11 @@
 
 In **Cyber-Physical Systems (CPS)**, prediction trend refers to the system’s ability to forecast future physical states or behaviors using historical and real-time data. Instead of only reacting to events, modern CPS anticipates them.
 
-In short:
+Predictive CPS introduces intelligence and foresight into the control loop:
 
 > **Sense → Model → Predict → Decide → Act → Learn**
 
-Traditional CPS:
+Traditional Cyber-Physical Systems operate in a reactive loop:
 
 > **Sense → Decide → Act**
 
