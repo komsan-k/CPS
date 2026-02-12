@@ -7,6 +7,10 @@ In short:
 
 > **Sense → Model → Predict → Decide → Act → Learn**
 
+Traditional CPS:
+
+> **Sense → Decide → Act**
+
 This transforms CPS from reactive control to predictive and cognitive control — a key feature in **Industry 4.0, Industry 5.0, and Society 5.0 ecosystems**.
 
 ---
