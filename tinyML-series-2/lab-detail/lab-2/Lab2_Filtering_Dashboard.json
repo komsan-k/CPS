@@ -1,0 +1,130 @@
+[
+  {
+    "id": "tab1",
+    "type": "tab",
+    "label": "Lab2 Filtering"
+  },
+  {
+    "id": "broker",
+    "type": "mqtt-broker",
+    "name": "MQTT",
+    "broker": "localhost",
+    "port": "1883"
+  },
+  {
+    "id": "ui_tab",
+    "type": "ui_tab",
+    "name": "TinyML CPS",
+    "icon": "dashboard"
+  },
+  {
+    "id": "ui_group",
+    "type": "ui_group",
+    "name": "Raw vs Filtered",
+    "tab": "ui_tab"
+  },
+  {
+    "id": "mqtt_in",
+    "type": "mqtt in",
+    "z": "tab1",
+    "topic": "tinymlcps/lab2/telemetry",
+    "broker": "broker",
+    "wires": [
+      [
+        "json"
+      ]
+    ],
+    "x": 100,
+    "y": 100
+  },
+  {
+    "id": "json",
+    "type": "json",
+    "z": "tab1",
+    "property": "payload",
+    "wires": [
+      [
+        "chart1",
+        "chart2",
+        "chart3",
+        "chart4",
+        "chart5",
+        "chart6"
+      ]
+    ],
+    "x": 250,
+    "y": 100
+  },
+  {
+    "id": "chart1",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "ui_group",
+    "label": "Lux Raw",
+    "x": 500,
+    "y": 50,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart2",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "ui_group",
+    "label": "Lux Filtered",
+    "x": 500,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart3",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "ui_group",
+    "label": "Temp Raw",
+    "x": 500,
+    "y": 150,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart4",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "ui_group",
+    "label": "Temp Filtered",
+    "x": 500,
+    "y": 200,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart5",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "ui_group",
+    "label": "ax Raw",
+    "x": 500,
+    "y": 250,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart6",
+    "type": "ui_chart",
+    "z": "tab1",
+    "group": "ui_group",
+    "label": "ax Corrected",
+    "x": 500,
+    "y": 300,
+    "wires": [
+      []
+    ]
+  }
+]
