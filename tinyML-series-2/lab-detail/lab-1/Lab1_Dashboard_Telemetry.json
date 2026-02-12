@@ -1,0 +1,461 @@
+[
+  {
+    "id": "tab1",
+    "type": "tab",
+    "label": "Lab1 Multi-Sensor Telemetry",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqttBroker1",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {}
+  },
+  {
+    "id": "ui_tab1",
+    "type": "ui_tab",
+    "name": "TinyML CPS",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group1",
+    "type": "ui_group",
+    "name": "Telemetry",
+    "tab": "ui_tab1",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group2",
+    "type": "ui_group",
+    "name": "Live Charts",
+    "tab": "ui_tab1",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqttIn1",
+    "type": "mqtt in",
+    "z": "tab1",
+    "name": "ESP32 Telemetry (Lab1)",
+    "topic": "tinymlcps/lab1/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqttBroker1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 180,
+    "y": 120,
+    "wires": [
+      [
+        "json1"
+      ]
+    ]
+  },
+  {
+    "id": "json1",
+    "type": "json",
+    "z": "tab1",
+    "name": "JSON Parse",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 360,
+    "y": 120,
+    "wires": [
+      [
+        "fn1"
+      ]
+    ]
+  },
+  {
+    "id": "fn1",
+    "type": "function",
+    "z": "tab1",
+    "name": "Normalize + Format",
+    "func": "// Convert incoming telemetry into display-friendly messages.\nconst d = msg.payload || {};\nfunction show(v){ if(v===null||v===undefined||(typeof v==='number' && isNaN(v))) return '—'; return v; }\n\n// Lux: raw ADC (0..4095). Also compute normalized 0..1 for charts if desired.\nconst luxRaw = (typeof d.lux_raw === 'number') ? d.lux_raw : null;\nconst luxNorm = (luxRaw!==null) ? luxRaw/4095 : null;\n\nmsg.tele = {\n  device_id: show(d.device_id),\n  lux_raw: show(luxRaw),\n  lux_norm: luxNorm,\n  temp_c: show(d.temp_c),\n  ax_g: show(d.ax_g),\n  ay_g: show(d.ay_g),\n  az_g: show(d.az_g),\n};\n\n// Pass through for UI widgets\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 120,
+    "wires": [
+      [
+        "ui_lux",
+        "ui_temp",
+        "ui_ax",
+        "ui_ay",
+        "ui_az",
+        "split_lux",
+        "split_temp",
+        "split_ax",
+        "split_ay",
+        "split_az"
+      ]
+    ]
+  },
+  {
+    "id": "ui_lux",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui_group1",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "name": "Lux Raw",
+    "label": "Lux (ADC raw)",
+    "format": "{{msg.tele.lux_raw}}",
+    "layout": "row-spread",
+    "x": 790,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ui_temp",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui_group1",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "name": "Temp C",
+    "label": "Temp (°C)",
+    "format": "{{msg.tele.temp_c}}",
+    "layout": "row-spread",
+    "x": 790,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "ui_ax",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui_group1",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "name": "ax",
+    "label": "ax (g)",
+    "format": "{{msg.tele.ax_g}}",
+    "layout": "row-spread",
+    "x": 770,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "ui_ay",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui_group1",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "name": "ay",
+    "label": "ay (g)",
+    "format": "{{msg.tele.ay_g}}",
+    "layout": "row-spread",
+    "x": 770,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "ui_az",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui_group1",
+    "order": 5,
+    "width": 0,
+    "height": 0,
+    "name": "az",
+    "label": "az (g)",
+    "format": "{{msg.tele.az_g}}",
+    "layout": "row-spread",
+    "x": 770,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "chart_lux",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "Lux Chart",
+    "group": "ui_group2",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "label": "Lux (raw ADC)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "auto",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "minute",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [],
+    "outputs": 1,
+    "x": 800,
+    "y": 280,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_temp",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "Temp Chart",
+    "group": "ui_group2",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "label": "Temp (°C)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "auto",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "minute",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [],
+    "outputs": 1,
+    "x": 790,
+    "y": 320,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_ax",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "ax Chart",
+    "group": "ui_group2",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "label": "ax (g)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "auto",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "minute",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [],
+    "outputs": 1,
+    "x": 780,
+    "y": 360,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_ay",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "ay Chart",
+    "group": "ui_group2",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "label": "ay (g)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "auto",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "minute",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [],
+    "outputs": 1,
+    "x": 780,
+    "y": 400,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_az",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "az Chart",
+    "group": "ui_group2",
+    "order": 5,
+    "width": 0,
+    "height": 0,
+    "label": "az (g)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "auto",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "minute",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [],
+    "outputs": 1,
+    "x": 780,
+    "y": 440,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "split_lux",
+    "type": "function",
+    "z": "tab1",
+    "name": "to Lux",
+    "func": "// Route lux_raw to chart payload\nconst v = msg.tele && msg.tele.lux_raw;\nif (v === null || v === undefined || (typeof v === 'number' && isNaN(v))) return null;\nreturn {payload: v};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 280,
+    "wires": [
+      [
+        "chart_lux"
+      ]
+    ]
+  },
+  {
+    "id": "split_temp",
+    "type": "function",
+    "z": "tab1",
+    "name": "to Temp",
+    "func": "// Route temp_c to chart payload\nconst v = msg.tele && msg.tele.temp_c;\nif (v === null || v === undefined || (typeof v === 'number' && isNaN(v))) return null;\nreturn {payload: v};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 640,
+    "y": 320,
+    "wires": [
+      [
+        "chart_temp"
+      ]
+    ]
+  },
+  {
+    "id": "split_ax",
+    "type": "function",
+    "z": "tab1",
+    "name": "to ax",
+    "func": "// Route ax_g to chart payload\nconst v = msg.tele && msg.tele.ax_g;\nif (v === null || v === undefined || (typeof v === 'number' && isNaN(v))) return null;\nreturn {payload: v};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 630,
+    "y": 360,
+    "wires": [
+      [
+        "chart_ax"
+      ]
+    ]
+  },
+  {
+    "id": "split_ay",
+    "type": "function",
+    "z": "tab1",
+    "name": "to ay",
+    "func": "// Route ay_g to chart payload\nconst v = msg.tele && msg.tele.ay_g;\nif (v === null || v === undefined || (typeof v === 'number' && isNaN(v))) return null;\nreturn {payload: v};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 630,
+    "y": 400,
+    "wires": [
+      [
+        "chart_ay"
+      ]
+    ]
+  },
+  {
+    "id": "split_az",
+    "type": "function",
+    "z": "tab1",
+    "name": "to az",
+    "func": "// Route az_g to chart payload\nconst v = msg.tele && msg.tele.az_g;\nif (v === null || v === undefined || (typeof v === 'number' && isNaN(v))) return null;\nreturn {payload: v};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 630,
+    "y": 440,
+    "wires": [
+      [
+        "chart_az"
+      ]
+    ]
+  }
+]
