@@ -20,7 +20,10 @@ CPS 1.0 systems operate purely in reactive mode. The system measures the current
 - Static mathematical models
 
 ### Control Logic Example
+
+$$
 u(t) = Kp e(t) + Ki ∫ e(t) dt + Kd (de/dt)
+$$
 
 ### Example
 If:
