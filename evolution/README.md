@@ -83,7 +83,10 @@ CPS 3.0 introduces statistical and machine learning models that learn patterns f
 - LSTM (Deep Learning)
 
 ### Mathematical View
+
+$$
 x̂(t + Δt) = f(x(t), x(t−1), ..., x(t−n))
+$$
 
 Where f is learned from data.
 
