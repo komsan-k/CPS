@@ -116,22 +116,15 @@ Physical AI, enabling systems to act independently.
 
 ## 📊 Evolutionary Milestones Summary
 
-  -----------------------------------------------------------------------------
-  Feature        Embedded       Early CPS      Predictive CPS Cognitive CPS
-                 Systems                                      (2026+)
-  -------------- -------------- -------------- -------------- -----------------
-  Logic          Reactive       Descriptive    Predictive     Agentic /
-                                                              Prescriptive
 
-  Data Source    Local Sensors  IoT Cloud Data Big Data       Multimodal
-                                                              Physical AI
+| Feature          | Embedded Systems | Early CPS   | Predictive CPS        | Cognitive CPS (2026+)                |
+| ---------------- | ---------------- | ----------- | --------------------- | ------------------------------------ |
+| **Logic**        | Reactive         | Descriptive | Predictive            | **Agentic / Prescriptive**           |
+| **Data Source**  | Local Sensors    | Cloud / IoT | Big Data              | **Multimodal / Physical AI**         |
+| **Connectivity** | None / Local     | 4G / LTE    | 5G / Private Networks | **6G / Semantic Communication**      |
+| **Human Role**   | Operator         | Monitor     | Decision Maker        | **Collaborator (Human-in-the-Loop)** |
 
-  Connectivity   None / Local   4G / LTE       5G / Private   6G / Semantic
-                                               Networks       Communication
 
-  Human Role     Operator       Monitor        Decision Maker Collaborator
-                                                              (Human‑in‑Loop)
-  -----------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
 
