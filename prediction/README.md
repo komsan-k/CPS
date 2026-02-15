@@ -127,9 +127,9 @@ If sensor signal is:
 x(t)
 
 Trend estimation:
-
+$$
 x̂(t + Δt) = f(x(t), x(t−1), ..., x(t−n))
-
+$$
 Where:
 
 - f = learned model  
@@ -137,8 +137,9 @@ Where:
 
 Simple linear trend:
 
+$$
 Trend = (x(t) − x(t − Δt)) / Δt
-
+$$
 ---
 
 ## 5️⃣ CPS Examples
