@@ -142,6 +142,7 @@ Simple linear trend:
 $$
 Trend = (x(t) − x(t − Δt)) / Δt
 $$
+
 ---
 
 ## 5️⃣ CPS Examples
