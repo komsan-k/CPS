@@ -1,0 +1,379 @@
+[
+  {
+    "id": "tab1",
+    "type": "tab",
+    "label": "SmartCity StreetLight DT",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt-broker",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "localhost",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "sessionExpiry": ""
+  },
+  {
+    "id": "ui-tab",
+    "type": "ui_tab",
+    "name": "Smart City DT",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui-group",
+    "type": "ui_group",
+    "name": "Street Light",
+    "tab": "ui-tab",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt-in-tele",
+    "type": "mqtt in",
+    "z": "tab1",
+    "name": "Telemetry IN",
+    "topic": "smartcity/streetlight/telemetry",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 150,
+    "y": 120,
+    "wires": [
+      [
+        "json-tele",
+        "fn-health"
+      ]
+    ]
+  },
+  {
+    "id": "json-tele",
+    "type": "json",
+    "z": "tab1",
+    "name": "JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 330,
+    "y": 120,
+    "wires": [
+      [
+        "chg-lux"
+      ]
+    ]
+  },
+  {
+    "id": "chg-lux",
+    "type": "change",
+    "z": "tab1",
+    "name": "Set msg.payload = lux",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.lux",
+        "tot": "msg"
+      }
+    ],
+    "x": 520,
+    "y": 120,
+    "wires": [
+      [
+        "ui-gauge-lux",
+        "ui-chart-lux"
+      ]
+    ]
+  },
+  {
+    "id": "ui-gauge-lux",
+    "type": "ui_gauge",
+    "z": "tab1",
+    "name": "Lux Proxy",
+    "group": "ui-group",
+    "order": 1,
+    "width": 6,
+    "height": 4,
+    "gtype": "gage",
+    "title": "Brightness (Lux Proxy)",
+    "label": "0\u20131000",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 1000,
+    "seg1": "",
+    "seg2": "",
+    "x": 750,
+    "y": 90,
+    "wires": []
+  },
+  {
+    "id": "ui-chart-lux",
+    "type": "ui_chart",
+    "z": "tab1",
+    "name": "Lux Trend",
+    "group": "ui-group",
+    "order": 2,
+    "width": 12,
+    "height": 4,
+    "label": "Lux Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "auto",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1000",
+    "removeOlder": "1",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [],
+    "useOldStyle": false,
+    "outputs": 1,
+    "x": 750,
+    "y": 150,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "mqtt-in-state",
+    "type": "mqtt in",
+    "z": "tab1",
+    "name": "State IN (retained)",
+    "topic": "smartcity/streetlight/state",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt-broker",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 170,
+    "y": 200,
+    "wires": [
+      [
+        "json-state",
+        "fn-health"
+      ]
+    ]
+  },
+  {
+    "id": "json-state",
+    "type": "json",
+    "z": "tab1",
+    "name": "JSON",
+    "property": "payload",
+    "pretty": false,
+    "x": 330,
+    "y": 200,
+    "wires": [
+      [
+        "chg-ledtext"
+      ]
+    ]
+  },
+  {
+    "id": "chg-ledtext",
+    "type": "change",
+    "z": "tab1",
+    "name": "Set LED text",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "payload.led",
+        "tot": "msg"
+      }
+    ],
+    "x": 520,
+    "y": 200,
+    "wires": [
+      [
+        "ui-led-text",
+        "fn-store-cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ui-led-text",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui-group",
+    "order": 3,
+    "width": 6,
+    "height": 1,
+    "name": "LED State",
+    "label": "LED State",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 750,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ui-switch",
+    "type": "ui_switch",
+    "z": "tab1",
+    "name": "Street Light Switch",
+    "label": "Street Light Command",
+    "group": "ui-group",
+    "order": 4,
+    "width": 6,
+    "height": 1,
+    "passthru": true,
+    "decouple": "false",
+    "topic": "cmd",
+    "style": "",
+    "onvalue": "ON",
+    "onvalueType": "str",
+    "offvalue": "OFF",
+    "offvalueType": "str",
+    "x": 170,
+    "y": 280,
+    "wires": [
+      [
+        "fn-cmd",
+        "fn-store-lastcmd"
+      ]
+    ]
+  },
+  {
+    "id": "fn-cmd",
+    "type": "function",
+    "z": "tab1",
+    "name": "Format cmd",
+    "func": "msg.payload = (msg.payload || '').toString().toUpperCase();\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 360,
+    "y": 280,
+    "wires": [
+      [
+        "mqtt-out-cmd"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt-out-cmd",
+    "type": "mqtt out",
+    "z": "tab1",
+    "name": "Command OUT",
+    "topic": "smartcity/streetlight/cmd",
+    "qos": "",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt-broker",
+    "x": 560,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "fn-store-lastcmd",
+    "type": "function",
+    "z": "tab1",
+    "name": "Store lastCmd",
+    "func": "flow.set('lastCmd', msg.payload);\nreturn null;",
+    "outputs": 0,
+    "noerr": 0,
+    "x": 370,
+    "y": 330,
+    "wires": []
+  },
+  {
+    "id": "fn-health",
+    "type": "function",
+    "z": "tab1",
+    "name": "Health Check (NORMAL/FAIL)",
+    "func": "// Evaluate health using lastCmd and lastLux\n// Tuning:\nconst LUX_MIN_ON = 250;  // If command is ON but lux stays below this -> FAIL\n\n// Extract lux from either telemetry or state\nlet lux = undefined;\nif (typeof msg.payload === 'object' && msg.payload !== null) {\n  if (typeof msg.payload.lux !== 'undefined') lux = Number(msg.payload.lux);\n}\n\nif (typeof lux === 'number' && !Number.isNaN(lux)) {\n  flow.set('lastLux', lux);\n}\n\nconst lastCmd = (flow.get('lastCmd') || 'OFF').toString().toUpperCase();\nconst lastLux = Number(flow.get('lastLux') || 0);\n\nlet status = 'NORMAL';\nif (lastCmd === 'ON' && lastLux < LUX_MIN_ON) {\n  status = 'FAIL';\n}\n\n// Output a clean message for dashboard text\nreturn {\n  payload: status,\n  topic: 'health'\n};",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 390,
+    "y": 410,
+    "wires": [
+      [
+        "ui-health-text",
+        "debug-health"
+      ]
+    ]
+  },
+  {
+    "id": "ui-health-text",
+    "type": "ui_text",
+    "z": "tab1",
+    "group": "ui-group",
+    "order": 5,
+    "width": 6,
+    "height": 1,
+    "name": "Health Status",
+    "label": "Health Status",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 650,
+    "y": 410,
+    "wires": []
+  },
+  {
+    "id": "debug-health",
+    "type": "debug",
+    "z": "tab1",
+    "name": "health debug",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 640,
+    "y": 450,
+    "wires": []
+  },
+  {
+    "id": "fn-store-cmd",
+    "type": "function",
+    "z": "tab1",
+    "name": "Store ledState",
+    "func": "flow.set('ledState', msg.payload);\nreturn null;",
+    "outputs": 0,
+    "noerr": 0,
+    "x": 360,
+    "y": 240,
+    "wires": []
+  }
+]
