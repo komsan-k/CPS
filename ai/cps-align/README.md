@@ -56,15 +56,16 @@ CPS Intelligent Loop: Sense → Perceive → Learn → Predict → Decide → Ac
 
 ------------------------------------------------------------------------
 
-## 🧠 Physical AI Stack (Conceptual Mapping)
 
-  Physical AI Stage   AI Algorithms
-  ------------------- ------------------------
-  Perception          CNN, Transformer, PCA
-  Representation      Autoencoder, ANN
-  Prediction          Boosting, Regression
-  Decision            RL (Actor-Critic, DQN)
-  Optimization        Genetic Algorithms
+## 🧠 Physical AI Stack Mapping
+
+| Physical AI Stage | AI Algorithms |
+|---|---|
+| **Perception** | CNN, Transformer, PCA |
+| **Representation** | Autoencoder, ANN |
+| **Prediction** | Boosting, Regression |
+| **Decision** | RL (Actor-Critic, DQN) |
+| **Optimization** | Genetic Algorithms |
 
 ------------------------------------------------------------------------
 
