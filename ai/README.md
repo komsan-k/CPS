@@ -163,8 +163,3 @@ A research-oriented CPS pipeline mapping:
 This structure aligns with modern Cyber‑Physical Systems (CPS), Physical
 AI, and intelligent control frameworks.
 
-------------------------------------------------------------------------
-
-**Author Note** This README is designed for academic use, course
-materials, and AI taxonomy explanation aligned with journal-level
-documentation.
