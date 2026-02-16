@@ -138,15 +138,15 @@ Hyperparameter tuning
 
 # 📈 High-Level AI Taxonomy
 
-  Category                 Algorithms
-  ------------------------ ---------------------------------------
-  Supervised Learning      Regression, Trees, Boosting, SVM, KNN
-  Unsupervised Learning    k-Means, DBSCAN, PCA, t-SNE
-  Probabilistic Models     Naive Bayes, MDP
-  Reinforcement Learning   Q-Learning, SARSA, Actor-Critic
-  Deep Learning            ANN, CNN, RNN, LSTM, Transformer
-  Optimization             Genetic Algorithms
-  Anomaly Detection        Isolation Forest
+| Category | Algorithms |
+|---|---|
+| **Supervised Learning** | Regression, Trees, Boosting, SVM, KNN |
+| **Unsupervised Learning** | k-Means, DBSCAN, PCA, t-SNE |
+| **Probabilistic Models** | Naive Bayes, MDP |
+| **Reinforcement Learning** | Q-Learning, SARSA, Actor-Critic |
+| **Deep Learning** | ANN, CNN, RNN, LSTM, Transformer |
+| **Optimization** | Genetic Algorithms |
+| **Anomaly Detection** | Isolation Forest |
 
 ------------------------------------------------------------------------
 
