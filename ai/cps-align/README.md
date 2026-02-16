@@ -30,36 +30,17 @@ CPS Intelligent Loop: Sense → Perceive → Learn → Predict → Decide → Ac
 
 # 📈 High-Level AI Taxonomy (Research Version)
 
-  ---------------------------------------------------------------------------------
-  Category        Algorithms     CPS Layer       ISO/IEC 30141  Research Function
-                                                 Role           
-  --------------- -------------- --------------- -------------- -------------------
-  Supervised      Regression,    Cyber           Processing     Prediction &
-  Learning        Trees,                                        estimation
-                  Boosting, SVM,                                
-                  KNN                                           
+## 📈 CPS-Aligned AI Taxonomy Table
 
-  Unsupervised    k-Means,       Perception      Service        Pattern discovery
-  Learning        DBSCAN, PCA,                                  
-                  t-SNE                                         
-
-  Probabilistic   Naive Bayes,   Cognition       Application    Uncertainty
-  Models          MDP                                           reasoning
-
-  Reinforcement   Q-Learning,    Configuration   Management     Adaptive decision
-  Learning        SARSA,                                        control
-                  Actor-Critic                                  
-
-  Deep Learning   ANN, CNN, RNN, Perception +    Application    High-dimensional
-                  LSTM,          Cyber                          perception
-                  Transformer                                   
-
-  Optimization    Genetic        Configuration   Management     Self-optimization
-                  Algorithms                                    
-
-  Anomaly         Isolation      Perception      Service        Fault detection
-  Detection       Forest                                        
-  ---------------------------------------------------------------------------------
+| Category | Algorithms | CPS Layer | ISO/IEC 30141 Role | Research Function |
+|---|---|---|---|---|
+| **Supervised Learning** | Regression, Trees, Boosting, SVM, KNN | Cyber | Processing | Prediction & estimation |
+| **Unsupervised Learning** | k-Means, DBSCAN, PCA, t-SNE | Perception | Service | Pattern discovery |
+| **Probabilistic Models** | Naive Bayes, MDP | Cognition | Application | Uncertainty reasoning |
+| **Reinforcement Learning** | Q-Learning, SARSA, Actor-Critic | Configuration | Management | Adaptive decision control |
+| **Deep Learning** | ANN, CNN, RNN, LSTM, Transformer | Perception + Cyber | Application | High-dimensional perception |
+| **Optimization** | Genetic Algorithms | Configuration | Management | Self-optimization |
+| **Anomaly Detection** | Isolation Forest | Perception | Service | Fault detection |
 
 ------------------------------------------------------------------------
 
