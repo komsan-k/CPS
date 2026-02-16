@@ -46,26 +46,14 @@ CPS Intelligent Loop: Sense → Perceive → Learn → Predict → Decide → Ac
 
 ## 🧩 Mapping: ISO/IEC 30141 ↔ CPS 5C ↔ AI Algorithms
 
-  ---------------------------------------------------------------------------
-  ISO/IEC 30141     CPS 5C Layer          AI Role           Example
-  Layer                                                     Algorithms
-  ----------------- --------------------- ----------------- -----------------
-  Device            Smart Connection      Sensing &         PCA, k-Means
-                                          preprocessing     
 
-  Edge/Network      Data-to-Information   Feature           Autoencoder,
-                                          extraction        Isolation Forest
-
-  Service           Cyber                 Modeling &        Regression,
-                                          prediction        Random Forest
-
-  Application       Cognition             Decision          Naive Bayes,
-                                          intelligence      Policy Gradient
-
-  Management        Configuration         Optimization &    Q-Learning,
-                                          adaptation        Genetic Algorithm
-  ---------------------------------------------------------------------------
-
+| ISO/IEC 30141 Layer | CPS 5C Layer | AI Role | Example Algorithms |
+|---|---|---|---|
+| **Device** | Smart Connection | Sensing & preprocessing | PCA, k-Means |
+| **Edge/Network** | Data-to-Information | Feature extraction | Autoencoder, Isolation Forest |
+| **Service** | Cyber | Modeling & prediction | Regression, Random Forest |
+| **Application** | Cognition | Decision intelligence | Naive Bayes, Policy Gradient |
+| **Management** | Configuration | Optimization & adaptation | Q-Learning, Genetic Algorithm |
 ------------------------------------------------------------------------
 
 ## 🧠 Physical AI Stack (Conceptual Mapping)
