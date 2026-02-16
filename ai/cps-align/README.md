@@ -69,22 +69,6 @@ CPS Intelligent Loop: Sense → Perceive → Learn → Predict → Decide → Ac
 
 ------------------------------------------------------------------------
 
-## 🏗️ Suggested Repository Structure
-
-AI-Taxonomy-CPS/ ├── README.md ├── figures/ │ ├── AI_Taxonomy_CPS.png │
-├── CPS_5C_AI_Map.png │ └── Physical_AI_Stack.png ├── docs/ │ ├──
-ISO30141_mapping.md │ └── cps_architecture.md ├── tables/ │ └──
-taxonomy_table.md
-
-------------------------------------------------------------------------
-
-## 📚 Citation (BibTeX Placeholder)
-
-@misc{CPSAITaxonomy2026, title = {CPS-Aligned Categorization of AI
-Algorithms}, author = {Research CPS Group}, year = {2026}, note =
-{ISO/IEC 30141 and 5C Architecture Integrated Taxonomy} }
-
-------------------------------------------------------------------------
 
 ## 🏁 Conclusion
 
