@@ -15,7 +15,7 @@
 #define WIFI_PASS   "computing"
 
 
-#define MQTT_HOST    "broker.hivemq.com" //"192.168.1.10"   // Broker IP or hostname
+#define MQTT_HOST    "broker.hivemq.com" // Broker IP or hostname
 #define MQTT_PORT   1883
 
 // MQTT Topics
