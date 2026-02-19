@@ -48,7 +48,6 @@ Moving Average
 $$
 
 Exponential Smoothing
-
 $$
     T_smooth = α*T_current + (1-α)*T_previous
 $$
@@ -57,11 +56,13 @@ $$
 ### B. Short‑Term Prediction --- Linear Extrapolation
 
 Slope:
+
 $$
     Slope = (T1 - T0) / (t1 - t0)
 $$
 
-Prediction: 
+Prediction:
+
 $$
 T_{predicted} = T_{current} + \left( \frac{dT}{dt} \times lookahead\_time \right)
 $$
@@ -71,9 +72,11 @@ $$
 ### C. Long‑Term Prediction --- Machine Learning
 
 Linear Regression:
+
 $$
     y = mx + c
 $$
+
 LSTM Neural Networks for periodic thermal behavior.
 
 ------------------------------------------------------------------------
