@@ -48,9 +48,11 @@ Moving Average
 $$
 
 Exponential Smoothing
+
 $$
     T_smooth = α*T_current + (1-α)*T_previous
 $$
+
 ------------------------------------------------------------------------
 
 ### B. Short‑Term Prediction --- Linear Extrapolation
@@ -90,14 +92,21 @@ LSTM Neural Networks for periodic thermal behavior.
 ```{=html}
 <!-- -->
 ```
+$$
     dT_dt = (T_current - T_previous) / dt
+$$
+
 
 4.  Predict:
 
 ```{=html}
 <!-- -->
 ```
+
+$$
     T_predicted = T_current + (dT_dt * lookahead_time)
+$$
+    
 
 5.  Trigger ALERT if above safety limit.
 
