@@ -74,7 +74,7 @@ void setup() {
   Serial.begin(115200);
   delay(200);
 
-  Wire.begin(); // ESP32: defaults to SDA=21, SCL=22 on many boards
+  Wire.begin(4, 5); // ESP32: defaults to SDA=4, SCL=5 on many boards
 
   pinMode(PIN_ALERT, OUTPUT);
   pinMode(PIN_FAN, OUTPUT);
