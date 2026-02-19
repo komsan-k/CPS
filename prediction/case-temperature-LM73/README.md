@@ -43,7 +43,9 @@ Noise reduction is essential before prediction.
 
 Moving Average
 
+   $$
     T_smooth = (T[n] + T[n-1] + ... + T[n-N]) / N
+$$
 
 Exponential Smoothing
 
@@ -114,8 +116,4 @@ Pipeline concept:
 -   Smart cooling systems
 -   Industrial automation
 
-------------------------------------------------------------------------
 
-## License
-
-Educational and research usage recommended.
