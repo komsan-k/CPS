@@ -210,8 +210,4 @@ Perfect for:
 -   Smart Lighting
 -   Digital Twin Labs
 
-------------------------------------------------------------------------
 
-# 📜 License
-
-Educational and research usage recommended.
