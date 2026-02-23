@@ -16,7 +16,7 @@ for CPS and Edge AI education
 Voltage Divider Circuit:
 
 3.3V → LDR\
-LDR → GPIO34 (ADC)\
+LDR → GPIO36 (ADC)\
 LDR → 10kΩ → GND
 
 ------------------------------------------------------------------------
@@ -51,7 +51,7 @@ Output Layer: 3 neurons
 ``` cpp
 #include <math.h>
 
-const int LDR_PIN = 34;
+const int LDR_PIN = 36;
 
 float w1[8] = {-0.5,0.8,1.2,-0.3,0.6,-1.1,0.4,0.9};
 float b1[8] = {0.1,-0.1,0.2,0.0,0.1,-0.2,0.1,0.1};
