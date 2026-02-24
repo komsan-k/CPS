@@ -108,9 +108,11 @@ Used for:
 -   Traffic prediction
 
 RNN includes feedback connections:
+
 $$
 h_t = f(Wx_t + Uh\_(t-1))
 $$
+
 ### Variants
 
 -   LSTM
