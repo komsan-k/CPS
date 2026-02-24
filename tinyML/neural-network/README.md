@@ -110,7 +110,7 @@ Used for:
 RNN includes feedback connections:
 
 $$
-h_t = f(Wx_t + Uh\_(t-1))
+h_t = f(Wx_t + Uh\_(_t_-_1_))
 $$
 
 ### Variants
