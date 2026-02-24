@@ -6,32 +6,15 @@ intelligence, closed-loop control, and real-time adaptation.
 
 ------------------------------------------------------------------------
 
-## Neural Networks in CPS 5C -- Physical AI Aligned Version
+## Neural Networks in CPS 5C – Physical AI Aligned Version
 
-  ----------------------------------------------------------------------------------------
-  CPS 5C Layer    Physical AI      Intelligence Role  Example Neural     Physical
-                  Stage                               Architecture       Interaction
-                                                                         Outcome
-  --------------- ---------------- ------------------ ------------------ -----------------
-  Connection      Perception       Signal sensing &   Small MLP / PCA /  Clean sensor
-                                   preprocessing      Tiny CNN           signals (LDR,
-                                                                         IMU, Temperature)
-
-  Conversion      Representation   Feature extraction CNN / Autoencoder  Structured
-                                   & latent encoding                     feature maps /
-                                                                         embeddings
-
-  Cyber           Prediction       System modeling &  DNN / LSTM         Predicted future
-                                   state forecasting                     states
-
-  Cognition       Decision         Context-aware      RNN / Transformer  Anomaly detection
-                                   decision                              / control
-                                   intelligence                          decisions
-
-  Configuration   Adaptation &     Policy             Reinforcement      Adaptive actuator
-                  Control          optimization &     Learning (DQN,     behavior
-                                   self-adjustment    Actor-Critic)      
-  ----------------------------------------------------------------------------------------
+| CPS 5C Layer   | Physical AI Stage      | Intelligence Role                         | Example Neural Architecture            | Physical Interaction Outcome            |
+|----------------|-----------------------|--------------------------------------------|----------------------------------------|------------------------------------------|
+| Connection     | Perception            | Signal sensing & preprocessing             | Small MLP / PCA / Tiny CNN             | Clean sensor signals (LDR, IMU, Temp)    |
+| Conversion     | Representation        | Feature extraction & latent encoding       | CNN / Autoencoder                      | Structured feature maps / embeddings     |
+| Cyber          | Prediction            | System modeling & state forecasting        | DNN / LSTM                             | Predicted future states                  |
+| Cognition      | Decision              | Context-aware decision intelligence        | RNN / Transformer                      | Anomaly detection / control decisions    |
+| Configuration  | Adaptation & Control  | Policy optimization & self-adjustment      | Reinforcement Learning (DQN, Actor-Critic) | Adaptive actuator behavior           |
 
 ------------------------------------------------------------------------
 
