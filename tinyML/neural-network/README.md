@@ -17,8 +17,8 @@ systems
 A standard **Feedforward Neural Network (FNN)**, also known as a
 **Multilayer Perceptron (MLP)**, consists of:
 
-1.  Input Layer\
-2.  Hidden Layer(s)\
+1.  Input Layer
+2.  Hidden Layer(s)
 3.  Output Layer
 
 Data flows in one direction:
@@ -31,14 +31,17 @@ Data flows in one direction:
 
 For layer ( l ):
 
+$$
+
 z\^(l) = W\^(l) a\^(l-1) + b\^(l)\
 a\^(l) = σ(z\^(l))
+$$
 
 Where:
 
--   W = weight matrix\
--   b = bias vector\
--   σ = activation function\
+-   W = weight matrix
+-   b = bias vector
+-   σ = activation function
 -   a = layer output
 
 ------------------------------------------------------------------------
@@ -47,9 +50,9 @@ Where:
 
 Common activation functions:
 
--   ReLU\
--   Sigmoid\
--   Tanh\
+-   ReLU
+-   Sigmoid
+-   Tanh
 -   Softmax (for classification)
 
 ------------------------------------------------------------------------
@@ -61,14 +64,14 @@ layers.
 
 ### Advantages
 
--   Learns hierarchical features\
--   Better nonlinear modeling\
+-   Learns hierarchical features
+-   Better nonlinear modeling
 -   Suitable for CPS prediction and digital twins
 
 ### Disadvantages
 
--   Higher computation\
--   Risk of overfitting\
+-   Higher computation
+-   Risk of overfitting
 -   Higher energy consumption (important for edge devices)
 
 ------------------------------------------------------------------------
@@ -77,16 +80,16 @@ layers.
 
 Used mainly for:
 
--   Image processing\
--   Spatial signals\
--   Vibration spectrograms (CPS fault detection)\
+-   Image processing
+-   Spatial signals
+-   Vibration spectrograms (CPS fault detection)
 -   Smart camera systems
 
 ### Main Components
 
-1.  Convolution layer\
-2.  Activation\
-3.  Pooling\
+1.  Convolution layer
+2.  Activation
+3.  Pooling
 4.  Fully connected layer
 
 CNN reduces parameter count compared to fully connected networks.
@@ -97,22 +100,22 @@ CNN reduces parameter count compared to fully connected networks.
 
 Used for:
 
--   Time-series prediction\
--   CPS forecasting\
--   IoT sensor trend analysis\
+-   Time-series prediction
+-   CPS forecasting
+-   IoT sensor trend analysis
 -   Traffic prediction
 
 RNN includes feedback connections:
-
+$$
 h_t = f(Wx_t + Uh\_(t-1))
-
+$$
 ### Variants
 
--   LSTM\
+-   LSTM
 -   GRU
 
-Suitable for sequential data such as: - Temperature trends\
-- Lux prediction\
+Suitable for sequential data such as: - Temperature trends
+- Lux prediction
 - Network traffic behavior
 
 ------------------------------------------------------------------------
@@ -121,11 +124,11 @@ Suitable for sequential data such as: - Temperature trends\
 
 Used in:
 
--   Large Language Models\
--   Advanced CPS cognition\
+-   Large Language Models
+-   Advanced CPS cognition
 -   Edge-cloud hybrid intelligence
 
-Core idea: - Self-attention mechanism\
+Core idea: - Self-attention mechanism
 - Parallel processing (no recurrence)
 
 ------------------------------------------------------------------------
@@ -158,8 +161,8 @@ Core idea: - Self-attention mechanism\
 
 Example architecture:
 
-Input: Lux value (1 feature)\
-Hidden layer: 8 neurons\
+Input: Lux value (1 feature)
+Hidden layer: 8 neurons
 Output: 3 classes
 
 Architecture:
@@ -196,20 +199,17 @@ Lightweight and ideal for Edge CPS applications.
 
 A neural network architecture defines:
 
--   Number of layers\
--   Number of neurons\
--   Type of connections\
--   Activation functions\
+-   Number of layers
+-   Number of neurons
+-   Type of connections
+-   Activation functions
 -   Flow of data
 
 Different architectures serve different purposes:
 
--   MLP → Simple prediction\
--   CNN → Spatial sensing\
--   RNN → Temporal prediction\
--   Transformer → Advanced cognition\
+-   MLP → Simple prediction
+-   CNN → Spatial sensing
+-   RNN → Temporal prediction
+-   Transformer → Advanced cognition
 -   RL → Adaptive configuration
 
-------------------------------------------------------------------------
-
-📘 Prepared for CPS / TinyML / Digital Twin educational use.
