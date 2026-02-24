@@ -137,27 +137,27 @@ Core idea: - Self-attention mechanism
 
 ------------------------------------------------------------------------
 
-# 6️⃣ Neural Networks in CPS 5C Context
+## 6️⃣ Neural Networks in CPS 5C Context
 
-  CPS Layer       Neural Network Role      Example Architecture
-  --------------- ------------------------ ------------------------
-  Connection      Preprocessing            Small MLP
-  Conversion      Feature extraction       CNN / Autoencoder
-  Cyber           Modeling                 DNN
-  Cognition       Decision-making          RNN / Transformer
-  Configuration   Optimization & Control   Reinforcement Learning
+| CPS Layer      | Neural Network Role      | Example Architecture        |
+|----------------|--------------------------|-----------------------------|
+| Connection     | Preprocessing            | Small MLP                   |
+| Conversion     | Feature extraction       | CNN / Autoencoder           |
+| Cyber          | Modeling                 | DNN                         |
+| Cognition      | Decision-making          | RNN / Transformer           |
+| Configuration  | Optimization & Control   | Reinforcement Learning (RL) |
 
 ------------------------------------------------------------------------
 
-# 7️⃣ Architecture Design Trade-Off
+## 7️⃣ Architecture Design Trade-Off
 
-  Factor               Shallow NN   Deep NN
-  -------------------- ------------ -----------
-  Accuracy             Moderate     High
-  Computation          Low          High
-  Energy Usage         Low          High
-  Suitable for ESP32   Yes          Limited
-  Cloud Deployment     Limited      Excellent
+| Factor              | Shallow Neural Network | Deep Neural Network |
+|---------------------|------------------------|---------------------|
+| Accuracy            | Moderate               | High                |
+| Computation         | Low                    | High                |
+| Energy Usage        | Low                    | High                |
+| Suitable for ESP32  | Yes                    | Limited             |
+| Cloud Deployment    | Limited                | Excellent           |
 
 ------------------------------------------------------------------------
 
