@@ -32,10 +32,8 @@ Data flows in one direction:
 For layer ( l ):
 
 $$
-
 z\^(l) = W\^(l) a\^(l-1) + b\^(l)\
 a\^(l) = σ(z\^(l))
-
 $$
 
 Where:
