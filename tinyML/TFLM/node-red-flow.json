@@ -1,0 +1,563 @@
+[
+  {
+    "id": "tab_cps",
+    "type": "tab",
+    "label": "CPS 5C LDR Digital Twin",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt_local",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": "",
+    "willMsg": {},
+    "sessionExpiry": ""
+  },
+  {
+    "id": "ui_tab_cps",
+    "type": "ui_tab",
+    "name": "CPS Digital Twin",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_status",
+    "type": "ui_group",
+    "name": "Status",
+    "tab": "ui_tab_cps",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_probs",
+    "type": "ui_group",
+    "name": "Probabilities",
+    "tab": "ui_tab_cps",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_chart",
+    "type": "ui_group",
+    "name": "Time Series",
+    "tab": "ui_tab_cps",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_cmd",
+    "type": "ui_group",
+    "name": "Control (MQTT → ESP32)",
+    "tab": "ui_tab_cps",
+    "order": 4,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_in_pred",
+    "type": "mqtt in",
+    "z": "tab_cps",
+    "name": "ESP32 Prediction In",
+    "topic": "cps/lab/ldr/pred",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_local",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 160,
+    "y": 120,
+    "wires": [
+      [
+        "json_parse"
+      ]
+    ]
+  },
+  {
+    "id": "json_parse",
+    "type": "json",
+    "z": "tab_cps",
+    "name": "JSON Parse",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 360,
+    "y": 120,
+    "wires": [
+      [
+        "fn_extract",
+        "dbg_payload"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_payload",
+    "type": "debug",
+    "z": "tab_cps",
+    "name": "debug payload",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 560,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "fn_extract",
+    "type": "function",
+    "z": "tab_cps",
+    "name": "Extract fields for UI",
+    "func": "// Expected payload format from ESP32:\n// {\n//   ts, adc, x, p:[p0,p1,p2], class, mode, lat_us\n// }\n\nconst p = msg.payload || {};\nconst probs = Array.isArray(p.p) ? p.p : [null,null,null];\n\n// Build nice status text\nconst status = `class=${p.class ?? '?'} | mode=${p.mode ?? '?'} | x=${(p.x ?? 0).toFixed?.(3) ?? p.x} | adc=${p.adc ?? '?'} | lat_us=${p.lat_us ?? '?'}`;\n\n// Output messages for different widgets\nreturn [\n  { payload: status },                            // status text\n  { payload: p.class ?? \"?\" },                   // class text\n  { payload: p.adc ?? 0 },                        // adc\n  { payload: p.x ?? 0 },                          // x gauge\n  { payload: p.lat_us ?? 0 },                     // latency\n  { payload: (probs[0] ?? 0) * 100 },             // p0 gauge (percent)\n  { payload: (probs[1] ?? 0) * 100 },             // p1 gauge\n  { payload: (probs[2] ?? 0) * 100 },             // p2 gauge\n  { payload: p.x ?? 0, topic: \"x\" }              // chart x\n];",
+    "outputs": 9,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 580,
+    "y": 120,
+    "wires": [
+      [
+        "ui_text_status"
+      ],
+      [
+        "ui_text_class"
+      ],
+      [
+        "ui_text_adc"
+      ],
+      [
+        "ui_gauge_x"
+      ],
+      [
+        "ui_text_lat"
+      ],
+      [
+        "ui_gauge_p0"
+      ],
+      [
+        "ui_gauge_p1"
+      ],
+      [
+        "ui_gauge_p2"
+      ],
+      [
+        "ui_chart_x"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_status",
+    "type": "ui_text",
+    "z": "tab_cps",
+    "group": "ui_group_status",
+    "order": 1,
+    "width": "12",
+    "height": "1",
+    "name": "System Status",
+    "label": "System",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 860,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "ui_text_class",
+    "type": "ui_text",
+    "z": "tab_cps",
+    "group": "ui_group_status",
+    "order": 2,
+    "width": "4",
+    "height": "1",
+    "name": "Class",
+    "label": "Predicted Class",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 850,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ui_text_adc",
+    "type": "ui_text",
+    "z": "tab_cps",
+    "group": "ui_group_status",
+    "order": 3,
+    "width": "4",
+    "height": "1",
+    "name": "ADC",
+    "label": "ADC (0..4095)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 840,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "ui_text_lat",
+    "type": "ui_text",
+    "z": "tab_cps",
+    "group": "ui_group_status",
+    "order": 4,
+    "width": "4",
+    "height": "1",
+    "name": "Latency",
+    "label": "Inference latency (us)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 860,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_x",
+    "type": "ui_gauge",
+    "z": "tab_cps",
+    "name": "Normalized Light",
+    "group": "ui_group_status",
+    "order": 5,
+    "width": "12",
+    "height": "3",
+    "gtype": "gage",
+    "title": "Normalized Light x (0..1)",
+    "label": "x",
+    "format": "{{value | number:3}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "0.33",
+    "seg2": "0.66",
+    "x": 860,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_p0",
+    "type": "ui_gauge",
+    "z": "tab_cps",
+    "name": "P(dark)",
+    "group": "ui_group_probs",
+    "order": 1,
+    "width": "4",
+    "height": "3",
+    "gtype": "gage",
+    "title": "P(dark)",
+    "label": "%",
+    "format": "{{value | number:1}}",
+    "min": 0,
+    "max": "100",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "33",
+    "seg2": "66",
+    "x": 840,
+    "y": 320,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_p1",
+    "type": "ui_gauge",
+    "z": "tab_cps",
+    "name": "P(normal)",
+    "group": "ui_group_probs",
+    "order": 2,
+    "width": "4",
+    "height": "3",
+    "gtype": "gage",
+    "title": "P(normal)",
+    "label": "%",
+    "format": "{{value | number:1}}",
+    "min": 0,
+    "max": "100",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "33",
+    "seg2": "66",
+    "x": 850,
+    "y": 360,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_p2",
+    "type": "ui_gauge",
+    "z": "tab_cps",
+    "name": "P(bright)",
+    "group": "ui_group_probs",
+    "order": 3,
+    "width": "4",
+    "height": "3",
+    "gtype": "gage",
+    "title": "P(bright)",
+    "label": "%",
+    "format": "{{value | number:1}}",
+    "min": 0,
+    "max": "100",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "33",
+    "seg2": "66",
+    "x": 850,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "ui_chart_x",
+    "type": "ui_chart",
+    "z": "tab_cps",
+    "name": "x over time",
+    "group": "ui_group_chart",
+    "order": 1,
+    "width": "12",
+    "height": "5",
+    "label": "Normalized Light x (time series)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": "10",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#aec7e8",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd",
+      "#8c564b",
+      "#e377c2",
+      "#7f7f7f"
+    ],
+    "outputs": 1,
+    "x": 850,
+    "y": 460,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_btn_auto",
+    "type": "ui_button",
+    "z": "tab_cps",
+    "name": "Mode Auto",
+    "group": "ui_group_cmd",
+    "order": 1,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "MODE: AUTO",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "autorenew",
+    "payload": "mode:auto",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 180,
+    "y": 560,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ui_btn_dark",
+    "type": "ui_button",
+    "z": "tab_cps",
+    "name": "Mode Dark",
+    "group": "ui_group_cmd",
+    "order": 2,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "MODE: DARK",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "brightness_2",
+    "payload": "mode:dark",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 170,
+    "y": 600,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ui_btn_normal",
+    "type": "ui_button",
+    "z": "tab_cps",
+    "name": "Mode Normal",
+    "group": "ui_group_cmd",
+    "order": 3,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "MODE: NORMAL",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "wb_sunny",
+    "payload": "mode:normal",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 180,
+    "y": 640,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ui_btn_bright",
+    "type": "ui_button",
+    "z": "tab_cps",
+    "name": "Mode Bright",
+    "group": "ui_group_cmd",
+    "order": 4,
+    "width": 3,
+    "height": 1,
+    "passthru": false,
+    "label": "MODE: BRIGHT",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "flare",
+    "payload": "mode:bright",
+    "payloadType": "str",
+    "topic": "",
+    "topicType": "str",
+    "x": 180,
+    "y": 680,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ui_slider_rate",
+    "type": "ui_slider",
+    "z": "tab_cps",
+    "name": "Publish Rate",
+    "label": "Publish rate (ms)",
+    "group": "ui_group_cmd",
+    "order": 5,
+    "width": 9,
+    "height": 1,
+    "passthru": true,
+    "outs": "end",
+    "topic": "",
+    "topicType": "str",
+    "min": 100,
+    "max": 2000,
+    "step": 50,
+    "className": "",
+    "x": 170,
+    "y": 740,
+    "wires": [
+      [
+        "fn_rate_to_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "fn_rate_to_cmd",
+    "type": "function",
+    "z": "tab_cps",
+    "name": "rate:N → cmd",
+    "func": "const v = Number(msg.payload);\nif (Number.isFinite(v)) {\n  msg.payload = `rate:${Math.round(v)}`;\n  return msg;\n}\nreturn null;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 740,
+    "wires": [
+      [
+        "mqtt_out_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_cmd",
+    "type": "mqtt out",
+    "z": "tab_cps",
+    "name": "ESP32 Command Out",
+    "topic": "cps/lab/ldr/cmd",
+    "qos": "0",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_local",
+    "x": 620,
+    "y": 640,
+    "wires": []
+  }
+]
