@@ -1,0 +1,189 @@
+[
+  {
+    "id": "tab_traffic_twin",
+    "type": "tab",
+    "label": "Traffic Twin i1",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "mqtt_broker_local",
+    "type": "mqtt-broker",
+    "name": "Local MQTT",
+    "broker": "192.168.1.10",
+    "port": "1883",
+    "clientid": "nodered-traffic-twin",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "ui_tab_traffic",
+    "type": "ui_tab",
+    "name": "Traffic Twin",
+    "icon": "dashboard",
+    "order": 1,
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_main",
+    "type": "ui_group",
+    "name": "Intersection i1",
+    "tab": "ui_tab_traffic",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "in_flow_vpm",
+    "type": "mqtt in",
+    "z": "tab_traffic_twin",
+    "name": "flow_vpm",
+    "topic": "traffic/i1/flow_vpm",
+    "qos": "1",
+    "datatype": "auto",
+    "broker": "mqtt_broker_local",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 120,
+    "wires": [
+      [
+        "fn_ai_predict",
+        "ui_gauge_flow",
+        "ui_chart_flow"
+      ]
+    ]
+  },
+  {
+    "id": "ui_gauge_flow",
+    "type": "ui_gauge",
+    "z": "tab_traffic_twin",
+    "name": "Flow (veh/min)",
+    "group": "ui_group_main",
+    "order": 1,
+    "width": 4,
+    "height": 4,
+    "gtype": "gage",
+    "title": "Flow (veh/min)",
+    "label": "veh/min",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 60,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": 20,
+    "seg2": 40,
+    "x": 540,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "ui_chart_flow",
+    "type": "ui_chart",
+    "z": "tab_traffic_twin",
+    "name": "Flow chart",
+    "group": "ui_group_main",
+    "order": 2,
+    "width": 8,
+    "height": 4,
+    "label": "Flow (veh/min)",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "60",
+    "removeOlder": "60",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c"
+    ],
+    "outputs": 1,
+    "x": 530,
+    "y": 140,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fn_ai_predict",
+    "type": "function",
+    "z": "tab_traffic_twin",
+    "name": "AI: smooth + predict + class",
+    "func": "// Input msg.payload = current flow (veh/min)\n// Output 1: UI text payload (JSON)\n// Output 2: MQTT cmd to ESP32\n\nlet x = Number(msg.payload);\nif (isNaN(x)) return null;\n\n// Keep history in context\nlet hist = context.get('hist') || [];\nhist.push({t: Date.now(), x});\nif (hist.length > 10) hist.shift();\ncontext.set('hist', hist);\n\n// Moving average (smooth)\nlet avg = hist.reduce((s,p)=>s+p.x,0)/hist.length;\n\n// Simple trend prediction: next = avg + (last-avg)*0.6\nlet last = hist[hist.length-1].x;\nlet pred = avg + (last - avg) * 0.6;\npred = Math.max(0, pred);\n\n// Congestion class thresholds (tune)\n// 0: low, 1: medium, 2: high\nlet cls = 0;\nif (pred >= 35) cls = 2;\nelse if (pred >= 20) cls = 1;\n\n// Map class -> signal timing (ms)\n// High congestion -> longer GREEN\nlet green_ms  = (cls === 2) ? 16000 : (cls === 1) ? 12000 : 9000;\nlet yellow_ms = 2000;\nlet red_ms    = green_ms; // symmetric for demo\n\n// UI payload\nlet ui = {\n  flow_now: x,\n  flow_avg: Math.round(avg*10)/10,\n  flow_pred: Math.round(pred*10)/10,\n  congestion_class: cls,\n  green_ms, yellow_ms, red_ms\n};\n\n// MQTT command\nlet cmd = {\n  mode: \"AUTO\",\n  green_ms,\n  yellow_ms,\n  red_ms\n};\n\nreturn [\n  {payload: ui},\n  {payload: JSON.stringify(cmd), topic: \"traffic/i1/cmd\"}\n];",
+    "outputs": 2,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 220,
+    "wires": [
+      [
+        "ui_text_ai"
+      ],
+      [
+        "out_cmd_mqtt"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_ai",
+    "type": "ui_text",
+    "z": "tab_traffic_twin",
+    "group": "ui_group_main",
+    "order": 3,
+    "width": 12,
+    "height": 2,
+    "name": "AI Status",
+    "label": "AI Prediction / Control",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 560,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "out_cmd_mqtt",
+    "type": "mqtt out",
+    "z": "tab_traffic_twin",
+    "name": "Send cmd to ESP32",
+    "topic": "",
+    "qos": "1",
+    "retain": false,
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker_local",
+    "x": 560,
+    "y": 280,
+    "wires": []
+  }
+]
