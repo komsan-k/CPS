@@ -310,13 +310,5 @@ TinyML Foundation:
 
 https://tinyml.org
 
-------------------------------------------------------------------------
 
-# License
-
-This educational material can be used for:
-
--   Embedded AI courses
--   Cyber‑Physical Systems labs
--   TinyML workshops
 
