@@ -1,0 +1,434 @@
+[
+  {
+    "id": "f1a6f0b1c2b3d4e5",
+    "type": "tab",
+    "label": "Intersection1 Digital Twin",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ui_tab_smartcity",
+    "type": "ui_tab",
+    "name": "Smart City Twin",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_state",
+    "type": "ui_group",
+    "name": "Intersection 1 — State",
+    "tab": "ui_tab_smartcity",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_control",
+    "type": "ui_group",
+    "name": "Intersection 1 — Control",
+    "tab": "ui_tab_smartcity",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_broker_hivemq",
+    "type": "mqtt-broker",
+    "name": "HiveMQ Public",
+    "broker": "broker.hivemq.com",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "mqtt_in_traffic",
+    "type": "mqtt in",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Traffic Input (Intersection 1)",
+    "topic": "city/intersection1/traffic",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_hivemq",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 200,
+    "y": 120,
+    "wires": [
+      [
+        "json_parse_traffic"
+      ]
+    ]
+  },
+  {
+    "id": "json_parse_traffic",
+    "type": "json",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "JSON Parse",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 410,
+    "y": 120,
+    "wires": [
+      [
+        "fn_update_twin"
+      ]
+    ]
+  },
+  {
+    "id": "fn_update_twin",
+    "type": "function",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Update Twin State + Scores",
+    "func": "// Expected payload examples:\n// 1) {\"NS\":1,\"EW\":0}  (presence)\n// 2) {\"NS\":12,\"EW\":5} (counts)\n\nconst p = msg.payload || {};\nlet ns = Number(p.NS ?? 0);\nlet ew = Number(p.EW ?? 0);\n\n// Treat presence as a small count\nif (ns === 0 || ns === 1) ns = ns * 10; \nif (ew === 0 || ew === 1) ew = ew * 10;\n\n// Simple congestion scores (0..100)\nconst maxCount = 60; // saturation point\nconst scoreNS = Math.max(0, Math.min(100, Math.round((ns / maxCount) * 100)));\nconst scoreEW = Math.max(0, Math.min(100, Math.round((ew / maxCount) * 100)));\n\n// Save twin state in flow context\nconst state = {\n  ts: Date.now(),\n  ns_count: ns,\n  ew_count: ew,\n  ns_score: scoreNS,\n  ew_score: scoreEW\n};\nflow.set('i1_state', state);\n\n// Output multiple messages for dashboard\nreturn [\n  {payload: scoreNS, topic: 'NS_score'},\n  {payload: scoreEW, topic: 'EW_score'},\n  {payload: {ns: ns, ew: ew, ns_score: scoreNS, ew_score: scoreEW, ts: state.ts}}\n];",
+    "outputs": 3,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 660,
+    "y": 120,
+    "wires": [
+      [
+        "ui_gauge_ns"
+      ],
+      [
+        "ui_gauge_ew"
+      ],
+      [
+        "ui_chart_scores",
+        "ui_text_counts",
+        "fn_decision_engine"
+      ]
+    ]
+  },
+  {
+    "id": "ui_gauge_ns",
+    "type": "ui_gauge",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "NS Congestion",
+    "group": "ui_group_state",
+    "order": 1,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "NS Congestion (%)",
+    "label": "%",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 100,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "40",
+    "seg2": "75",
+    "x": 900,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_ew",
+    "type": "ui_gauge",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "EW Congestion",
+    "group": "ui_group_state",
+    "order": 2,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "EW Congestion (%)",
+    "label": "%",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 100,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "40",
+    "seg2": "75",
+    "x": 900,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "ui_chart_scores",
+    "type": "ui_chart",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Congestion Trend",
+    "group": "ui_group_state",
+    "order": 3,
+    "width": 12,
+    "height": 4,
+    "label": "Congestion Trend (NS/EW)",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "100",
+    "removeOlder": "5",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "60",
+    "cutout": 0,
+    "useOneColor": false,
+    "colors": [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd",
+      "#8c564b",
+      "#e377c2",
+      "#7f7f7f",
+      "#bcbd22",
+      "#17becf"
+    ],
+    "outputs": 1,
+    "x": 930,
+    "y": 150,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_text_counts",
+    "type": "ui_text",
+    "z": "f1a6f0b1c2b3d4e5",
+    "group": "ui_group_state",
+    "order": 4,
+    "width": 12,
+    "height": 1,
+    "name": "Counts",
+    "label": "Latest Counts",
+    "format": "NS={{msg.payload.ns}} | EW={{msg.payload.ew}} | NS%={{msg.payload.ns_score}} | EW%={{msg.payload.ew_score}}",
+    "layout": "row-spread",
+    "x": 910,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ui_switch_auto",
+    "type": "ui_switch",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "AUTO/MANUAL",
+    "label": "Mode",
+    "group": "ui_group_control",
+    "order": 1,
+    "width": 4,
+    "height": 1,
+    "passthru": true,
+    "decouple": "false",
+    "topic": "mode",
+    "style": "",
+    "onvalue": "AUTO",
+    "onvalueType": "str",
+    "offvalue": "MANUAL",
+    "offvalueType": "str",
+    "x": 230,
+    "y": 280,
+    "wires": [
+      [
+        "fn_set_mode"
+      ]
+    ]
+  },
+  {
+    "id": "fn_set_mode",
+    "type": "function",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Set Mode",
+    "func": "flow.set('i1_mode', msg.payload);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "flow.set('i1_mode', flow.get('i1_mode') || 'AUTO');",
+    "finalize": "",
+    "x": 430,
+    "y": 280,
+    "wires": [
+      [
+        "ui_text_mode"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_mode",
+    "type": "ui_text",
+    "z": "f1a6f0b1c2b3d4e5",
+    "group": "ui_group_control",
+    "order": 2,
+    "width": 8,
+    "height": 1,
+    "name": "Mode Text",
+    "label": "Current Mode",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 650,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "ui_slider_green",
+    "type": "ui_slider",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Manual Green Time",
+    "label": "Manual Green Time (s)",
+    "group": "ui_group_control",
+    "order": 3,
+    "width": 8,
+    "height": 1,
+    "passthru": true,
+    "outs": "all",
+    "topic": "manual_green_time",
+    "min": 10,
+    "max": 60,
+    "step": 1,
+    "x": 250,
+    "y": 330,
+    "wires": [
+      [
+        "fn_set_manual_green"
+      ]
+    ]
+  },
+  {
+    "id": "fn_set_manual_green",
+    "type": "function",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Set Manual Green",
+    "func": "flow.set('i1_manual_green', Number(msg.payload) || 30);\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "flow.set('i1_manual_green', flow.get('i1_manual_green') || 30);",
+    "finalize": "",
+    "x": 460,
+    "y": 330,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fn_decision_engine",
+    "type": "function",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Decision Engine (AUTO/MANUAL)",
+    "func": "const mode = flow.get('i1_mode') || 'AUTO';\nconst manualGreen = flow.get('i1_manual_green') || 30;\n\nconst ns_score = Number(msg.payload.ns_score ?? 0);\nconst ew_score = Number(msg.payload.ew_score ?? 0);\n\n// Default phase decision\nlet phase = 'NS_GREEN';\nif (ew_score > ns_score) phase = 'EW_GREEN';\n\n// Compute green time (seconds)\n// Base 20s + extra up to 40s based on dominance\nlet green_time = 20;\nconst diff = Math.abs(ns_score - ew_score); // 0..100\ngreen_time = 20 + Math.round((diff / 100) * 40); // 20..60\n\nif (mode === 'MANUAL') {\n  // Manual forces phase to NS_GREEN by default; you can change this if you add another selector\n  phase = 'NS_GREEN';\n  green_time = manualGreen;\n}\n\n// Save last command as twin control state\nconst cmd = {\n  intersection: 'intersection1',\n  mode,\n  phase,\n  green_time,\n  ts: Date.now()\n};\nflow.set('i1_cmd', cmd);\n\n// Send to dashboard + MQTT out\nreturn [\n  {payload: cmd, topic: 'cmd'},\n  {payload: cmd.phase},\n  {payload: cmd.green_time},\n  {payload: cmd}\n];",
+    "outputs": 4,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "x": 690,
+    "y": 360,
+    "wires": [
+      [
+        "ui_text_cmd"
+      ],
+      [
+        "ui_text_phase"
+      ],
+      [
+        "ui_gauge_green"
+      ],
+      [
+        "mqtt_out_control"
+      ]
+    ]
+  },
+  {
+    "id": "ui_text_cmd",
+    "type": "ui_text",
+    "z": "f1a6f0b1c2b3d4e5",
+    "group": "ui_group_control",
+    "order": 4,
+    "width": 12,
+    "height": 1,
+    "name": "Command JSON",
+    "label": "Last Control Command",
+    "format": "{{msg.payload.mode}} | {{msg.payload.phase}} | green={{msg.payload.green_time}}s",
+    "layout": "row-spread",
+    "x": 970,
+    "y": 330,
+    "wires": []
+  },
+  {
+    "id": "ui_text_phase",
+    "type": "ui_text",
+    "z": "f1a6f0b1c2b3d4e5",
+    "group": "ui_group_control",
+    "order": 5,
+    "width": 6,
+    "height": 1,
+    "name": "Phase",
+    "label": "Phase",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 930,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "ui_gauge_green",
+    "type": "ui_gauge",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Recommended Green Time",
+    "group": "ui_group_control",
+    "order": 6,
+    "width": 6,
+    "height": 3,
+    "gtype": "gage",
+    "title": "Green Time (s)",
+    "label": "s",
+    "format": "{{value}}",
+    "min": 10,
+    "max": 60,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "25",
+    "seg2": "45",
+    "x": 950,
+    "y": 430,
+    "wires": []
+  },
+  {
+    "id": "mqtt_out_control",
+    "type": "mqtt out",
+    "z": "f1a6f0b1c2b3d4e5",
+    "name": "Control Output (to ESP32)",
+    "topic": "city/intersection1/control",
+    "qos": "0",
+    "retain": "false",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker_hivemq",
+    "x": 980,
+    "y": 480,
+    "wires": []
+  }
+]
