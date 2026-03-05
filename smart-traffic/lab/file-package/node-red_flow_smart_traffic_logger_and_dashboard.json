@@ -1,0 +1,471 @@
+[
+  {
+    "id": "a1b2c3d4e5f6a7b8",
+    "type": "tab",
+    "label": "Smart Traffic Twin (10s) Logger + Dashboard",
+    "disabled": false,
+    "info": "MQTT: city/intersection1/traffic_10s and prediction.\nBuilds supervised dataset rows: [ns0,ew0,ns1,ew1,ns2,ew2,y]."
+  },
+  {
+    "id": "mqtt-broker-1",
+    "type": "mqtt-broker",
+    "name": "MQTT Broker",
+    "broker": "broker.hivemq.com",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "mqttin-traffic",
+    "type": "mqtt in",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "traffic_10s",
+    "topic": "city/intersection1/traffic_10s",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt-broker-1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 160,
+    "y": 120,
+    "wires": [
+      [
+        "json-traffic",
+        "dbg-traffic-raw"
+      ]
+    ]
+  },
+  {
+    "id": "json-traffic",
+    "type": "json",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "parse json",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 330,
+    "y": 120,
+    "wires": [
+      [
+        "fn-gauge-values",
+        "fn-history-dataset"
+      ]
+    ]
+  },
+  {
+    "id": "ui-tab-1",
+    "type": "ui_tab",
+    "name": "Traffic Twin",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui-group-1",
+    "type": "ui_group",
+    "name": "Intersection 1",
+    "tab": "ui-tab-1",
+    "order": 1,
+    "disp": true,
+    "width": "6",
+    "collapse": false
+  },
+  {
+    "id": "ui-ns",
+    "type": "ui_gauge",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "NS vehicles/10s",
+    "group": "ui-group-1",
+    "order": 1,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "NS / 10s",
+    "label": "vehicles",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 20,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "4",
+    "seg2": "9",
+    "x": 560,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "ui-ew",
+    "type": "ui_gauge",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "EW vehicles/10s",
+    "group": "ui-group-1",
+    "order": 2,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "EW / 10s",
+    "label": "vehicles",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 20,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "4",
+    "seg2": "9",
+    "x": 560,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ui-total",
+    "type": "ui_gauge",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "TOTAL vehicles/10s",
+    "group": "ui-group-1",
+    "order": 3,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "TOTAL / 10s",
+    "label": "vehicles",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 40,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "4",
+    "seg2": "9",
+    "x": 560,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "fn-history-dataset",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "build dataset row (t -> label t+1)",
+    "func": "\n// Input msg.payload from traffic_10s:\n// {ns_10s, ew_10s, ...}\n//\n// We build supervised rows using 3-window history:\n// features at time t: [ns0,ew0,ns1,ew1,ns2,ew2]\n// label y = class(total at time t+1)\n//\n// Trick: when a new window arrives (this is t+1),\n// we can finalize the previous feature vector (t) by using current total as label.\n\nconst ns = Number(msg.payload.ns_10s || 0);\nconst ew = Number(msg.payload.ew_10s || 0);\nconst total = ns + ew;\n\n// Label rule (same as README)\nlet y = 0;\nif (total <= 3) y = 0;\nelse if (total <= 8) y = 1;\nelse y = 2;\n\n// history stored in context: [ns0,ew0,ns1,ew1,ns2,ew2] for previous window t\nconst prev = context.get(\"prev_features\");\n\n// Update context with current window to become \"previous\" for next round\n// Shift 3-window history in context:\nlet hist = context.get(\"hist\") || {ns0:0, ew0:0, ns1:0, ew1:0, ns2:0, ew2:0};\nhist.ns2 = hist.ns1; hist.ew2 = hist.ew1;\nhist.ns1 = hist.ns0; hist.ew1 = hist.ew0;\nhist.ns0 = ns;       hist.ew0 = ew;\n\n// New features for current window (to be labeled by next message)\nconst features_now = [hist.ns0, hist.ew0, hist.ns1, hist.ew1, hist.ns2, hist.ew2];\ncontext.set(\"prev_features\", features_now);\ncontext.set(\"hist\", hist);\n\n// Output dataset row for previous window, labeled by current window\n// (skip first few messages until we have a meaningful prev)\nif (!prev) return null;\n\nmsg.dataset = {\n  ns0: prev[0], ew0: prev[1], ns1: prev[2], ew1: prev[3], ns2: prev[4], ew2: prev[5],\n  y: y\n};\n\n// Pass through also gauge values for dashboard\nmsg.ui = {ns: ns, ew: ew, total: total, y: y};\n\nreturn [msg, msg, msg, msg];\n",
+    "outputs": 4,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 360,
+    "y": 200,
+    "wires": [
+      [
+        "csv-row"
+      ],
+      [
+        "fn-class-text"
+      ],
+      [
+        "dbg-dataset"
+      ],
+      [
+        "fn-class-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "csv-row",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "to CSV line",
+    "func": "\nconst d = msg.dataset;\nif (!d) return null;\nconst line = `${d.ns0},${d.ew0},${d.ns1},${d.ew1},${d.ns2},${d.ew2},${d.y}\\n`;\nmsg.payload = line;\nreturn msg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 580,
+    "y": 220,
+    "wires": [
+      [
+        "file-out"
+      ]
+    ]
+  },
+  {
+    "id": "file-out",
+    "type": "file",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "append traffic_dataset.csv",
+    "filename": "traffic_dataset.csv",
+    "filenameType": "str",
+    "appendNewline": false,
+    "createDir": false,
+    "overwriteFile": "false",
+    "encoding": "none",
+    "x": 820,
+    "y": 220,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui-class-text",
+    "type": "ui_text",
+    "z": "a1b2c3d4e5f6a7b8",
+    "group": "ui-group-1",
+    "order": 4,
+    "width": 0,
+    "height": 0,
+    "name": "Current label (from total)",
+    "label": "Current label",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 600,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "ui-class-gauge",
+    "type": "ui_gauge",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "Label class gauge",
+    "group": "ui-group-1",
+    "order": 5,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "Label (0/1/2)",
+    "label": "class",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 2,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "0.5",
+    "seg2": "1.5",
+    "x": 610,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "dbg-traffic-raw",
+    "type": "debug",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "traffic raw",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 540,
+    "y": 20,
+    "wires": []
+  },
+  {
+    "id": "dbg-dataset",
+    "type": "debug",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "dataset row",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "dataset",
+    "targetType": "msg",
+    "x": 620,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "fn-ui-split",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "ui split",
+    "func": "return msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 1,
+    "y": 1,
+    "wires": []
+  },
+  {
+    "id": "fn-ui-update",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "update dashboard values",
+    "func": "\n// Not used; kept for extension.\nreturn msg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 1,
+    "y": 1,
+    "wires": []
+  },
+  {
+    "id": "mqttin-pred",
+    "type": "mqtt in",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "prediction",
+    "topic": "city/intersection1/prediction",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt-broker-1",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "x": 160,
+    "y": 420,
+    "wires": [
+      [
+        "json-pred"
+      ]
+    ]
+  },
+  {
+    "id": "json-pred",
+    "type": "json",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "parse pred",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 330,
+    "y": 420,
+    "wires": [
+      [
+        "ui-pred-text",
+        "fn-pred-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "ui-pred-text",
+    "type": "ui_text",
+    "z": "a1b2c3d4e5f6a7b8",
+    "group": "ui-group-1",
+    "order": 6,
+    "width": 0,
+    "height": 0,
+    "name": "Prediction text",
+    "label": "Predicted next window",
+    "format": "{{msg.payload.pred}} (cls={{msg.payload.cls}})",
+    "layout": "row-spread",
+    "x": 560,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "ui-pred-gauge",
+    "type": "ui_gauge",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "Prediction class gauge",
+    "group": "ui-group-1",
+    "order": 7,
+    "width": 0,
+    "height": 0,
+    "gtype": "gage",
+    "title": "Predicted class (0/1/2)",
+    "label": "class",
+    "format": "{{value}}",
+    "min": 0,
+    "max": 2,
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "0.5",
+    "seg2": "1.5",
+    "x": 590,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "fn-gauge-values",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "gauge values",
+    "func": "\n// From msg.payload (traffic json)\nconst ns = Number(msg.payload.ns_10s || 0);\nconst ew = Number(msg.payload.ew_10s || 0);\nconst total = ns + ew;\n// output separate messages for gauges\nreturn [\n  {payload: ns},\n  {payload: ew},\n  {payload: total},\n  msg\n];\n",
+    "outputs": 4,
+    "noerr": 0,
+    "x": 350,
+    "y": 70,
+    "wires": [
+      [
+        "ui-ns"
+      ],
+      [
+        "ui-ew"
+      ],
+      [
+        "ui-total"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "fn-class-text",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "label text from y",
+    "func": "\nif (!msg.ui) return null;\nconst y = msg.ui.y;\nconst label = (y===0)?\"LOW\":(y===1)?\"MEDIUM\":\"HIGH\";\nmsg.payload = label;\nreturn msg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 590,
+    "y": 260,
+    "wires": [
+      [
+        "ui-class-text"
+      ]
+    ]
+  },
+  {
+    "id": "fn-class-gauge",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "label gauge from y",
+    "func": "\nif (!msg.ui) return null;\nmsg.payload = msg.ui.y;\nreturn msg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 600,
+    "y": 300,
+    "wires": [
+      [
+        "ui-class-gauge"
+      ]
+    ]
+  },
+  {
+    "id": "fn-pred-gauge",
+    "type": "function",
+    "z": "a1b2c3d4e5f6a7b8",
+    "name": "prediction gauge value",
+    "func": "\nmsg.payload = Number(msg.payload.cls || 0);\nreturn msg;\n",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 560,
+    "y": 480,
+    "wires": [
+      [
+        "ui-pred-gauge"
+      ]
+    ]
+  }
+]
