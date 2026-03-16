@@ -226,7 +226,7 @@ while True:
     time.sleep(1)
 
 This program blinks an LED connected to pin 13.
-
+```
 11. Enabling Optional Features
 
 ConfigurableFirmata allows enabling specific modules.
