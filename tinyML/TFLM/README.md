@@ -198,11 +198,11 @@ To reduce memory and computation requirements, models are often
 
 Common formats:
 
-  Format    Size     Speed    Accuracy
-  --------- -------- -------- ----------------
-  Float32   Large    Slower   High
-  Float16   Medium   Medium   High
-  INT8      Small    Fast     Slightly lower
+  Format  |  Size   |  Speed   | Accuracy
+  --------- | -------- | -------- | ----------------
+  Float32 |  Large  |  Slower |  High
+  Float16 |  Medium |  Medium |  High
+  INT8  |    Small  |  Fast   |  Slightly lower
 
 For microcontrollers, **INT8 quantization** is usually recommended.
 
@@ -218,11 +218,11 @@ Benefits:
 
 Typical memory usage for small models:
 
-  Component      Size
-  -------------- -----------
-  Model          2--20 KB
-  Tensor Arena   5--30 KB
-  Runtime        20--40 KB
+  Component  |    Size
+  -------------- | -----------
+  Model      |    2--20 KB
+  Tensor Arena |  5--30 KB
+  Runtime    |    20--40 KB
 
 An ESP32 typically provides **520 KB SRAM**, which is sufficient for
 many TinyML applications.
@@ -234,13 +234,13 @@ many TinyML applications.
 Within a **CPS 5C architecture**, TFLM commonly operates in the
 **Cognition layer**.
 
-  CPS Layer       Role
-  --------------- -------------------------
-  Connection      Sensor data acquisition
-  Conversion      Feature extraction
-  Cyber           System modeling
-  Cognition       AI inference using TFLM
-  Configuration   Control actions
+  CPS Layer   |    Role
+  --------------- |-------------------------
+  Connection   |   Sensor data acquisition
+  Conversion  |    Feature extraction
+  Cyber       |    System modeling
+  Cognition   |    AI inference using TFLM
+  Configuration |  Control actions
 
 This enables **edge intelligence** in Cyber‑Physical Systems.
 
