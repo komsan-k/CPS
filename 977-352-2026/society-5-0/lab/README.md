@@ -198,18 +198,6 @@ Sense → Model → Decide → Constrain (Policy) → Act → Sense
 
 ---
 
-## 📊 Evaluation Criteria
-
-| Component | Weight |
-|---------|--------|
-| CPS architecture clarity | 25% |
-| Digital Twin correctness | 20% |
-| Policy integration | 20% |
-| Human-in-the-loop design | 15% |
-| Robustness & safety | 10% |
-| Technical discussion | 10% |
-
----
 
 ## 📝 Required Deliverables
 
