@@ -256,7 +256,64 @@ This enables **edge intelligence** in Cyber‑Physical Systems.
 -   Integrates with Arduino and ESP-IDF
 
 ------------------------------------------------------------------------
+# TensorFlow Lite for Microcontrollers (TFLM) on ESP32
 
+---
+
+## When NOT to Use TFLM
+
+Avoid using TFLM in the following cases:
+
+- Model size > **1 MB**
+- Need **on-device training**
+- Complex **Transformer models**
+- Large **CNNs for image classification**
+
+### 👉 Use instead:
+
+- TensorFlow Lite (full version)
+- Edge TPU
+- Raspberry Pi
+
+---
+
+## Typical Latency on ESP32
+
+Example: Small MLP (1-8-3)
+
+| Implementation | Latency |
+|----------------|--------|
+| Manual NN      | ~200–400 µs |
+| TFLM (float)   | ~600–900 µs |
+| TFLM (int8)    | ~300–500 µs |
+
+### 📌 Insight
+
+- Manual NN → fastest  
+- TFLM → slightly slower but **more scalable and flexible**
+
+---
+
+## Minimal ESP32 TFLM Skeleton
+
+```cpp
+#include "model.h"
+#include "tensorflow/lite/micro/all_ops_resolver.h"
+#include "tensorflow/lite/micro/micro_interpreter.h"
+
+constexpr int tensor_arena_size = 8 * 1024;
+uint8_t tensor_arena[tensor_arena_size];
+
+void setup() {
+  // Initialize interpreter
+}
+
+void loop() {
+  float input_value = analogRead(36) / 4095.0;
+
+  // Run inference
+}
+------------------------------------------------------------------------
 # Limitations
 
 -   No on-device training
