@@ -2,7 +2,7 @@
 
 ## 📘 Concept
 
-The paper organizes international CPS standards according to the 5C architecture:
+The part organizes international CPS standards according to the 5C architecture:
 
 **Connection → Conversion → Cyber → Cognition → Configuration**
 
