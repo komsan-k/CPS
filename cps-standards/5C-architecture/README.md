@@ -170,6 +170,6 @@ Sense → Process → Model → Decide → Act → Repeat
 
 ---
 
-# 🚀 Final Insight
+# 🚀 Insight
 
 CPS standardization is **fragmented but complementary**, and mapping them to the 5C architecture provides a **unified engineering framework**.
