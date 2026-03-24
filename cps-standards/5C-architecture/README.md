@@ -26,12 +26,13 @@ Acquire data from the physical world (machines, sensors, devices)
 - PLC-based control  
 
 ## 📜 Key Standards
-- ISO/IEC 19762 → AIDC terminology  
-- ISO/IEC 15459 → Unique identification  
-- ISO/IEC/IEEE 21450 / 21451 → Smart sensors  
-- IEC 61131 → PLC systems  
-- IEC 61499 → Distributed control  
-
+- ISO/IEC 19762 — Information Technology – Automatic Identification and Data Capture (AIDC) Techniques – Harmonized Vocabulary  
+- ISO/IEC 15459 — Information Technology – Unique Identification for Items (UID)  
+- ISO/IEC/IEEE 21450 — Smart Transducer Interface for Sensors and Actuators – Common Functions, Communication Protocols, and TEDS  
+- ISO/IEC/IEEE 21451 (Series) — Smart Transducer Interface for Sensors and Actuators  
+- IEC 61131 — Programmable Controllers (PLC) – Programming Languages and Requirements  
+- IEC 61499 — Distributed Control Systems Using Function Blocks  
+---
 ## 🧠 Insight
 Data entry point of CPS:
 - Real-time sensing  
@@ -50,14 +51,15 @@ Transform raw data → structured information
 - Data modeling  
 - Data harmonization  
 
-## 📜 Key Standards
-- IEC 61804 (EDDL)  
-- IEC 61360  
-- IEC 62714 (AML)  
-- ISO/IEC 13236  
-- ISO 27000  
-- IEC 62443  
+## 📜 Key Standards 
+- IEC 61804 (Series) — Electronic Device Description Language (EDDL)  
+- IEC 61360 (Series) — Standard Data Element Types for Electric Components  
+- IEC 62714 — Automation Markup Language (AML)  
+- ISO/IEC 13236 — Information Technology – Quality of Service Framework  
+- ISO/IEC 27000 (Series) — Information Security Management Systems (ISMS)  
+- IEC 62443 (Series) — Industrial Communication Networks – Cybersecurity  
 
+---
 ## 🧠 Insight
 - Data consistency & interoperability  
 - Secure processing  
@@ -76,13 +78,17 @@ Digital Twin & system integration
 - System integration  
 
 ## 📜 Key Standards
-- ISO/IEC 8802  
-- IEC 61158 / 61784  
-- IEC 62591 / 62601  
-- ISO/IEC 14476  
-- ISO/IEC 17826  
-- ISO/IEC 27033  
-- IEC 62769  
+- ISO/IEC 8802 — LAN/MAN Networking Standards (Ethernet, Wi-Fi)  
+- IEC 61158 — Industrial Communication Networks – Fieldbus  
+- IEC 61784 — Industrial Communication Networks – Profiles  
+- IEC 62591 — WirelessHART Industrial Communication  
+- IEC 62601 — Wireless Systems for Industrial Automation (WIA-PA)  
+- ISO/IEC 14476 — Enhanced Communications Transport Protocol (QoS)  
+- ISO/IEC 17826 — Cloud Data Management Interface (CDMI)  
+- ISO/IEC 27033 — Network Security Standards  
+- IEC 62769 — Field Device Integration (FDI)  
+
+--- 
 
 ## 🧠 Insight
 Digital Twin infrastructure:
@@ -103,8 +109,10 @@ Intelligence & decision-making
 - Decision support  
 
 ## 📜 Key Standards
-- ISO 13374  
-- IEC 62453  
+- ISO 13374 (Series) — Condition Monitoring and Diagnostics of Machines  
+- IEC 62453 — Field Device Tool (FDT) Interface  
+
+---
 
 ## 🧠 Insight
 - Information → knowledge  
@@ -124,9 +132,11 @@ Decision → action
 - Feedback  
 
 ## 📜 Key Standards
-- IEC 61512  
-- IEC 62264  
-- IEC 61508  
+- IEC 61512 — Batch Control – Models and Terminology  
+- IEC 62264 — Enterprise-Control System Integration  
+- IEC 61508 — Functional Safety of Electrical/Electronic Systems  
+
+--- 
 
 ## 🧠 Insight
 - Cyber → physical action  
