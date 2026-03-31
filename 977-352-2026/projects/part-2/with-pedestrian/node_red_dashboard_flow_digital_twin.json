@@ -1,0 +1,716 @@
+[
+  {
+    "id": "f1a1b2c3d4e5f601",
+    "type": "tab",
+    "label": "ESP32 Smart Traffic Dashboard + Digital Twin",
+    "disabled": false,
+    "info": "Dashboard with traffic monitoring, manual control, pedestrian request, and digital twin intersection view."
+  },
+  {
+    "id": "ui_tab_traffic",
+    "type": "ui_tab",
+    "name": "Smart Traffic",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_status",
+    "type": "ui_group",
+    "name": "Intersection Status",
+    "tab": "ui_tab_traffic",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_charts",
+    "type": "ui_group",
+    "name": "Sensors and Queues",
+    "tab": "ui_tab_traffic",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_control",
+    "type": "ui_group",
+    "name": "Manual Control",
+    "tab": "ui_tab_traffic",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_twin",
+    "type": "ui_group",
+    "name": "Digital Twin",
+    "tab": "ui_tab_traffic",
+    "order": 4,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_broker_local",
+    "type": "mqtt-broker",
+    "name": "Mosquitto Local",
+    "broker": "127.0.0.1",
+    "port": "1883",
+    "clientid": "",
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willPayload": ""
+  },
+  {
+    "id": "mqtt_in_state",
+    "type": "mqtt in",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Traffic state",
+    "topic": "traffic/intersection1/state",
+    "qos": "0",
+    "datatype": "auto",
+    "broker": "mqtt_broker_local",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 120,
+    "y": 80,
+    "wires": [
+      [
+        "json_state"
+      ]
+    ]
+  },
+  {
+    "id": "json_state",
+    "type": "json",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Parse JSON",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 300,
+    "y": 80,
+    "wires": [
+      [
+        "fn_unpack"
+      ]
+    ]
+  },
+  {
+    "id": "fn_unpack",
+    "type": "function",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Unpack + twin state",
+    "func": "// Expected payload example:\n// {\n//   \"ew1\":1,\"ew2\":0,\"ns1\":1,\"ns2\":1,\n//   \"ew_queue\":0.6,\"ns_queue\":1.0,\n//   \"phase\":\"EW\",\"green_time\":12.5,\"action\":1,\n//   \"pedestrian\":1,\"walk_signal\":0\n// }\n\nconst p = msg.payload || {};\nconst phase = p.phase || 'EW';\n\nconst twin = {\n    phase: phase,\n    green_time: Number(p.green_time || 0),\n    action: Number(p.action || 0),\n    ew1: Number(p.ew1 || 0),\n    ew2: Number(p.ew2 || 0),\n    ns1: Number(p.ns1 || 0),\n    ns2: Number(p.ns2 || 0),\n    ew_queue: Number(p.ew_queue || 0),\n    ns_queue: Number(p.ns_queue || 0),\n    pedestrian: Number(p.pedestrian || 0),\n    walk_signal: Number(p.walk_signal || 0),\n    ew_red: phase === 'NS' ? 1 : 0,\n    ew_yellow: p.ew_yellow ? 1 : 0,\n    ew_green: phase === 'EW' ? 1 : 0,\n    ns_red: phase === 'EW' ? 1 : 0,\n    ns_yellow: p.ns_yellow ? 1 : 0,\n    ns_green: phase === 'NS' ? 1 : 0\n};\n\nreturn [\n    {payload: phase},\n    {payload: Number(p.green_time || 0), topic: 'Green Time'},\n    {payload: Number(p.action || 0)},\n    {payload: Number(p.pedestrian || 0) ? 'Requested' : 'None'},\n    {payload: Number(p.walk_signal || 0)},\n    {payload: Number(p.ew1 || 0)},\n    {payload: Number(p.ew2 || 0)},\n    {payload: Number(p.ns1 || 0)},\n    {payload: Number(p.ns2 || 0)},\n    {topic:'EW Queue', payload: Number(p.ew_queue || 0)},\n    {topic:'NS Queue', payload: Number(p.ns_queue || 0)},\n    {topic:'Ped Request', payload: Number(p.pedestrian || 0)},\n    {payload: twin},\n    {payload: p}\n];\n",
+    "outputs": 14,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 520,
+    "y": 80,
+    "wires": [
+      [
+        "ui_phase"
+      ],
+      [
+        "ui_green_time",
+        "chart_green"
+      ],
+      [
+        "ui_action"
+      ],
+      [
+        "ped_status_text"
+      ],
+      [
+        "ped_walk_indicator"
+      ],
+      [
+        "gauge_ew1"
+      ],
+      [
+        "gauge_ew2"
+      ],
+      [
+        "gauge_ns1"
+      ],
+      [
+        "gauge_ns2"
+      ],
+      [
+        "chart_queue"
+      ],
+      [
+        "chart_queue"
+      ],
+      [
+        "ped_chart"
+      ],
+      [
+        "ui_digital_twin",
+        "ui_twin_json"
+      ],
+      [
+        "debug_state"
+      ]
+    ]
+  },
+  {
+    "id": "ui_phase",
+    "type": "ui_text",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_status",
+    "order": 1,
+    "width": "4",
+    "height": "1",
+    "name": "Current phase",
+    "label": "Current Phase",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 800,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "ui_green_time",
+    "type": "ui_text",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_status",
+    "order": 2,
+    "width": "4",
+    "height": "1",
+    "name": "Green time",
+    "label": "Green Time (s)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 800,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "ui_action",
+    "type": "ui_text",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_status",
+    "order": 3,
+    "width": "4",
+    "height": "1",
+    "name": "Predicted action",
+    "label": "Predicted Action",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 800,
+    "y": 120,
+    "wires": []
+  },
+  {
+    "id": "ped_status_text",
+    "type": "ui_text",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_status",
+    "order": 4,
+    "width": "4",
+    "height": "1",
+    "name": "Pedestrian status",
+    "label": "Pedestrian Request",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 800,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "ped_walk_indicator",
+    "type": "ui_gauge",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Walk signal",
+    "group": "ui_group_status",
+    "order": 5,
+    "width": "4",
+    "height": "3",
+    "gtype": "gage",
+    "title": "Walk Signal",
+    "label": "walk",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 800,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "gauge_ew1",
+    "type": "ui_gauge",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "EW S1",
+    "group": "ui_group_charts",
+    "order": 1,
+    "width": "3",
+    "height": "3",
+    "gtype": "gage",
+    "title": "EW Sensor 1",
+    "label": "occupancy",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 800,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "gauge_ew2",
+    "type": "ui_gauge",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "EW S2",
+    "group": "ui_group_charts",
+    "order": 2,
+    "width": "3",
+    "height": "3",
+    "gtype": "gage",
+    "title": "EW Sensor 2",
+    "label": "occupancy",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 800,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "gauge_ns1",
+    "type": "ui_gauge",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "NS S1",
+    "group": "ui_group_charts",
+    "order": 3,
+    "width": "3",
+    "height": "3",
+    "gtype": "gage",
+    "title": "NS Sensor 1",
+    "label": "occupancy",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 800,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "gauge_ns2",
+    "type": "ui_gauge",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "NS S2",
+    "group": "ui_group_charts",
+    "order": 4,
+    "width": "3",
+    "height": "3",
+    "gtype": "gage",
+    "title": "NS Sensor 2",
+    "label": "occupancy",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "",
+    "seg2": "",
+    "x": 800,
+    "y": 380,
+    "wires": []
+  },
+  {
+    "id": "chart_queue",
+    "type": "ui_chart",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Queue chart",
+    "group": "ui_group_charts",
+    "order": 5,
+    "width": "12",
+    "height": "4",
+    "label": "EW Queue vs NS Queue",
+    "chartType": "line",
+    "legend": "true",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": "1",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4",
+      "#d62728",
+      "#2ca02c"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 810,
+    "y": 430,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ped_chart",
+    "type": "ui_chart",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Pedestrian request chart",
+    "group": "ui_group_charts",
+    "order": 6,
+    "width": "12",
+    "height": "4",
+    "label": "Pedestrian Requests",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": true,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": "1",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": true,
+    "useUTC": false,
+    "colors": [
+      "#9467bd",
+      "#aec7e8",
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 810,
+    "y": 470,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_green",
+    "type": "ui_chart",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Green time chart",
+    "group": "ui_group_status",
+    "order": 6,
+    "width": "12",
+    "height": "4",
+    "label": "Elapsed Green Time",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "",
+    "removeOlder": "1",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": true,
+    "useUTC": false,
+    "colors": [
+      "#9467bd",
+      "#aec7e8",
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "x": 810,
+    "y": 510,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_dropdown_cmd",
+    "type": "ui_dropdown",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Manual command",
+    "label": "Manual Command",
+    "tooltip": "",
+    "place": "Select command",
+    "group": "ui_group_control",
+    "order": 1,
+    "width": "6",
+    "height": "1",
+    "passthru": true,
+    "multiple": false,
+    "options": [
+      {
+        "label": "Auto",
+        "value": "AUTO",
+        "type": "str"
+      },
+      {
+        "label": "Force EW Green",
+        "value": "FORCE_EW",
+        "type": "str"
+      },
+      {
+        "label": "Force NS Green",
+        "value": "FORCE_NS",
+        "type": "str"
+      }
+    ],
+    "payload": "",
+    "topic": "command",
+    "topicType": "str",
+    "x": 150,
+    "y": 560,
+    "wires": [
+      [
+        "fn_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "btn_reset",
+    "type": "ui_button",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Reset stats",
+    "group": "ui_group_control",
+    "order": 2,
+    "width": "3",
+    "height": "1",
+    "passthru": false,
+    "label": "Reset",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "",
+    "payload": "RESET",
+    "payloadType": "str",
+    "topic": "command",
+    "topicType": "msg",
+    "x": 140,
+    "y": 600,
+    "wires": [
+      [
+        "fn_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ped_button_dashboard",
+    "type": "ui_button",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Pedestrian Request",
+    "group": "ui_group_control",
+    "order": 3,
+    "width": "4",
+    "height": "1",
+    "passthru": false,
+    "label": "Pedestrian Crossing",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "fa-male",
+    "payload": "PED_REQUEST",
+    "payloadType": "str",
+    "topic": "pedestrian",
+    "x": 160,
+    "y": 640,
+    "wires": [
+      [
+        "ped_command_function"
+      ]
+    ]
+  },
+  {
+    "id": "fn_cmd",
+    "type": "function",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Build command JSON",
+    "func": "msg.topic = 'traffic/intersection1/cmd';\nmsg.payload = {command: msg.payload || msg.topic};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 400,
+    "y": 580,
+    "wires": [
+      [
+        "mqtt_out_cmd",
+        "debug_cmd"
+      ]
+    ]
+  },
+  {
+    "id": "ped_command_function",
+    "type": "function",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Pedestrian Command JSON",
+    "func": "msg.topic = 'traffic/intersection1/cmd';\nmsg.payload = {command: 'PED_REQUEST', pedestrian: 1};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 410,
+    "y": 640,
+    "wires": [
+      [
+        "mqtt_out_cmd",
+        "ped_debug"
+      ]
+    ]
+  },
+  {
+    "id": "mqtt_out_cmd",
+    "type": "mqtt out",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Publish command",
+    "topic": "",
+    "qos": "",
+    "retain": "",
+    "respTopic": "",
+    "contentType": "",
+    "userProps": "",
+    "correl": "",
+    "expiry": "",
+    "broker": "mqtt_broker_local",
+    "x": 660,
+    "y": 600,
+    "wires": []
+  },
+  {
+    "id": "ui_digital_twin",
+    "type": "ui_template",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_twin",
+    "name": "Intersection Digital Twin",
+    "order": 1,
+    "width": "12",
+    "height": "10",
+    "format": "<style>\n  .twin-wrap{padding:8px;background:#f7f7f7;border-radius:10px}\n  .twin-title{font-weight:600;margin-bottom:8px}\n  .twin-meta{font-size:13px;margin:6px 0 10px 0}\n  .lamp{stroke:#333;stroke-width:2}\n  .lane-label{font-size:12px;fill:#333;font-family:sans-serif}\n  .sensor-on{fill:#111}\n  .sensor-off{fill:#ddd}\n  .road{fill:#444}\n  .mark{stroke:#fff;stroke-width:3;stroke-dasharray:8 8}\n</style>\n<div class=\"twin-wrap\">\n  <div class=\"twin-title\">Digital Twin: Single Intersection</div>\n  <div class=\"twin-meta\">\n    Phase: <b>{{msg.payload.phase}}</b> |\n    Green Time: <b>{{msg.payload.green_time}}</b> s |\n    Action: <b>{{msg.payload.action}}</b> |\n    Pedestrian: <b>{{msg.payload.pedestrian ? 'Requested' : 'None'}}</b> |\n    Walk: <b>{{msg.payload.walk_signal ? 'ON' : 'OFF'}}</b>\n  </div>\n\n  <svg viewBox=\"0 0 600 420\" width=\"100%\" height=\"360\">\n    <!-- roads -->\n    <rect class=\"road\" x=\"0\" y=\"150\" width=\"600\" height=\"120\"></rect>\n    <rect class=\"road\" x=\"240\" y=\"0\" width=\"120\" height=\"420\"></rect>\n\n    <!-- lane marks -->\n    <line class=\"mark\" x1=\"0\" y1=\"210\" x2=\"230\" y2=\"210\"></line>\n    <line class=\"mark\" x1=\"370\" y1=\"210\" x2=\"600\" y2=\"210\"></line>\n    <line class=\"mark\" x1=\"300\" y1=\"0\" x2=\"300\" y2=\"140\"></line>\n    <line class=\"mark\" x1=\"300\" y1=\"280\" x2=\"300\" y2=\"420\"></line>\n\n    <!-- crosswalks -->\n    <rect x=\"220\" y=\"136\" width=\"160\" height=\"10\" fill=\"{{msg.payload.walk_signal ? '#34c759' : '#cccccc'}}\"></rect>\n    <rect x=\"220\" y=\"274\" width=\"160\" height=\"10\" fill=\"{{msg.payload.walk_signal ? '#34c759' : '#cccccc'}}\"></rect>\n    <rect x=\"226\" y=\"130\" width=\"10\" height=\"160\" fill=\"{{msg.payload.walk_signal ? '#34c759' : '#cccccc'}}\"></rect>\n    <rect x=\"364\" y=\"130\" width=\"10\" height=\"160\" fill=\"{{msg.payload.walk_signal ? '#34c759' : '#cccccc'}}\"></rect>\n\n    <!-- EW traffic light -->\n    <circle class=\"lamp\" cx=\"180\" cy=\"125\" r=\"16\" fill=\"{{msg.payload.ew_red ? '#ff3b30' : '#555'}}\"></circle>\n    <circle class=\"lamp\" cx=\"180\" cy=\"155\" r=\"16\" fill=\"{{msg.payload.ew_yellow ? '#ffd60a' : '#555'}}\"></circle>\n    <circle class=\"lamp\" cx=\"180\" cy=\"185\" r=\"16\" fill=\"{{msg.payload.ew_green ? '#34c759' : '#555'}}\"></circle>\n\n    <!-- NS traffic light -->\n    <circle class=\"lamp\" cx=\"415\" cy=\"300\" r=\"16\" fill=\"{{msg.payload.ns_red ? '#ff3b30' : '#555'}}\"></circle>\n    <circle class=\"lamp\" cx=\"445\" cy=\"300\" r=\"16\" fill=\"{{msg.payload.ns_yellow ? '#ffd60a' : '#555'}}\"></circle>\n    <circle class=\"lamp\" cx=\"475\" cy=\"300\" r=\"16\" fill=\"{{msg.payload.ns_green ? '#34c759' : '#555'}}\"></circle>\n\n    <!-- sensor indicators -->\n    <circle cx=\"80\" cy=\"175\" r=\"12\" fill=\"{{msg.payload.ew1 ? '#111' : '#ddd'}}\" stroke=\"#333\" stroke-width=\"2\"></circle>\n    <circle cx=\"205\" cy=\"175\" r=\"12\" fill=\"{{msg.payload.ew2 ? '#111' : '#ddd'}}\" stroke=\"#333\" stroke-width=\"2\"></circle>\n    <circle cx=\"270\" cy=\"70\" r=\"12\" fill=\"{{msg.payload.ns1 ? '#111' : '#ddd'}}\" stroke=\"#333\" stroke-width=\"2\"></circle>\n    <circle cx=\"270\" cy=\"145\" r=\"12\" fill=\"{{msg.payload.ns2 ? '#111' : '#ddd'}}\" stroke=\"#333\" stroke-width=\"2\"></circle>\n\n    <!-- vehicle blocks EW -->\n    <rect x=\"40\" y=\"228\" width=\"{{20 + (msg.payload.ew_queue * 120)}}\" height=\"18\" fill=\"#5ac8fa\"></rect>\n    <rect x=\"440\" y=\"174\" width=\"{{20 + (msg.payload.ew_queue * 120)}}\" height=\"18\" fill=\"#5ac8fa\"></rect>\n\n    <!-- vehicle blocks NS -->\n    <rect x=\"258\" y=\"20\" width=\"18\" height=\"{{20 + (msg.payload.ns_queue * 120)}}\" fill=\"#ff9f0a\"></rect>\n    <rect x=\"324\" y=\"280\" width=\"18\" height=\"{{20 + (msg.payload.ns_queue * 120)}}\" fill=\"#ff9f0a\"></rect>\n\n    <!-- pedestrian icon -->\n    <circle cx=\"520\" cy=\"70\" r=\"12\" fill=\"{{msg.payload.pedestrian ? '#af52de' : '#ccc'}}\"></circle>\n    <rect x=\"515\" y=\"82\" width=\"10\" height=\"26\" fill=\"{{msg.payload.pedestrian ? '#af52de' : '#ccc'}}\"></rect>\n    <line x1=\"520\" y1=\"92\" x2=\"505\" y2=\"112\" stroke=\"{{msg.payload.pedestrian ? '#af52de' : '#ccc'}}\" stroke-width=\"4\"></line>\n    <line x1=\"520\" y1=\"92\" x2=\"535\" y2=\"112\" stroke=\"{{msg.payload.pedestrian ? '#af52de' : '#ccc'}}\" stroke-width=\"4\"></line>\n    <line x1=\"520\" y1=\"108\" x2=\"508\" y2=\"132\" stroke=\"{{msg.payload.pedestrian ? '#af52de' : '#ccc'}}\" stroke-width=\"4\"></line>\n    <line x1=\"520\" y1=\"108\" x2=\"532\" y2=\"132\" stroke=\"{{msg.payload.pedestrian ? '#af52de' : '#ccc'}}\" stroke-width=\"4\"></line>\n\n    <!-- labels -->\n    <text x=\"62\" y=\"156\" class=\"lane-label\">EW S1</text>\n    <text x=\"186\" y=\"156\" class=\"lane-label\">EW S2</text>\n    <text x=\"250\" y=\"54\" class=\"lane-label\">NS S1</text>\n    <text x=\"250\" y=\"129\" class=\"lane-label\">NS S2</text>\n    <text x=\"120\" y=\"115\" class=\"lane-label\">EW Light</text>\n    <text x=\"410\" y=\"332\" class=\"lane-label\">NS Light</text>\n    <text x=\"485\" y=\"150\" class=\"lane-label\">Pedestrian</text>\n    <text x=\"30\" y=\"205\" class=\"lane-label\">EW Queue</text>\n    <text x=\"345\" y=\"25\" class=\"lane-label\">NS Queue</text>\n  </svg>\n</div>",
+    "storeOutMessages": true,
+    "fwdInMessages": true,
+    "resendOnRefresh": true,
+    "templateScope": "local",
+    "className": "",
+    "x": 830,
+    "y": 680,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ui_twin_json",
+    "type": "ui_text",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_twin",
+    "name": "Twin summary",
+    "order": 2,
+    "width": "12",
+    "height": "2",
+    "label": "Twin Summary",
+    "format": "EWq={{msg.payload.ew_queue}} | NSq={{msg.payload.ns_queue}} | Walk={{msg.payload.walk_signal}} | Ped={{msg.payload.pedestrian}}",
+    "layout": "row-spread",
+    "x": 820,
+    "y": 720,
+    "wires": []
+  },
+  {
+    "id": "debug_state",
+    "type": "debug",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "state debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 800,
+    "y": 760,
+    "wires": []
+  },
+  {
+    "id": "debug_cmd",
+    "type": "debug",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "cmd debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 660,
+    "y": 540,
+    "wires": []
+  },
+  {
+    "id": "ped_debug",
+    "type": "debug",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "pedestrian debug",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 660,
+    "y": 680,
+    "wires": []
+  }
+]
