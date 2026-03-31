@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ped_button_dashboard",
+    "type": "ui_button",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Pedestrian Request",
+    "group": "ui_group_control",
+    "order": 3,
+    "width": "4",
+    "height": "1",
+    "passthru": false,
+    "label": "Pedestrian Crossing",
+    "tooltip": "",
+    "color": "",
+    "bgcolor": "",
+    "icon": "fa-male",
+    "payload": "PED_REQUEST",
+    "payloadType": "str",
+    "topic": "pedestrian",
+    "x": 180,
+    "y": 560,
+    "wires": [
+      [
+        "ped_command_function"
+      ]
+    ]
+  },
+  {
+    "id": "ped_command_function",
+    "type": "function",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Pedestrian Command JSON",
+    "func": "msg.topic = 'traffic/intersection1/cmd';\nmsg.payload = {\n    command: 'PED_REQUEST',\n    pedestrian: 1\n};\nreturn msg;",
+    "outputs": 1,
+    "x": 430,
+    "y": 560,
+    "wires": [
+      [
+        "mqtt_out_cmd",
+        "ped_debug"
+      ]
+    ]
+  },
+  {
+    "id": "ped_status_text",
+    "type": "ui_text",
+    "z": "f1a1b2c3d4e5f601",
+    "group": "ui_group_status",
+    "order": 5,
+    "width": "4",
+    "height": "1",
+    "name": "Pedestrian Status",
+    "label": "Pedestrian",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "x": 820,
+    "y": 480,
+    "wires": []
+  },
+  {
+    "id": "ped_walk_indicator",
+    "type": "ui_gauge",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Walk Signal",
+    "group": "ui_group_status",
+    "order": 6,
+    "width": "4",
+    "height": "3",
+    "gtype": "gage",
+    "title": "Walk Signal",
+    "label": "walk",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "1",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "x": 830,
+    "y": 520,
+    "wires": []
+  },
+  {
+    "id": "ped_chart",
+    "type": "ui_chart",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "Pedestrian Request Chart",
+    "group": "ui_group_charts",
+    "order": 6,
+    "width": "12",
+    "height": "4",
+    "label": "Pedestrian Requests",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "No data",
+    "dot": true,
+    "ymin": "0",
+    "ymax": "1",
+    "removeOlder": "1",
+    "removeOlderUnit": "3600",
+    "x": 830,
+    "y": 560,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "ped_debug",
+    "type": "debug",
+    "z": "f1a1b2c3d4e5f601",
+    "name": "pedestrian debug",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 690,
+    "y": 600,
+    "wires": []
+  }
+]
