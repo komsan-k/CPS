@@ -41,7 +41,7 @@ It is widely used in:
 ### International Standards
 - ISO/IEC 30141 – Data Management & Context  
 - ISO/IEC 21823 – IoT interoperability  
-- OGC SensorML (de facto standard)  
+- ISO/TS 19130-3 - OGC SensorML (de facto standard)  
 
 ✔ Enables meaningful cyber representation  
 
