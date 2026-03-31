@@ -1,5 +1,5 @@
 # Final Course Project Instruction 10% 
-# Smart Traffic Light Controller Using ESP32 + TFLM + Node-RED
+# Smart Traffic Light Controller Using ESP32 + TFLM + Node-RED Digital-Twin
 
 ## 1. Project Overview
 Design and implement a **Cyber-Physical System (CPS)-based intelligent traffic light controller** using:
