@@ -57,9 +57,9 @@ Hands-on labs are a **major part of this course**. You will work on:
 
 | Component | Weight |
 |---------|--------|
-| Laboratory Work | 40% |
-| Course Project | 20% |
-| Quizzes | 20% |
+| Laboratory Work | 25% |
+| Course Project | 30% |
+| Quizzes | 25% |
 | Final Exam (Coursera) | 20% |
 
 📘 **Final Exam:**  
