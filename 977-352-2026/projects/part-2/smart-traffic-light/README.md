@@ -157,7 +157,7 @@ case MINOR_GREEN:
 
 ---
 
-## 🚀 Extensions
+## 🚀 Challeges 
 - Dual buttons  
 - Buzzer  
 - Countdown timer  
