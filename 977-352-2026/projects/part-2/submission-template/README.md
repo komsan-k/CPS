@@ -42,20 +42,48 @@ Insert screenshots and explain the flow.
 
 ---
 
-## 6. Experimental Results
-Include at least 3 scenarios.
+## 6. Experimental Results  
+Include **at least 4 scenarios**.
 
 ### Scenario A: Major Road Heavy
-- Observation:
-- Result:
+- **Observation:**  
+  East–West road shows high traffic density with frequent vehicle arrivals, while North–South traffic remains low.
+
+- **Result:**  
+  The controller maintains a longer green phase for the East–West direction to reduce queue buildup and average waiting time.
+
+---
 
 ### Scenario B: Minor Road Congested
-- Observation:
-- Result:
+- **Observation:**  
+  North–South road experiences a significant queue buildup, while East–West traffic decreases.
+
+- **Result:**  
+  The controller switches phase earlier to provide priority to the North–South road.
+
+---
 
 ### Scenario C: Balanced Traffic
-- Observation:
-- Result:
+- **Observation:**  
+  Both roads have similar traffic density and queue length.
+
+- **Result:**  
+  The controller performs adaptive phase switching with balanced green-time allocation.
+
+---
+
+### Scenario D: Pedestrian Crossing Request
+- **Observation:**  
+  A pedestrian push-button or pedestrian sensor is activated while the current vehicle phase is green.
+
+- **Result:**  
+  The controller waits until the minimum green time is satisfied, then safely transitions through:
+  - yellow phase
+  - all-red interval
+  - pedestrian crossing phase (walk signal)
+
+  After the pedestrian crossing interval, the controller resumes normal adaptive traffic operation.
+
 
 ---
 
