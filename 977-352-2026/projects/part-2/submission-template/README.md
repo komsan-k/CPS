@@ -107,7 +107,5 @@ Summarize key outcomes and learning achievements.
 ---
 
 ## 10. Appendix
-- source code
 - screenshots
-- video link
-- GitHub / Drive link
+
