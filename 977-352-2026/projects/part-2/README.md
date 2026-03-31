@@ -53,7 +53,7 @@ MQTT + Node-RED Dashboard
 | AI model training | 2 |
 | Testing & evaluation | 1 |
 | Report quality | 1 |
-| Final presentation | 1 |
+| Final presentation | 2 |
 | **Total** | **10** |
 
 ## 6. Bonus
