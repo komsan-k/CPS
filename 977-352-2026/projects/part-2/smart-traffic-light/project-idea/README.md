@@ -1,4 +1,4 @@
-# Big Idea -- Smart Traffic Light Controller Using TensorFlow Lite for Microcontrollers (TFLM)
+# Big Idea -- Smart Traffic Light Controller Using TFLM
 
 ## 1. Overview
 This project presents a **smart traffic light controller for a single intersection** using **TensorFlow Lite for Microcontrollers (TFLM)** running on an **ESP32**.
