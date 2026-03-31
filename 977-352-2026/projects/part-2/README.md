@@ -47,14 +47,14 @@ MQTT + Node-RED Dashboard
 ## 5. Grading Rubric
 | Component | Marks |
 |---|---:|
-| Hardware implementation | 1 |
-| ESP32 + TFLM code | 1 |
-| Node-RED dashboard | 2 |
-| AI model training | 2 |
-| Testing & evaluation | 1 |
-| Report quality | 1 |
-| Final presentation | 2 |
-| **Total** | **10** |
+| Hardware implementation | 2 |
+| ESP32 + TFLM code | 2 |
+| Node-RED dashboard |3 |
+| AI model training | 3 |
+| Testing & evaluation | 4 |
+| Report quality | 3 |
+| Final presentation | 3 |
+| **Total** | **20** |
 
 ## 6. Addition
 Pedestrian crossing, emergency priority, digital twin
