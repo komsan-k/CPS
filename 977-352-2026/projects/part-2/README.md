@@ -41,8 +41,8 @@ MQTT + Node-RED Dashboard
 - `train_model.py`
 - `model_data.h`
 - Node-RED flow JSON
-- PNG architecture diagram
-- 5–10 minute demo video
+- Architecture diagram
+- 5–10 minute demo 
 
 ## 5. Grading Rubric
 | Component | Marks |
@@ -56,5 +56,5 @@ MQTT + Node-RED Dashboard
 | Final presentation | 2 |
 | **Total** | **10** |
 
-## 6. Bonus
-Optional: pedestrian crossing, emergency priority, cloud logging, digital twin
+## 6. Addition
+Pedestrian crossing, emergency priority, digital twin
