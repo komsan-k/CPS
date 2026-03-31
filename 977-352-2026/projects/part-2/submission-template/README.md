@@ -26,13 +26,7 @@ Insert the architecture diagram here.
 ---
 
 ## 4. Hardware Setup
-List components used.
-
-| Component | Quantity | Description |
-|---|---:|---|
-| ESP32 | | |
-| Sensors | | |
-| LEDs | | |
+List components used and functions.
 
 ---
 
