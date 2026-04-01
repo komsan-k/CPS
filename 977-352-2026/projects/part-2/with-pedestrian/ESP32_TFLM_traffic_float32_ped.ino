@@ -21,6 +21,8 @@
 
 #include <Arduino.h>
 
+#include <tflm_esp32.h> 
+
 // ----- TFLM -----
 #include "TensorFlowLite.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
