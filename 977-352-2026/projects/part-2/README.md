@@ -4,7 +4,7 @@
 
 ---
 
-The **Final Course Project** contributes **5% of the total course grade**.
+## The **Final Course Project** contributes **5% of the total course grade**.
 
 Students are required to complete the **Smart Traffic Light Controller Using ESP32 + TFLM + Node-RED** as the final project.
 
@@ -12,10 +12,10 @@ The project will be assessed in **two submission stages**.
 
 ---
 
-## 1. Progress Report — 8 April
+### 1. Progress Report — 8 April
 **Submission Deadline:** **8 April**
 
-### Required Contents
+#### Required Contents
 - Project title and information
 - Project overview
 - System architecture diagram
@@ -23,7 +23,7 @@ The project will be assessed in **two submission stages**.
 - Current results
 - Problems / challenges
 
-### Progress Report Marks (2%)
+#### Progress Report Marks (2%)
 | Item | Marks |
 |---|---:|
 | project progress | 0.5 |
@@ -34,17 +34,17 @@ The project will be assessed in **two submission stages**.
 
 ---
 
-## 2. Final Report and Demonstration — 20 April
+### 2. Final Report and Demonstration — 20 April
 **Submission Deadline:** **20 April**
 
-### Required Final Submission
+#### Required Final Submission
 - Final technical report
 - Complete source code
 - Node-RED flow
 - Trained model
 - Digital twin
 
-### Final Report Marks (3%)
+#### Final Report Marks (3%)
 | Item | Marks |
 |---|---:|
 | final implementation | 1 |
@@ -54,7 +54,7 @@ The project will be assessed in **two submission stages**.
 
 ---
 
-## Total Final Course Project Marks
+### Total Final Course Project Marks
 | Stage | Marks |
 |---|---:|
 | Progress Report (8 Apr) | 2 |
