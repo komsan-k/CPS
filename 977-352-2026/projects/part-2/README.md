@@ -3,7 +3,6 @@
 # Smart Traffic Light Controller Using ESP32 + TFLM + Node-RED Digital-Twin
 
 ---
----
 
 # Final Course Project Instruction (10%)
 
@@ -67,7 +66,6 @@ The project will be assessed in **two submission stages**.
 | Final Report (20 Apr) | 6 |
 | **Total** | **10** |
 
----
 ---
 
 ## 1. Project Overview
