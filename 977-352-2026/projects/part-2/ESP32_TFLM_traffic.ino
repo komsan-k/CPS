@@ -42,19 +42,19 @@
 // Pin assignment
 // -----------------------------
 // Traffic sensors
-static const int EW_S1_PIN = 34;   // upstream EW
+static const int EW_S1_PIN = 14;   // upstream EW
 static const int EW_S2_PIN = 35;   // stop-line EW
-static const int NS_S1_PIN = 32;   // upstream NS
+static const int NS_S1_PIN = 16;   // upstream NS
 static const int NS_S2_PIN = 33;   // stop-line NS
 
 // Traffic lights
-static const int EW_RED_PIN    = 14;
-static const int EW_YELLOW_PIN = 27;
-static const int EW_GREEN_PIN  = 26;
+static const int EW_RED_PIN    = 23;
+static const int EW_YELLOW_PIN = 19;
+static const int EW_GREEN_PIN  = 18;
 
-static const int NS_RED_PIN    = 25;
-static const int NS_YELLOW_PIN = 18;
-static const int NS_GREEN_PIN  = 19;
+static const int NS_RED_PIN    = 2;
+static const int NS_YELLOW_PIN = 13;
+static const int NS_GREEN_PIN  = 12;
 
 // -----------------------------
 // Safety timing (milliseconds)
