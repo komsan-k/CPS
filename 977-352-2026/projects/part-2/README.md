@@ -4,9 +4,7 @@
 
 ---
 
-# Final Course Project Instruction (10%)
-
-The **Final Course Project** contributes **10% of the total course grade**.
+The **Final Course Project** contributes **5% of the total course grade**.
 
 Students are required to complete the **Smart Traffic Light Controller Using ESP32 + TFLM + Node-RED** as the final project.
 
@@ -18,21 +16,21 @@ The project will be assessed in **two submission stages**.
 **Submission Deadline:** **8 April**
 
 ### Required Contents
-- Project title and team information
+- Project title and information
 - Project overview
 - System architecture diagram
 - Work completed
 - Current results
 - Problems / challenges
 
-### Progress Report Marks (4%)
+### Progress Report Marks (2%)
 | Item | Marks |
 |---|---:|
-| project progress | 1 |
-| architecture design | 1 |
-| preliminary implementation | 1 |
-| clarity of report | 1 |
-| **Total** | **4** |
+| project progress | 0.5 |
+| architecture design | 0.5 |
+| preliminary implementation | 0.5 |
+| clarity of report | 0.5 |
+| **Total** | **2** |
 
 ---
 
@@ -45,16 +43,13 @@ The project will be assessed in **two submission stages**.
 - Node-RED flow
 - Trained model
 - Digital twin
-- Demonstration video / live demo
 
-### Final Report Marks (6%)
+### Final Report Marks (3%)
 | Item | Marks |
 |---|---:|
-| final implementation | 2 |
+| final implementation | 1 |
 | TinyML model | 1 |
 | dashboard + digital twin | 1 |
-| report quality | 1 |
-| final presentation/demo | 1 |
 | **Total** | **6** |
 
 ---
@@ -62,9 +57,9 @@ The project will be assessed in **two submission stages**.
 ## Total Final Course Project Marks
 | Stage | Marks |
 |---|---:|
-| Progress Report (8 Apr) | 4 |
-| Final Report (20 Apr) | 6 |
-| **Total** | **10** |
+| Progress Report (8 Apr) | 2 |
+| Final Report (20 Apr) | 3 |
+| **Total** | **5** |
 
 ---
 
@@ -114,12 +109,11 @@ MQTT + Node-RED Dashboard
 ## 5. Grading Rubric
 | Component | Marks |
 |---|---:|
-| Hardware implementation | 2 |
 | ESP32 + TFLM code | 2 |
 | Node-RED dashboard |3 |
 | AI model training | 3 |
 | Testing & evaluation | 4 |
-| Report quality | 3 |
+| Report quality | 5 |
 | Final presentation | 3 |
 | **Total** | **20** |
 
