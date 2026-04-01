@@ -43,7 +43,13 @@ void setup() {
 }
 
 void loop() {
-  float x = randomFloat(0.75f, 1.05f);
+  //float x = randomFloat(0.75f, 1.05f);
+
+  int x = analogRead(36);
+
+  // Normalize to [0,1]
+  float x = (float)1.0f - (adc / 4095.0f);
+  
   float input[1] = {x};
 
   if (!tf.predict(input).isOk()) {
