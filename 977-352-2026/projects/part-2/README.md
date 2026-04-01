@@ -4,7 +4,7 @@
 
 ---
 
-## The **Final Course Project** contributes **5% of the total course grade**.
+## The report work of **Final Course Project** contributes **5% of the total course grade**.
 
 Students are required to complete the **Smart Traffic Light Controller Using ESP32 + TFLM + Node-RED** as the final project.
 
