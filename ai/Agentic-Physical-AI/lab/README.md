@@ -43,7 +43,7 @@ System loop:
 ### LDR
 
 ```text
-3.3V ---- LDR ----+---- GPIO34
+3.3V ---- LDR ----+---- GPIO36
                   |
                 10kΩ
                   |
