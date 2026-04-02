@@ -205,3 +205,128 @@ Expected: Agent does not override
 * Cyber → Node-RED dashboard
 * Cognition → LLM agent
 * Configuration → LED control
+
+## 13. Sample Node-RED Function for Guarding Output
+
+```cpp
+let decision = msg.payload.decision || "HOLD";
+
+if (decision !== "LED_ON" && decision !== "LED_OFF" && decision !== "HOLD") {
+    decision = "HOLD";
+}
+
+msg.payload = {
+    target: "esp32_lab_01",
+    action: decision
+};
+
+return msg;
+```
+## 14. Dashboard Design
+### Recommended Dashboard Widgets
+
+- **Gauge** for ADC value
+- **Text** for light level
+- **Text** for LED state
+- **Text** for current mode
+- **Chart** for ADC over time
+- **Button** for `MANUAL` mode
+- **Button** for `AUTO` mode
+- **Button** for `LED ON`
+- **Button** for `LED OFF`
+- **Text box** for agent reasoning
+- 
+## 15. Lab Procedure
+## Lab Procedure
+
+### Part A: Hardware Setup
+- Wire the LDR and LED to the ESP32
+- Upload the Arduino code
+- Confirm that the Serial Monitor works correctly
+
+### Part B: MQTT Test
+- Confirm that the ESP32 publishes telemetry
+- Confirm that Node-RED subscribes correctly
+
+### Part C: Dashboard
+- Build the dashboard widgets
+- Verify live sensor and system values
+
+### Part D: Manual Control
+- Send `LED_ON` and `LED_OFF` commands from the dashboard
+- Confirm the physical LED output
+
+### Part E: Rule-Based Control
+- Implement threshold-based control in Node-RED
+- Test by covering and uncovering the LDR
+
+### Part F: Agentic AI Control
+- Send telemetry context to the LLM
+- Receive reasoning and decision
+- Validate the output with the safety filter
+- Publish the safe command to the ESP32
+
+### Part G: Evaluation
+- Compare rule-based and agentic behavior
+- Observe delays, correctness, and stability
+## Lab Procedure
+
+### Part A: Hardware Setup
+- Wire the LDR and LED to the ESP32
+- Upload the Arduino code
+- Confirm that the Serial Monitor works correctly
+
+### Part B: MQTT Test
+- Confirm that the ESP32 publishes telemetry
+- Confirm that Node-RED subscribes correctly
+
+### Part C: Dashboard
+- Build the dashboard widgets
+- Verify live sensor and system values
+
+### Part D: Manual Control
+- Send `LED_ON` and `LED_OFF` commands from the dashboard
+- Confirm the physical LED output
+
+### Part E: Rule-Based Control
+- Implement threshold-based control in Node-RED
+- Test by covering and uncovering the LDR
+
+### Part F: Agentic AI Control
+- Send telemetry context to the LLM
+- Receive reasoning and decision
+- Validate the output with the safety filter
+- Publish the safe command to the ESP32
+
+### Part G: Evaluation
+- Compare rule-based and agentic behavior
+- Observe delays, correctness, and stability
+
+## 16. Example Experiments
+
+## Example Experiments
+
+### Scenario A: Dark Room
+- **Condition:** Cover the LDR
+- **Expected Agent Decision:** `LED_ON`
+
+### Scenario B: Bright Room
+- **Condition:** Shine a flashlight on the LDR
+- **Expected Agent Decision:** `LED_OFF`
+
+### Scenario C: Medium Light
+- **Condition:** Partially cover the LDR
+- **Expected Agent Decision:** `HOLD` or stable behavior
+
+### Scenario D: Manual Override
+- **Condition:** Set mode to `MANUAL`
+- **Expected Agent Decision:** The agent should **not change** the LED state
+
+## 17. Data Collection Table
+
+| Time | ADC  | Light Level | Mode | Agent Decision | Final Action | Correct? |
+| ---- | ---- | ----------- | ---- | -------------- | ------------ | -------- |
+| t1   | 950  | dark        | AUTO | LED_ON         | LED_ON       | Yes      |
+| t2   | 3200 | bright      | AUTO | LED_OFF        | LED_OFF      | Yes      |
+| t3   | 2100 | medium      | AUTO | HOLD           | HOLD         | Yes      |
+
