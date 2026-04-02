@@ -6,7 +6,7 @@ const char* ssid = "YOUR_WIFI";
 const char* password = "YOUR_PASSWORD";
 const char* mqtt_server = "192.168.1.10";
 
-const int LDR_PIN = 34;
+const int LDR_PIN = 36;
 const int LED_PIN = 2;
 const int BUTTON_PIN = 14;
 
