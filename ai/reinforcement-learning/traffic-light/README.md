@@ -1,4 +1,4 @@
-# README: Reinforcement Learning for Traffic Light Control using ESP32
+# Reinforcement Learning for Traffic Light Control using ESP32
 
 ## 1. Objective
 This lab demonstrates a **Q-learning based adaptive traffic light controller** for a two-road intersection using **ESP32**.
