@@ -1,0 +1,499 @@
+[
+  {
+    "id": "tab_rl_traffic",
+    "type": "tab",
+    "label": "RL Traffic Digital Twin",
+    "disabled": false,
+    "info": "Digital twin dashboard for ESP32 reinforcement-learning traffic light controller"
+  },
+  {
+    "id": "mqtt_broker_rl",
+    "type": "mqtt-broker",
+    "name": "Local MQTT Broker",
+    "broker": "127.0.0.1",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthRetain": "false",
+    "birthPayload": "",
+    "closeTopic": "",
+    "closeQos": "0",
+    "closeRetain": "false",
+    "closePayload": "",
+    "willTopic": "",
+    "willQos": "0",
+    "willRetain": "false",
+    "willPayload": ""
+  },
+  {
+    "id": "ui_tab_rl",
+    "type": "ui_tab",
+    "name": "RL Traffic",
+    "icon": "dashboard",
+    "disabled": false,
+    "hidden": false
+  },
+  {
+    "id": "ui_group_status",
+    "type": "ui_group",
+    "name": "Intersection Status",
+    "tab": "ui_tab_rl",
+    "order": 1,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_charts",
+    "type": "ui_group",
+    "name": "Live Charts",
+    "tab": "ui_tab_rl",
+    "order": 2,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "ui_group_log",
+    "type": "ui_group",
+    "name": "Decision Log",
+    "tab": "ui_tab_rl",
+    "order": 3,
+    "disp": true,
+    "width": "12",
+    "collapse": false
+  },
+  {
+    "id": "mqtt_state",
+    "type": "mqtt in",
+    "z": "tab_rl_traffic",
+    "name": "RL State JSON",
+    "topic": "traffic/rl/state",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "mqtt_broker_rl",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 140,
+    "y": 80,
+    "wires": [
+      [
+        "json_state"
+      ]
+    ]
+  },
+  {
+    "id": "json_state",
+    "type": "json",
+    "z": "tab_rl_traffic",
+    "name": "Parse State",
+    "property": "payload",
+    "action": "",
+    "pretty": false,
+    "x": 330,
+    "y": 80,
+    "wires": [
+      [
+        "prep_dashboard",
+        "format_log"
+      ]
+    ]
+  },
+  {
+    "id": "prep_dashboard",
+    "type": "function",
+    "z": "tab_rl_traffic",
+    "name": "Prepare Dashboard Fields",
+    "func": "const p = msg.payload || {};\nconst actionMap = {\n    0: 'EW_GREEN',\n    1: 'NS_GREEN'\n};\nconst qMap = {\n    0: 'Low',\n    1: 'Medium',\n    2: 'High'\n};\nreturn [\n    { payload: p.rawEW ?? 0 },\n    { payload: p.rawNS ?? 0 },\n    { payload: p.qEW ?? 0, topic: qMap[p.qEW] || String(p.qEW) },\n    { payload: p.qNS ?? 0, topic: qMap[p.qNS] || String(p.qNS) },\n    { payload: p.state ?? 0 },\n    { payload: actionMap[p.action] || p.action || 'UNKNOWN' },\n    { payload: Number(p.reward ?? 0).toFixed(2) },\n    { payload: p.updatedQ ?? 0 }\n];",
+    "outputs": 8,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 80,
+    "wires": [
+      [
+        "gauge_rawew",
+        "chart_rawew"
+      ],
+      [
+        "gauge_rawns",
+        "chart_rawns"
+      ],
+      [
+        "text_qew"
+      ],
+      [
+        "text_qns"
+      ],
+      [
+        "text_state"
+      ],
+      [
+        "text_action"
+      ],
+      [
+        "text_reward"
+      ],
+      [
+        "text_qvalue",
+        "chart_qvalue"
+      ]
+    ]
+  },
+  {
+    "id": "format_log",
+    "type": "function",
+    "z": "tab_rl_traffic",
+    "name": "Format Decision Log",
+    "func": "const p = msg.payload || {};\nconst actionMap = {0:'EW_GREEN',1:'NS_GREEN'};\nconst line = `[${new Date().toLocaleTimeString()}] rawEW=${p.rawEW ?? '-'} rawNS=${p.rawNS ?? '-'} qEW=${p.qEW ?? '-'} qNS=${p.qNS ?? '-'} state=${p.state ?? '-'} action=${actionMap[p.action] || p.action || '-'} reward=${Number(p.reward ?? 0).toFixed(2)} Q=${Number(p.updatedQ ?? 0).toFixed(2)}`;\nmsg.payload = line;\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 560,
+    "y": 140,
+    "wires": [
+      [
+        "log_join"
+      ]
+    ]
+  },
+  {
+    "id": "log_join",
+    "type": "function",
+    "z": "tab_rl_traffic",
+    "name": "Keep Last 12 Logs",
+    "func": "let lines = flow.get('rl_logs') || [];\nlines.unshift(msg.payload);\nlines = lines.slice(0, 12);\nflow.set('rl_logs', lines);\nmsg.payload = lines.join('\\n');\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 790,
+    "y": 140,
+    "wires": [
+      [
+        "text_log"
+      ]
+    ]
+  },
+  {
+    "id": "gauge_rawew",
+    "type": "ui_gauge",
+    "z": "tab_rl_traffic",
+    "name": "EW Sensor",
+    "group": "ui_group_status",
+    "order": 1,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "EW Raw Sensor",
+    "label": "ADC",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "1200",
+    "seg2": "2800",
+    "className": "",
+    "x": 830,
+    "y": 20,
+    "wires": []
+  },
+  {
+    "id": "gauge_rawns",
+    "type": "ui_gauge",
+    "z": "tab_rl_traffic",
+    "name": "NS Sensor",
+    "group": "ui_group_status",
+    "order": 2,
+    "width": 3,
+    "height": 3,
+    "gtype": "gage",
+    "title": "NS Raw Sensor",
+    "label": "ADC",
+    "format": "{{value}}",
+    "min": 0,
+    "max": "4095",
+    "colors": [
+      "#00b500",
+      "#e6e600",
+      "#ca3838"
+    ],
+    "seg1": "1200",
+    "seg2": "2800",
+    "className": "",
+    "x": 830,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "text_qew",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_status",
+    "order": 3,
+    "width": 3,
+    "height": 1,
+    "name": "qEW",
+    "label": "EW Queue Class",
+    "format": "{{msg.topic}} ({{msg.payload}})",
+    "layout": "row-spread",
+    "className": "",
+    "x": 820,
+    "y": 100,
+    "wires": []
+  },
+  {
+    "id": "text_qns",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_status",
+    "order": 4,
+    "width": 3,
+    "height": 1,
+    "name": "qNS",
+    "label": "NS Queue Class",
+    "format": "{{msg.topic}} ({{msg.payload}})",
+    "layout": "row-spread",
+    "className": "",
+    "x": 820,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "text_state",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_status",
+    "order": 5,
+    "width": 3,
+    "height": 1,
+    "name": "state",
+    "label": "State Index",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 820,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "text_action",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_status",
+    "order": 6,
+    "width": 3,
+    "height": 1,
+    "name": "action",
+    "label": "Chosen Action",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 830,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "text_reward",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_status",
+    "order": 7,
+    "width": 3,
+    "height": 1,
+    "name": "reward",
+    "label": "Reward",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 830,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "text_qvalue",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_status",
+    "order": 8,
+    "width": 3,
+    "height": 1,
+    "name": "qvalue",
+    "label": "Updated Q(s,a)",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "className": "",
+    "x": 840,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "chart_rawew",
+    "type": "ui_chart",
+    "z": "tab_rl_traffic",
+    "name": "EW Chart",
+    "group": "ui_group_charts",
+    "order": 1,
+    "width": 6,
+    "height": 4,
+    "label": "EW Sensor Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "2",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#1f77b4"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "className": "",
+    "x": 1060,
+    "y": 20,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_rawns",
+    "type": "ui_chart",
+    "z": "tab_rl_traffic",
+    "name": "NS Chart",
+    "group": "ui_group_charts",
+    "order": 2,
+    "width": 6,
+    "height": 4,
+    "label": "NS Sensor Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "0",
+    "ymax": "4095",
+    "removeOlder": "2",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#ff7f0e"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "className": "",
+    "x": 1060,
+    "y": 60,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "chart_qvalue",
+    "type": "ui_chart",
+    "z": "tab_rl_traffic",
+    "name": "Q Value Chart",
+    "group": "ui_group_charts",
+    "order": 3,
+    "width": 12,
+    "height": 4,
+    "label": "Updated Q(s,a) Trend",
+    "chartType": "line",
+    "legend": "false",
+    "xformat": "HH:mm:ss",
+    "interpolate": "linear",
+    "nodata": "",
+    "dot": false,
+    "ymin": "",
+    "ymax": "",
+    "removeOlder": "2",
+    "removeOlderPoints": "",
+    "removeOlderUnit": "3600",
+    "cutout": 0,
+    "useOneColor": false,
+    "useUTC": false,
+    "colors": [
+      "#2ca02c"
+    ],
+    "outputs": 1,
+    "useDifferentColor": false,
+    "className": "",
+    "x": 1070,
+    "y": 100,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "text_log",
+    "type": "ui_text",
+    "z": "tab_rl_traffic",
+    "group": "ui_group_log",
+    "order": 1,
+    "width": 12,
+    "height": 8,
+    "name": "Log",
+    "label": "Recent Decisions",
+    "format": "<pre style=\"white-space:pre-wrap\">{{msg.payload}}</pre>",
+    "layout": "col-center",
+    "className": "",
+    "x": 1040,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "inject_example",
+    "type": "inject",
+    "z": "tab_rl_traffic",
+    "name": "Example Test Payload",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"rawEW\":3100,\"rawNS\":900,\"qEW\":2,\"qNS\":0,\"state\":6,\"action\":0,\"reward\":1.20,\"updatedQ\":0.84}",
+    "payloadType": "json",
+    "x": 150,
+    "y": 140,
+    "wires": [
+      [
+        "prep_dashboard",
+        "format_log"
+      ]
+    ]
+  }
+]
