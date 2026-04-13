@@ -1,6 +1,6 @@
 /*
   ESP32 LDR Classifier without MQTT
-  - Reads LDR on GPIO34
+  - Reads LDR on GPIO36
   - Smooths signal with moving average
   - Normalizes ADC value
   - Classifies light level: DARK / NORMAL / BRIGHT
@@ -16,7 +16,7 @@
 // ===============================
 // Pins
 // ===============================
-const int LDR_PIN = 34;
+const int LDR_PIN = 36;
 const int LED_PIN = 2;
 
 // ===============================
