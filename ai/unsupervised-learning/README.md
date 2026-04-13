@@ -590,16 +590,8 @@ You can extend this lab in several ways:
 
 ---
 
-## 16. Example Research Titles
 
-- **Deploying Unsupervised Learning for LDR-Based Light State Discovery in an ESP32 Cyber-Physical System**
-- **An ESP32–Node-RED Digital Twin for Ambient Light Monitoring Using K-means Clustering**
-- **Edge Deployment of Unsupervised Light Classification for IoT Sensor Nodes**
-- **A CPS Lab Framework for Unsupervised Learning with LDR Sensors**
-
----
-
-## 17. Key Practical Note
+## 16. Key Practical Note
 
 After training, the main values to update are:
 
@@ -616,7 +608,7 @@ Also update:
 
 ---
 
-## 18. Conclusion
+## 17. Conclusion
 
 This lab shows a practical path for deploying **unsupervised learning on an LDR light sensor** in an **ESP32-based cyber-physical system**. The training phase is handled in Python with K-means, while the deployment phase uses lightweight threshold inference on the microcontroller. Combined with MQTT and Node-RED, the result is a simple but effective digital twin platform for intelligent light-state monitoring.
 
