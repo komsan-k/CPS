@@ -126,7 +126,4 @@ You can tune:
    - Predict future lux trend (simple AR / moving average)
    - Add “predictive maintenance” alert
 
----
 
-## License
-MIT (feel free to reuse for teaching and research)
