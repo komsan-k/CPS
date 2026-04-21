@@ -28,18 +28,10 @@ CPS Smart City: Sense → Convert → Model → Predict → Decide → Act → L
   5C Layer      |      Smart City Meaning        |         Example
   ------------------- | ----------------------------------| -----------------
   Connection    |      Sensors & IoT devices      |        Traffic cameras, air-quality sensors
-  Conversion    |      Data filtering & preprocessing  |   Noise removal,
-                                                         feature
-                                                         extraction
-
-  Cyber        |       Digital Twin & cloud platform    |  City-wide traffic
-                                                         twin
-
-  Cognition    |       AI analytics & prediction   |       Congestion
-                                                         forecasting
-
-  Configuration  |     Automated control & actuation   |   Adaptive traffic
-                                                         signals
+  Conversion    |      Data filtering & preprocessing  |   Noise removal, feature extraction
+  Cyber        |       Digital Twin & cloud platform    |  City-wide traffic twin
+  Cognition    |       AI analytics & prediction   |       Congestion forecasting
+  Configuration  |     Automated control & actuation   |   Adaptive traffic signals
   ------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
