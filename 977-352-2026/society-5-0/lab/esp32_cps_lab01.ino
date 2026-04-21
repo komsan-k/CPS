@@ -37,7 +37,7 @@ const char* DEVICE_ID = "esp32_lab01";
 // =========================
 // HARDWARE CONFIG
 // =========================
-const int PIN_LDR = 34;   // ADC1 pin recommended
+const int PIN_LDR = 36;   // ADC1 pin recommended
 const int PIN_LED = 2;    // Built-in LED on many ESP32 boards
 
 // =========================
