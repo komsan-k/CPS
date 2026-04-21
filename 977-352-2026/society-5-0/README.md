@@ -106,7 +106,7 @@ For researchers and practitioners in **CPS, IoT, and Digital Twin technologies**
 
 ---
 
-## 🧠 One-Line Takeaway
+## 🧠 Key Takeaway
 
 > **Society 5.0 is the vision of a super-smart, CPS-driven society where technology quietly works in the background to enhance human life.**
 
