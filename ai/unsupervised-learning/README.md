@@ -63,7 +63,7 @@ This is a practical example of **edge deployment of unsupervised learning** in a
 ### 4.1 LDR Voltage Divider
 
 ```text
-3.3V ---- LDR ----+---- GPIO34
+3.3V ---- LDR ----+---- GPIO36
                   |
                 10kΩ
                   |
@@ -78,7 +78,7 @@ GPIO2 ---- 220Ω ---- LED ---- GND
 
 Recommended pins:
 
-- **GPIO34** for LDR analog input
+- **GPIO36** for LDR analog input
 - **GPIO2** for optional LED output
 
 ---
@@ -108,7 +108,7 @@ Upload this simple sketch first to collect raw LDR values.
 ```cpp
 #include <WiFi.h>
 
-const int LDR_PIN = 34;
+const int LDR_PIN = 36;
 
 void setup() {
   Serial.begin(115200);
