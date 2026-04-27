@@ -1,8 +1,8 @@
 # Software-Defined Light Sensing: A Cyber-Physical and Edge-AI Framework for Adaptive and Intelligent LDR Systems
-
+<!--
 **Author:** Author Name, Member, IEEE  
 **Affiliation:** Department of Electrical Engineering, College of Computing, Prince of Songkla University, Thailand
-
+-->
 ---
 
 ## Abstract
