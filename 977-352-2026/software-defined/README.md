@@ -123,7 +123,7 @@ Phase control:
 
 ---
 
-### 5.3 Network Routing (Your Research)
+### 5.3 Network Routing 
 
 - Sigmoid-based adaptive cost functions  
 - Risk-aware routing  
