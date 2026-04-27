@@ -254,7 +254,7 @@ After training, copy the learned thresholds into the sketch below.
 // ===============================
 // Pins
 // ===============================
-const int LDR_PIN = 34;
+const int LDR_PIN = 36;
 const int LED_PIN = 2;
 
 // ===============================
