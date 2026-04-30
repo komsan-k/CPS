@@ -513,15 +513,15 @@ Summarize what was implemented, what was learned, and how the system demonstrate
 
 | Criterion | Max Score | Score |
 |---|---:|---:|
-| CPS architecture design | 15 | ____ |
-| ESP32 sensing and actuation | 15 | ____ |
-| MQTT communication | 10 | ____ |
-| Node-RED Digital Twin implementation | 15 | ____ |
-| Policy enforcement | 15 | ____ |
-| Human-in-the-loop dashboard | 10 | ____ |
-| Results and analysis | 10 | ____ |
-| Society 5.0 reflection | 10 | ____ |
-| **Total** | **100** | **____** |
+| CPS architecture design | 1.5 | ____ |
+| ESP32 sensing and actuation | 1.5 | ____ |
+| MQTT communication | 1 | ____ |
+| Node-RED Digital Twin implementation | 1.5 | ____ |
+| Policy enforcement | 1.5 | ____ |
+| Human-in-the-loop dashboard | 1 | ____ |
+| Results and analysis | 1 | ____ |
+| Society 5.0 reflection | 1 | ____ |
+| **Total** | **10** | **____** |
 
 **Instructor comments:**  
 ................................................................................  
