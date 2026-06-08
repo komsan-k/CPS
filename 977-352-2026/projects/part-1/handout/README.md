@@ -1,4 +1,4 @@
-# 🧑‍🎓 Midterm Project --- Digital Twin + TinyML (Student Handout)
+# 🧑‍🎓 Midterm Project --- Digital Twin + TinyML
 
 ## 🎯 Project Goal
 
@@ -20,7 +20,7 @@ Actuator → Visualization
 
 ------------------------------------------------------------------------
 
-## 🛠️ Project Steps (Simple View)
+## 🛠️ Project Steps
 
 ### Phase 1 --- Manual Control
 
@@ -77,7 +77,7 @@ Example: Bright / Normal / Dark prediction → control LED safely
 
 ------------------------------------------------------------------------
 
-## 📝 Report Template (Very Simple)
+## 📝 Report Template 
 
 1.  System Overview
 2.  Hardware Setup
